@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icône pour Android 5 à 7 (les versions suivantes prennent l'icône adaptative de mipmap-anydpi-v26) -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval"><solid android:color="@color/accent" /></shape>
+    </item>
+    <item android:drawable="@drawable/ic_avant" />
+</layer-list>

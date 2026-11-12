@@ -50,6 +50,13 @@ jobs:
         working-directory: android
         run: gradle assembleDebug --no-daemon -PappVersion=${{ steps.v.outputs.nom }} -PappCode=${{ steps.v.outputs.code }}
 
+      - name: Vérifier l'APK
+        run: |
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          BT=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -1)
+          $BT/aapt dump badging $APK | grep -E "^package|^sdkVersion|^targetSdkVersion|application-label:"
+          $BT/apksigner verify --verbose --min-sdk-version 21 $APK | head -6
+
       - name: Nommer l'APK
         run: cp android/app/build/outputs/apk/debug/app-debug.apk "caisse-a-outils-v${{ steps.v.outputs.nom }}.apk"
 
