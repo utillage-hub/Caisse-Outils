@@ -30,10 +30,27 @@ android {
         }
     }
 
+    // Clé privée : fournie par la compilation automatique à partir des secrets GitHub
+    // (CLE_SIGNATURE_BASE64 et CLE_SIGNATURE_MDP). Sans eux, on retombe sur la clé d'essai.
+    def clePrivee = System.getenv('CLE_FICHIER')
+    def cleMdp = System.getenv('CLE_MDP')
+    def avecClePrivee = clePrivee && cleMdp && file(clePrivee).exists()
+    if (avecClePrivee) {
+        signingConfigs {
+            privee {
+                storeFile file(clePrivee)
+                storePassword cleMdp
+                keyAlias 'caisse-outils'
+                keyPassword cleMdp
+            }
+        }
+    }
+    def signature = avecClePrivee ? signingConfigs.privee : signingConfigs.essai
+
     buildTypes {
-        debug { signingConfig signingConfigs.essai }
+        debug { signingConfig signature }
         release {
-            signingConfig signingConfigs.essai
+            signingConfig signature
             minifyEnabled false
         }
     }

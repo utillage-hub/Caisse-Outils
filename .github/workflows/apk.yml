@@ -46,8 +46,24 @@ jobs:
           curl -fsSL https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js -o android/app/src/main/assets/www/three.min.js
           ls -la android/app/src/main/assets/www
 
+      - name: Préparer la clé de signature
+        id: cle
+        env:
+          CLE_B64: ${{ secrets.CLE_SIGNATURE_BASE64 }}
+        run: |
+          if [ -n "$CLE_B64" ]; then
+            echo "$CLE_B64" | base64 -d > "$RUNNER_TEMP/cle.keystore"
+            echo "fichier=$RUNNER_TEMP/cle.keystore" >> "$GITHUB_OUTPUT"
+            echo "Signature : clé privée"
+          else
+            echo "Signature : clé d'essai (secrets absents)"
+          fi
+
       - name: Compiler l'APK
         working-directory: android
+        env:
+          CLE_FICHIER: ${{ steps.cle.outputs.fichier }}
+          CLE_MDP: ${{ secrets.CLE_SIGNATURE_MDP }}
         run: gradle assembleDebug --no-daemon -PappVersion=${{ steps.v.outputs.nom }} -PappCode=${{ steps.v.outputs.code }}
 
       - name: Vérifier l'APK
