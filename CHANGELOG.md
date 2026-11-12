@@ -1,5 +1,8 @@
 # Historique
 
+## v1.12
+- Matières › Traitements : fiche « Nitruration et nitrocarburation » (couches, profondeurs, duretés par nuance, procédés, post-oxydation, points à préciser à la commande).
+
 ## v1.11
 - Compatible avec le navigateur interne des tablettes Android 7 (Chrome 78) : page blanche corrigée. Syntaxe `??` et `?.` remplacée, et replis CSS pour `min()`/`max()`/`clamp()`, `inset`, les propriétés logiques et l'écart (`gap`) en flexbox.
 - `outils/verifier-compat.py` vérifie cette compatibilité à chaque compilation ; `outils/simuler-chrome78.py` rend la page comme Chrome 78 la verrait.
