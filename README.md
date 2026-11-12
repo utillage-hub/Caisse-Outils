@@ -17,7 +17,7 @@ python3 -m http.server 8080
 
 Chaque envoi sur `main` compile un APK d'essai (GitHub Actions, `.github/workflows/apk.yml`) et le publie dans **Releases › Dernier APK**. Pour l'installer : ouvrir le fichier `.apk` depuis le téléphone ou la tablette et autoriser l'installation. Les versions suivantes s'installent par-dessus.
 
-L'application a besoin d'un navigateur interne récent (Chrome 80 ou plus, sorti début 2020). Sur une tablette ancienne, mettre à jour **Android System WebView** et **Google Chrome** depuis le Play Store ; l'application affiche elle-même ce message si le moteur est trop ancien.
+L'application fonctionne à partir de **Chrome 78** (le navigateur interne des tablettes Android 7). `python3 outils/verifier-compat.py` le vérifie et la compilation échoue si une syntaxe trop récente est introduite ; `python3 outils/simuler-chrome78.py index.html chrome78.html` permet de regarder la page telle que ce moteur la rend. Si le moteur est malgré tout trop ancien, l'application l'affiche au lieu de rester blanche.
 
 Le dossier `android/` contient la coque : une WebView qui charge `index.html` embarqué (three.js compris, donc la 3D marche hors connexion), le partage et la dictée du téléphone pour l'outil de débogage, le vibreur pour le retour tactile. La clé `android/app/essai.keystore` est une clé d'essai publique : à remplacer avant une diffusion sur le Play Store.
 

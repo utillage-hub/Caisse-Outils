@@ -30,6 +30,9 @@ jobs:
         with:
           gradle-version: '8.7'
 
+      - name: Vérifier la compatibilité Chrome 78
+        run: python3 outils/verifier-compat.py index.html
+
       - name: Version de l'application
         id: v
         run: |

@@ -1,5 +1,9 @@
 # Historique
 
+## v1.11
+- Compatible avec le navigateur interne des tablettes Android 7 (Chrome 78) : page blanche corrigée. Syntaxe `??` et `?.` remplacée, et replis CSS pour `min()`/`max()`/`clamp()`, `inset`, les propriétés logiques et l'écart (`gap`) en flexbox.
+- `outils/verifier-compat.py` vérifie cette compatibilité à chaque compilation ; `outils/simuler-chrome78.py` rend la page comme Chrome 78 la verrait.
+
 ## v1.10
 - Démarrage sûr : si l'application ne peut pas se lancer (navigateur interne trop ancien, erreur JavaScript), un écran explique pourquoi et affiche le détail à transmettre, au lieu d'une page blanche.
 - APK installable à partir d'Android 5 (au lieu d'Android 8), signature vérifiée à chaque compilation.
