@@ -1,5 +1,8 @@
 # Historique
 
+## v1.8
+- Outil de débogage mis à jour vers la dernière version publiée (commit 678eaae du 12/11/2026) : onglet Interface (fermeture de la bulle, outils déplaçables et masquables, taille, couleurs reprises de l'appli), fenêtres d'outils déplaçables, notes réordonnables, « ‹ Précédente » en vérification. Entrée « Interface de l'outil » ajoutée dans Menu › Débogage.
+
 ## v1.7
 - Écran toujours allumé tant que la caisse est affichée (réglage dans le menu). En quittant l'appli, l'appareil reprend sa veille et son verrouillage habituels.
 
