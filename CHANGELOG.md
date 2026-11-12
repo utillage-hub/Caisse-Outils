@@ -1,5 +1,9 @@
 # Historique
 
+## v1.10
+- Démarrage sûr : si l'application ne peut pas se lancer (navigateur interne trop ancien, erreur JavaScript), un écran explique pourquoi et affiche le détail à transmettre, au lieu d'une page blanche.
+- APK installable à partir d'Android 5 (au lieu d'Android 8), signature vérifiée à chaque compilation.
+
 ## v1.9
 - Outil de débogage mis à jour sur la dernière version du dépôt `outil-debogage` (commit 271d5a9 : versions de l'appli et de l'outil visibles dans les réglages).
 

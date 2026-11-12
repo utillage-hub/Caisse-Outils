@@ -759,8 +759,59 @@ html.embed body::before{display:none}
 </style>
 </head>
 <body>
+<script>
+/* Démarrage sûr : si l'application ne peut pas se lancer (navigateur interne trop ancien,
+   erreur JavaScript...), on affiche le motif au lieu d'une page blanche.
+   Volontairement écrit en JavaScript ancien pour fonctionner même sur un très vieux WebView. */
+(function(){
+  var erreurs = [];
+  window.onerror = function(msg, src, lig){ erreurs.push(String(msg) + "  (" + String(src || "") + " ligne " + (lig || 0) + ")"); return false; };
+  function moteur(){ var m = / (?:Chrome|CriOS)\/(\d+)/.exec(navigator.userAgent); return m ? parseInt(m[1], 10) : 0; }
+  function detail(){
+    var v = document.querySelector(".ver");
+    var t = "Caisse à Outils " + (v ? v.textContent : "?") + " - démarrage impossible\n";
+    t += "Moteur : Chrome " + (moteur() || "inconnu") + "\n";
+    t += "Écran : " + screen.width + "x" + screen.height + "\n";
+    t += "Navigateur : " + navigator.userAgent + "\n";
+    if (!erreurs.length) t += "\nAucune erreur JavaScript signalée.";
+    for (var i = 0; i < erreurs.length && i < 6; i++) t += "\nErreur " + (i + 1) + " : " + erreurs[i] + "\n";
+    return t;
+  }
+  function afficher(){
+    if (window.__CO_OK) return;
+    var hote = document.getElementById("view") || document.body;
+    var vieux = moteur() && moteur() < 80;
+    var h = '<div style="margin:16px auto;max-width:640px;background:#fff;color:#2b2726;border:1px solid #d9d4d1;border-radius:10px;padding:18px;font:16px/1.45 system-ui,-apple-system,sans-serif">';
+    h += '<h2 style="margin:0 0 10px;font:600 20px system-ui,sans-serif">L\'application n\'a pas pu démarrer</h2>';
+    if (vieux) {
+      h += '<p style="margin:0 0 10px">Le navigateur interne de cet appareil est trop ancien (Chrome ' + moteur() + ') pour faire tourner la Caisse à Outils.</p>';
+      h += '<p style="margin:0 0 10px"><b>À faire :</b> ouvrir le Play Store, chercher <b>Android System WebView</b>, le mettre à jour, puis faire de même avec <b>Google Chrome</b>. Rouvrir ensuite la Caisse à Outils.</p>';
+    } else {
+      h += '<p style="margin:0 0 10px">Une erreur a empêché le chargement. Le détail ci-dessous permet de la corriger.</p>';
+    }
+    h += '<p style="margin:0 0 6px;color:#76706d;font-size:14px">Détail à envoyer :</p>';
+    h += '<textarea readonly style="width:100%;box-sizing:border-box;height:150px;font:12px/1.4 monospace;border:1px solid #d9d4d1;border-radius:8px;padding:8px;background:#f8f6f5;color:#2b2726"></textarea>';
+    h += '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">';
+    h += '<button id="coCopie" style="flex:1 1 140px;min-height:44px;border:0;border-radius:8px;background:#d9423a;color:#fff;font:600 15px system-ui,sans-serif">Copier le détail</button>';
+    h += '<button id="coRetry" style="flex:1 1 140px;min-height:44px;border:1px solid #d9d4d1;border-radius:8px;background:#fff;color:#2b2726;font:600 15px system-ui,sans-serif">Réessayer</button>';
+    h += '</div></div>';
+    hote.innerHTML = h;
+    var ta = hote.getElementsByTagName("textarea")[0];
+    ta.value = detail();
+    document.getElementById("coCopie").onclick = function(){
+      try { ta.focus(); ta.select(); document.execCommand("copy"); this.innerHTML = "Copié"; }
+      catch (e) { this.innerHTML = "Sélectionne le texte puis Copier"; }
+    };
+    document.getElementById("coRetry").onclick = function(){ location.reload(); };
+  }
+  function plusTard(){ setTimeout(afficher, 1500); }
+  if (window.addEventListener) window.addEventListener("load", plusTard, false);
+  else window.attachEvent("onload", plusTard);
+})();
+</script>
+
 <header>
-  <div class="bar"><div class="brand"><h1>Caisse à Outils</h1><span class="ver">v1.9</span></div>
+  <div class="bar"><div class="brand"><h1>Caisse à Outils</h1><span class="ver">v1.10</span></div>
     <div class="search" role="search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11 L14.5 14.5"/></svg><input id="q" type="text" enterkeyhint="search" placeholder="Recherche" autocomplete="off" spellcheck="false" aria-label="Recherche" role="combobox" aria-controls="sugg" aria-expanded="false" aria-autocomplete="list"></div>
     <button type="button" class="menubtn" id="menuBtn" aria-label="Ouvrir le menu"><span></span><span></span><span></span></button>
     <div class="sugg" id="sugg" role="listbox" aria-label="Suggestions" hidden></div></div>
@@ -3423,6 +3474,7 @@ measure(); onScroll();
 
 initSearch();
 show(store('tab')||'calc');
+window.__CO_OK=true;   // vu par le démarrage sûr : l'application a bien démarré
 </script>
 <script>
 /* Outil de débogage commun — copie de dist/debogage.js (github.com/utillage-hub/outil-debogage, commit 271d5a9 du 12/11/2026 14:11). Ne pas modifier ici. */
