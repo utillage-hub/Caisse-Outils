@@ -1,5 +1,8 @@
 # Historique
 
+## v1.9
+- Outil de débogage mis à jour sur la dernière version du dépôt `outil-debogage` (commit 271d5a9 : versions de l'appli et de l'outil visibles dans les réglages).
+
 ## v1.8
 - Outil de débogage mis à jour vers la dernière version publiée (commit 678eaae du 12/11/2026) : onglet Interface (fermeture de la bulle, outils déplaçables et masquables, taille, couleurs reprises de l'appli), fenêtres d'outils déplaçables, notes réordonnables, « ‹ Précédente » en vérification. Entrée « Interface de l'outil » ajoutée dans Menu › Débogage.
 
