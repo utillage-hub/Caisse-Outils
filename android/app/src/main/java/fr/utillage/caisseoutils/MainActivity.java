@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
+import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -126,6 +127,18 @@ public class MainActivity extends Activity {
                 } catch (Exception e) {
                     vue.evaluateJavascript("window.__nbEcoute&&window.__nbEcoute('')", null);
                 }
+            });
+        }
+
+        /**
+         * Garde l'écran allumé tant que l'appli est au premier plan. Dès qu'on la quitte, Android reprend
+         * sa mise en veille et son verrouillage habituels : le code est redemandé comme d'ordinaire.
+         */
+        @JavascriptInterface
+        public void keepAwake(boolean actif) {
+            runOnUiThread(() -> {
+                if (actif) getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                else getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             });
         }
 

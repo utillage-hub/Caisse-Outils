@@ -1,5 +1,8 @@
 # Historique
 
+## v1.7
+- Écran toujours allumé tant que la caisse est affichée (réglage dans le menu). En quittant l'appli, l'appareil reprend sa veille et son verrouillage habituels.
+
 ## v1.6
 - Débogage : l'ancien module est remplacé par l'outil commun `utillage-hub/outil-debogage` (captures annotées, élément, texte, mesure, dictée, export), accessible depuis le menu.
 - Cases de saisie : elles ne dépassent plus de leur carte (recherche de la base matières, tableau périodique).

@@ -760,7 +760,7 @@ html.embed body::before{display:none}
 </head>
 <body>
 <header>
-  <div class="bar"><div class="brand"><h1>Caisse à Outils</h1><span class="ver">v1.6</span></div>
+  <div class="bar"><div class="brand"><h1>Caisse à Outils</h1><span class="ver">v1.7</span></div>
     <div class="search" role="search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11 L14.5 14.5"/></svg><input id="q" type="text" enterkeyhint="search" placeholder="Recherche" autocomplete="off" spellcheck="false" aria-label="Recherche" role="combobox" aria-controls="sugg" aria-expanded="false" aria-autocomplete="list"></div>
     <button type="button" class="menubtn" id="menuBtn" aria-label="Ouvrir le menu"><span></span><span></span><span></span></button>
     <div class="sugg" id="sugg" role="listbox" aria-label="Suggestions" hidden></div></div>
@@ -3188,6 +3188,7 @@ function menuRender(keep){
     title.textContent='Menu';
     body.innerHTML=`<button type="button" class="mitem" data-act="debug"><span><b>Débogage</b><small>Notes, captures annotées, mesures, dictée, export${nb?` · ${todo} à traiter`:''}</small></span><i>›</i></button>
       <button type="button" class="mitem" data-act="look"><span><b>Apparence</b><small>Couleur, en-tête, police, coins, clair ou sombre · pour coller à la charte de l'application hôte</small></span><i>›</i></button>
+      <div class="aswitch"><span><b>Écran toujours allumé</b><small>${AWAKE.ok===false&&AWAKE.on?'Non disponible sur cet appareil ou ce navigateur.':'L\'écran ne s\'éteint pas tant que la caisse est affichée. En la quittant, l\'appareil se verrouille comme d\'habitude (code demandé).'}</small></span><button type="button" class="tgl${AWAKE.on?' on':''}" data-act="awake" role="switch" aria-checked="${AWAKE.on}" aria-label="Écran toujours allumé"><i></i></button></div>
       <button type="button" class="mitem" data-act="kp"><span><b>Clavier à l'écran</b><small>Double-tap sur une case pour l'ouvrir · ${KP.dock?'ancré en bas':'flottant'}</small></span><i>${KP.dock?'Flottant':'En bas'}</i></button>
       <button type="button" class="mitem" data-act="order"><span><b>Ordre des onglets</b><small>Appui long sur un onglet puis glisser pour le déplacer</small></span><i>Réinitialiser</i></button>
       <p class="mver">Caisse à Outils ${esc(VERSION)}</p>`;
@@ -3239,6 +3240,7 @@ function menuRender(keep){
     const a=e.target.closest('[data-act]'); if(a){ const k=a.dataset.act;
       if(k==='debug'){ MENU.view='debug'; menuRender(); }
       else if(k==='look'){ MENU.view='look'; menuRender(); }
+      else if(k==='awake'){ AWAKE.on=!AWAKE.on; store('awake',AWAKE.on?'1':'0'); await awakeApply(); menuRender(true); toast(AWAKE.on?(AWAKE.ok===false?'Écran toujours allumé : non disponible ici.':'L\'écran reste allumé tant que la caisse est affichée.'):'L\'écran s\'éteindra normalement.'); }
       else if(k==='thReset'){ store('theme',''); Object.assign(THEME,THEME_DEF); themeApply(); menuRender(true); toast('Charte d\'origine rétablie.'); }
       else if(k==='thLink'||k==='thJson'){ const q=new URLSearchParams(); Object.entries(THEME).forEach(([a,b])=>{ if(String(b)!==String(THEME_DEF[a])) q.set(a,a==='accent'?String(b).replace('#',''):b); });
         clipCopy(k==='thLink'?location.href.split(/[?#]/)[0]+(q.toString()?'?'+q:''):JSON.stringify({type:'caisse-outils:theme',theme:THEME},null,1)); }
@@ -3315,6 +3317,23 @@ function themeSet(o,save){ Object.keys(o||{}).forEach(k=>{ if(k in THEME_DEF&&o[
       return false; }};
   try{ if(parent!==window) parent.postMessage({type:'caisse-outils:ready',version:VERSION,tools:TOOLS.map(t=>t.id)},'*'); }catch(_){}
 })();
+
+// ---------- Écran toujours allumé (tant que l'appli est à l'écran) ----------
+// Dans l'APK : drapeau Android « garder l'écran allumé » ; dans un navigateur : Screen Wake Lock.
+// Dès qu'on quitte l'appli, le téléphone reprend sa mise en veille et son verrouillage habituels (code, empreinte…).
+const AWAKE={on:store('awake')!=='0',lock:null,ok:null};
+async function awakeApply(){
+  const NB=window.NB;
+  if(NB&&NB.keepAwake){ try{ NB.keepAwake(AWAKE.on); AWAKE.ok=true; }catch(_){ AWAKE.ok=false; } return; }
+  if(!('wakeLock' in navigator)){ AWAKE.ok=false; return; }
+  try{
+    if(AWAKE.on&&document.visibilityState==='visible'){ if(!AWAKE.lock){ AWAKE.lock=await navigator.wakeLock.request('screen'); AWAKE.lock.addEventListener('release',()=>{ AWAKE.lock=null; }); } AWAKE.ok=true; }
+    else if(!AWAKE.on&&AWAKE.lock){ await AWAKE.lock.release(); AWAKE.lock=null; }
+  }catch(_){ AWAKE.ok=false; }
+}
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') awakeApply(); });
+document.addEventListener('pointerdown',function once(){ document.removeEventListener('pointerdown',once); awakeApply(); },{once:true});
+awakeApply();
 
 // ---------- Copier / couper / coller sur les chiffres ----------
 const CLIP={last:'',bar:null,target:null,kind:null};
