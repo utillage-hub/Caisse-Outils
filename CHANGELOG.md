@@ -1,0 +1,20 @@
+# Historique
+
+## v1.5
+- Conteneurs : vue 3D isométrique (rotation, zoom molette ou deux doigts, flèches, pièce nommée au toucher) et vue 2D face par face avec fermetures et repères numérotés.
+- Double appui (ou double-clic) sur une case : ouvre le clavier, et le referme sur la même case.
+- Charte graphique adaptable : menu Apparence, paramètres d'URL, `postMessage`, API `CaisseOutils`, mode intégré.
+- Copier / Couper / Coller sur toutes les cases de chiffres, sur les résultats et dans la calculatrice (calcul ou résultat, historique par appui long).
+- Retour tactile réglable (7 ms par défaut) sur la calculatrice et le clavier.
+- Flèches discrètes de défilement des onglets sur ordinateur, fondu sur les bords en tactile.
+
+## v1.4
+- Affichage adapté aux grands écrans (cartes en colonnes).
+- Tableau périodique zoomable : boutons, pincement, Ctrl + molette, ajuster, 100 %, plein écran.
+
+## v1.3
+- Classification périodique liée aux compositions des matières.
+- Débogage complet (bulle déplaçable, vérification, dictée), menu allégé, TVA en tuiles, pièces forgées.
+
+## v1.0 à v1.2
+- Calcul, pourcentage et TVA, taraudage, forets 3D, matières, profilés, conteneurs, trigonométrie, recherche, onglets déplaçables.
