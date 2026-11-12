@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Caisse à outils stylisée : poignée, couvercle, fermoir -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFF" android:strokeWidth="4.5" android:strokeLineJoin="round"
+        android:pathData="M44,43 V37 a4,4 0 0 1 4,-4 h12 a4,4 0 0 1 4,4 v6" />
+    <path android:fillColor="#FFFFFF"
+        android:pathData="M33,43 h42 a4,4 0 0 1 4,4 v9 H29 v-9 a4,4 0 0 1 4,-4 z" />
+    <path android:fillColor="#FFFFFF"
+        android:pathData="M29,60 h19 v4 a2,2 0 0 0 2,2 h8 a2,2 0 0 0 2,-2 v-4 h19 v13 a4,4 0 0 1 -4,4 H33 a4,4 0 0 1 -4,-4 z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M51,58 h6 v5 h-6 z" />
+</vector>

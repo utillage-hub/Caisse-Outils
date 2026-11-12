@@ -1,0 +1,71 @@
+name: APK Android
+
+# Compile l'APK à chaque envoi sur main (ou à la demande) et le publie dans Releases › « Dernier APK ».
+on:
+  push:
+    branches: [main]
+    paths: ['index.html', 'android/**', '.github/workflows/apk.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apk
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Version de l'application
+        id: v
+        run: |
+          V=$(grep -o 'class="ver">v[0-9.]*' index.html | head -1 | sed 's/.*>v//')
+          echo "nom=${V:-0.0}" >> "$GITHUB_OUTPUT"
+          echo "code=${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+          echo "Version $V (compilation ${{ github.run_number }})"
+
+      - name: Embarquer l'application web
+        run: |
+          mkdir -p android/app/src/main/assets/www
+          cp index.html android/app/src/main/assets/www/index.html
+          # three.js (vues 3D) embarqué pour fonctionner hors connexion
+          curl -fsSL https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js -o android/app/src/main/assets/www/three.min.js
+          ls -la android/app/src/main/assets/www
+
+      - name: Compiler l'APK
+        working-directory: android
+        run: gradle assembleDebug --no-daemon -PappVersion=${{ steps.v.outputs.nom }} -PappCode=${{ steps.v.outputs.code }}
+
+      - name: Nommer l'APK
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk "caisse-a-outils-v${{ steps.v.outputs.nom }}.apk"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: caisse-a-outils-apk
+          path: caisse-a-outils-v*.apk
+
+      - name: Publier dans Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk
+          name: Dernier APK (v${{ steps.v.outputs.nom }}, compilation ${{ steps.v.outputs.code }})
+          body: |
+            APK d'essai de la Caisse à Outils v${{ steps.v.outputs.nom }}, compilé automatiquement depuis `main`.
+
+            **Installer** : ouvrir le fichier `.apk` ci-dessous depuis le téléphone ou la tablette, puis autoriser l'installation depuis cette source si Android le demande. Une nouvelle version s'installe par-dessus l'ancienne.
+          files: caisse-a-outils-v*.apk
+          make_latest: true

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="accent">#D9423A</color>
+    <color name="fond">#F1EFEE</color>
+    <style name="Theme.CaisseOutils" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/accent</item>
+        <item name="android:navigationBarColor">@color/fond</item>
+        <item name="android:windowBackground">@color/fond</item>
+        <item name="android:colorAccent">@color/accent</item>
+    </style>
+</resources>

@@ -1,5 +1,10 @@
 # Historique
 
+## v1.6
+- Débogage : l'ancien module est remplacé par l'outil commun `utillage-hub/outil-debogage` (captures annotées, élément, texte, mesure, dictée, export), accessible depuis le menu.
+- Cases de saisie : elles ne dépassent plus de leur carte (recherche de la base matières, tableau périodique).
+- APK Android : coque WebView dans `android/`, compilée automatiquement et publiée dans Releases.
+
 ## v1.5
 - Conteneurs : vue 3D isométrique (rotation, zoom molette ou deux doigts, flèches, pièce nommée au toucher) et vue 2D face par face avec fermetures et repères numérotés.
 - Double appui (ou double-clic) sur une case : ouvre le clavier, et le referme sur la même case.

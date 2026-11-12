@@ -1,3 +1,9 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#d9423a">
 <title>Caisse à Outils</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -19,6 +25,7 @@
 :root[data-theme="dark"]{--red:#c63c34; --bg:#171413; --card:#221e1d; --fg:#eeeae8; --muted:#a49d9a; --line:#3a3432; --field:#1b1817; --chip:#2e2927;
   --ok:#6cc08f; --bad:#f08a83; --calc:#3a2321; --calc-fg:#f4a39d; --ink:#e6e0dd; --tri:#3a2422;
   --kfn:#3e3836; --kfn-fg:#f2eeec; --hl2:#6aa7ff; --m-shank:#8c8683; --m-land:#6c6664; --m-margin:#b4aeab; --m-flute:#2a2625; --m-edge:#cfc8c5; --hl:#a8443d; color-scheme:dark}
+input,textarea,select,button{box-sizing:border-box}
 html,body{background:var(--bg);color:var(--fg)}
 body{font-family:var(--body);font-size:16px}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--red)}
@@ -750,9 +757,10 @@ html.embed body::before{display:none}
 .hprow input[type=range]{width:100%;accent-color:var(--red);padding:0;border:0;background:none}
 .hprow b{font:600 .85rem var(--num);color:var(--fg);min-width:4ch;text-align:right}
 </style>
-
+</head>
+<body>
 <header>
-  <div class="bar"><div class="brand"><h1>Caisse à Outils</h1><span class="ver">v1.5</span></div>
+  <div class="bar"><div class="brand"><h1>Caisse à Outils</h1><span class="ver">v1.6</span></div>
     <div class="search" role="search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11 L14.5 14.5"/></svg><input id="q" type="text" enterkeyhint="search" placeholder="Recherche" autocomplete="off" spellcheck="false" aria-label="Recherche" role="combobox" aria-controls="sugg" aria-expanded="false" aria-autocomplete="list"></div>
     <button type="button" class="menubtn" id="menuBtn" aria-label="Ouvrir le menu"><span></span><span></span><span></span></button>
     <div class="sugg" id="sugg" role="listbox" aria-label="Suggestions" hidden></div></div>
@@ -3162,209 +3170,23 @@ function kpToggle(n){ CLIP.skipUntil=Date.now()+450; clipHide(); if(KP.el&&!KP.e
 })();
 
 const MENU={view:'main'};
-// ---------- Débogage : bulle de notes (mêmes fonctions que le tableau de bord Comptes) ----------
-const DBG={notes:[],on:store('dbgOn')==='1',db:null,f:'todo',listen:false,rec:null,editing:false};
-const DICT={on:false,rec:null};
+// ---------- Débogage : outil commun (dépôt utillage-hub/outil-debogage), chargé en fin de page ----------
 const VERSION=(document.querySelector('.ver')||{}).textContent||'';
 function dbgScreen(){
   const tab=document.querySelector('#tabs button[aria-selected="true"]'), sub=document.querySelector('#view .subnav [aria-selected="true"]'), md=document.querySelector('.hmodal h3');
   return [tab&&tab.getAttribute('aria-label'),sub&&sub.textContent.trim(),md&&md.textContent.trim()].filter(Boolean).join(' › ')||'Accueil';
 }
-const fmtWhen=iso=>{ const d=new Date(iso); return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}); };
-const dbgTodo=()=>DBG.notes.filter(n=>!n.valide);
-function dbgSaveLocal(){ if(!DBG.db) store('dbgNotes',JSON.stringify(DBG.notes.slice(0,300))); }
-function dbgNorm(n){ if(n.valide===undefined) n.valide=n.statut==='done'?(n.modifie||n.at):null; delete n.statut; return n; }
-async function dbgAdd(texte,via,extra){
-  texte=String(texte||'').trim(); if(!texte) return false;
-  const n=Object.assign({at:new Date().toISOString(),texte,ecran:dbgScreen(),via:via||'texte',version:VERSION,appareil:navigator.userAgent.slice(0,160),valide:null},extra||{});
-  DBG.notes.unshift(n);
-  if(DBG.db){ try{ const r=await DBG.db.collection('debugnotes').add(n); if(r&&r.id) n.id=r.id; }catch(e){ toast('Note gardée sur cet appareil seulement ('+(e&&e.code||'erreur')+').'); } }
-  dbgSaveLocal(); dbgRender(); return true;
-}
-async function dbgUpdate(n,d){ Object.assign(n,d); if(DBG.db&&n.id){ try{ await DBG.db.doc('debugnotes/'+n.id).update(d); }catch(_){} } dbgSaveLocal(); }
-async function dbgDel(n){ DBG.notes=DBG.notes.filter(x=>x!==n); if(DBG.db&&n.id){ try{ await DBG.db.doc('debugnotes/'+n.id).delete(); }catch(_){} } dbgSaveLocal(); }
-function dbgLi(n,k){
-  return `<li data-k="${k}" class="${n.valide?'val':''}"><small>${fmtWhen(n.at)} · ${esc(n.ecran)}${n.via==='voix'?' · 🎤':''}${n.copieDe?' · copie':''}${n.valide?` · <b class="okv">✓ validée ${fmtWhen(n.valide)}</b>`:''}${n.modifie?' · modifiée':''}</small><span class="dtx">${esc(n.texte)}</span><button type="button" class="dots" data-dbgdots="${k}" aria-label="Options de la note">⋯</button></li>`;
-}
-function dbgListHTML(menu){
-  const f=menu?DBG.f:'all';
-  const list=DBG.notes.map((n,k)=>[n,k]).filter(([n])=>f==='all'||(f==='todo'?!n.valide:!!n.valide));
-  return list.map(([n,k])=>dbgLi(n,k)).join('')||`<li class="muted">${f==='ok'?'Aucune note validée.':f==='todo'&&DBG.notes.length?'Tout est validé 🎉':'Aucune note pour l\'instant.'}</li>`;
-}
-function dbgRender(){
-  const todo=dbgTodo().length, $=id=>document.getElementById(id);
-  const b=$('dbgBubble'); if(b){ b.hidden=!DBG.on; b.querySelector('i').textContent=todo||''; b.classList.toggle('dict',DICT.on); b.classList.toggle('rec',DBG.listen&&!DICT.on); }
-  const nb=$('dbgNotesBtn'); if(nb) nb.textContent=`Notes (${DBG.notes.length})`;
-  const vb=$('dbgVerBtn'); if(vb){ vb.textContent=`Vérifier (${todo})`; vb.hidden=!DBG.notes.length; }
-  if(DBG.editing) return;
-  const pl=$('dbgPnlList'); if(pl) pl.innerHTML=dbgListHTML(false);
-  const ml=$('dbgList'); if(ml) ml.innerHTML=dbgListHTML(true);
-  if(typeof dbgDrawVer==='function'&&$('dbgVer')&&!$('dbgVer').hidden) dbgDrawVer();
-  const mm=$('menu'); if(MENU.view==='debug'&&mm&&!mm.hidden) menuRender(true);
-}
-function dbgEdit(k,li,dup){
-  const n=DBG.notes[k]; if(!n||!li) return; DBG.editing=true;
-  li.innerHTML=`${dup?`<small>Copie de la note du ${fmtWhen(n.at)} : modifie-la puis enregistre</small>`:''}<textarea class="dbged" rows="3">${esc(n.texte)}</textarea><div class="dbgrow"><button type="button" class="btn" data-dbgx>Annuler</button><button type="button" class="btn solid" data-dbgs>${dup?'Enregistrer la copie':'Enregistrer'}</button></div>`;
-  const ta=li.querySelector('textarea'); ta.focus(); try{ ta.setSelectionRange(ta.value.length,ta.value.length); }catch(_){}
-  li.querySelector('[data-dbgx]').onclick=e=>{ e.stopPropagation(); DBG.editing=false; dbgRender(); };
-  li.querySelector('[data-dbgs]').onclick=async e=>{ e.stopPropagation(); const txt=ta.value.trim(); if(!txt){ ta.focus(); return; }
-    DBG.editing=false;
-    if(dup){ await dbgAdd(txt,'copie',{ecran:n.ecran,copieDe:n.at}); DBG.f='todo'; dbgRender(); toast('Copie enregistrée.'); }
-    else { await dbgUpdate(n,{texte:txt,modifie:new Date().toISOString()}); dbgRender(); toast('Note modifiée.'); } };
-}
-// dictée dans la fenêtre de note : continue tant qu'on ne l'arrête pas, même fenêtre fermée
-function dictUI(){ const m=document.getElementById('dbgMic'); if(m){ m.textContent=DICT.on?'■ Arrêter la dictée':'🎤 Dicter'; m.classList.toggle('on',DICT.on); }
-  const msg=document.getElementById('dbgMsg'); if(msg&&DICT.on) msg.textContent='Dictée en cours : tu peux fermer la fenêtre, la bulle reste rouge tant que j\'écoute.'; dbgRender(); }
-function dictStop(){ DICT.on=false; try{ DICT.rec&&DICT.rec.stop(); }catch(_){} DICT.rec=null; dictUI();
-  const msg=document.getElementById('dbgMsg'), inp=document.getElementById('dbgIn'); if(msg) msg.textContent=inp&&inp.value.trim()?'Dictée arrêtée. Relis puis « Enregistrer la note ».':''; }
-function dictStart(){
-  const inp=document.getElementById('dbgIn'), msg=document.getElementById('dbgMsg'), SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){ msg.textContent='Dictée directe indisponible ici : touche le cadre puis le micro de ton clavier.'; inp.focus(); return; }
-  if(DBG.listen) dbgListen(false);
-  DICT.on=true; dictUI();
-  const run=()=>{ if(!DICT.on) return; const r=new SR(); DICT.rec=r; r.lang='fr-FR'; r.continuous=true; r.interimResults=true; const base=inp.value?inp.value.trimEnd()+' ':'';
-    r.onresult=e=>{ let t=''; for(const x of e.results) t+=x[0].transcript; inp.value=base+t.trim(); };
-    r.onerror=e=>{ if(e.error==='not-allowed'||e.error==='service-not-allowed'){ DICT.on=false; dictUI(); msg.textContent='Micro bloqué ici : touche le cadre puis le micro de ton clavier.'; } };
-    r.onend=()=>{ if(DICT.on) setTimeout(run,250); };
-    try{ r.start(); }catch(_){ DICT.on=false; dictUI(); msg.textContent='Le micro n\'a pas pu démarrer.'; } };
-  run();
-}
-// écoute continue : chaque phrase devient une note (avec l'écran en cours)
-function dbgListen(on){
-  DBG.listen=on; try{ DBG.rec&&DBG.rec.stop(); }catch(_){} DBG.rec=null;
-  if(on){ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-    if(!SR){ DBG.listen=false; toast('L\'écoute continue n\'est pas disponible ici. Utilise la bulle et le micro du clavier.'); dbgRender(); return; }
-    if(DICT.on) dictStop();
-    const run=()=>{ if(!DBG.listen) return; const r=new SR(); DBG.rec=r; r.lang='fr-FR'; r.continuous=true; r.interimResults=false;
-      r.onresult=e=>{ for(let k=e.resultIndex;k<e.results.length;k++) if(e.results[k].isFinal) dbgAdd(e.results[k][0].transcript,'voix'); };
-      r.onerror=e=>{ if(e.error==='not-allowed'||e.error==='service-not-allowed'){ DBG.listen=false; toast('Micro bloqué ici : utilise la bulle de notes (texte ou micro du clavier).'); dbgRender(); if(MENU.view==='debug') menuRender(true); } };
-      r.onend=()=>{ if(DBG.listen) setTimeout(run,300); };
-      try{ r.start(); }catch(_){ DBG.listen=false; toast('Le micro n\'a pas pu démarrer.'); dbgRender(); } };
-    run(); toast('J\'écoute : chaque phrase est notée avec l\'écran en cours.'); }
-  dbgRender();
-}
-let dbgDrawVer=null;
-(function dbgInit(){
-  const $=id=>document.getElementById(id);
-  const b=el(`<button type="button" id="dbgBubble" class="dbgbubble" hidden aria-label="Note de débogage"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg><i></i></button>`);
-  const pnl=el(`<div id="dbgPanel" class="dbgpanel" hidden role="dialog" aria-label="Note de débogage">
-    <div class="dbghead dbgmove" title="Glisser pour déplacer la fenêtre"><span class="dbgtt"><b>Note de débogage</b><small id="dbgWhere"></small></span><span class="dbghb"><button type="button" class="btn" id="dbgNotesBtn">Notes</button><button type="button" class="btn" id="dbgVerBtn" hidden>Vérifier</button><button type="button" class="btn" id="dbgClose">Fermer</button></span></div>
-    <ul class="dbglist dbgpl" id="dbgPnlList" hidden></ul>
-    <div class="dbgver" id="dbgVer" hidden></div>
-    <textarea id="dbgIn" rows="3" placeholder="Ce qui ne va pas sur cet écran…"></textarea>
-    <div class="dbgrow dbgsave"><button type="button" class="btn" id="dbgMic">🎤 Dicter</button><button type="button" class="btn solid" id="dbgOk">Enregistrer la note</button></div>
-    <p class="dbgmsg" id="dbgMsg"></p></div>`);
-  const drop=el(`<div id="dbgDrop" class="dbgdrop" hidden><svg viewBox="0 0 400 150" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="dgG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgb(30,30,35)" stop-opacity=".2"/><stop offset="1" stop-color="rgb(30,30,35)" stop-opacity=".62"/></linearGradient><linearGradient id="dgR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgb(160,20,20)" stop-opacity=".28"/><stop offset="1" stop-color="rgb(160,20,20)" stop-opacity=".7"/></linearGradient></defs><path d="M0,150 L0,140 C70,140 110,22 200,22 C290,22 330,140 400,140 L400,150 Z"/></svg><div class="dgin"><span>✕</span><b>Fermer la bulle</b></div></div>`);
-  const pop=el('<div class="dotmenu" id="dbgDot" hidden></div>');
-  document.body.append(b,pnl,drop,pop);
-  const pl=$('dbgPnlList'), nb=$('dbgNotesBtn'), vb=$('dbgVerBtn'), ver=$('dbgVer');
-  const openPanel=()=>{ clearTimeout(DBG.closeT); $('dbgWhere').textContent=dbgScreen(); if(!DICT.on) $('dbgMsg').textContent=''; pnl.hidden=false; placeSaved(); setTimeout(()=>{ if(pl.hidden&&ver.hidden) $('dbgIn').focus({preventScroll:true}); },50); };
-
-  // --- la bulle se déplace partout ; près du bas, une vague « Fermer la bulle » apparaît ---
-  try{ const xy=JSON.parse(store('dbgXY')||'null'); if(xy){ b.style.left=Math.min(innerWidth-56,Math.max(4,xy.x))+'px'; b.style.top=Math.min(innerHeight-56,Math.max(4,xy.y))+'px'; b.style.right='auto'; } }catch(_){}
-  let dr=null, dragged=false;
-  const over=y=>y>innerHeight-120;
-  const near=()=>{ const r=b.getBoundingClientRect(), d=innerHeight-(r.top+r.height/2); drop.classList.toggle('near',d<190); drop.style.setProperty('--p',String(Math.max(0,Math.min(1,(190-d)/100)))); };
-  b.addEventListener('pointerdown',e=>{ const r=b.getBoundingClientRect(); dr={x:e.clientX,y:e.clientY,l:r.left,t:r.top,moved:false}; try{ b.setPointerCapture(e.pointerId); }catch(_){} });
-  b.addEventListener('pointermove',e=>{ if(!dr) return; const dx=e.clientX-dr.x, dy=e.clientY-dr.y;
-    if(!dr.moved&&Math.hypot(dx,dy)<7) return;
-    if(!dr.moved){ dr.moved=true; drop.hidden=false; b.classList.add('drag'); pnl.hidden=true; }
-    const l=Math.max(2,Math.min(innerWidth-54,dr.l+dx)), t=Math.max(2,Math.min(innerHeight-54,dr.t+dy));
-    b.style.left=l+'px'; b.style.top=t+'px'; b.style.right='auto'; near(); drop.classList.toggle('hot',over(e.clientY)); });
-  const up=e=>{ if(!dr) return; const d=dr; dr=null; drop.hidden=true; drop.classList.remove('near','hot'); b.classList.remove('drag');
-    if(!d.moved) return; dragged=true; setTimeout(()=>{ dragged=false; },400);
-    if(over(e.clientY)){ DBG.on=false; store('dbgOn','0'); store('dbgXY',''); b.style.left=b.style.top=b.style.right=''; pnl.hidden=true; dbgRender(); toast('Bulle fermée. Menu › Débogage pour la remettre.'); }
-    else store('dbgXY',JSON.stringify({x:parseInt(b.style.left),y:parseInt(b.style.top)})); };
-  b.addEventListener('pointerup',up); b.addEventListener('pointercancel',up);
-  // toucher la bulle : ouvre ou ferme la fenêtre (la dictée continue)
-  b.addEventListener('click',e=>{ if(dragged){ e.preventDefault(); return; } if(pnl.hidden) openPanel(); else pnl.hidden=true; });
-
-  // --- la fenêtre se déplace en la tenant par son titre ; double-clic = position d'origine ---
-  const head=pnl.querySelector('.dbghead');
-  const place=(l,t)=>{ const w=Math.min(520,innerWidth-16), h=pnl.offsetHeight; l=Math.max(8,Math.min(innerWidth-w-8,l)); t=Math.max(4,Math.min(innerHeight-Math.min(h,120),t));
-    Object.assign(pnl.style,{left:l+'px',top:t+'px',right:'auto',bottom:'auto',margin:'0',width:w+'px'}); };
-  function placeSaved(){ let p=null; try{ p=JSON.parse(store('dbgPnl')||'null'); }catch(_){} if(p) requestAnimationFrame(()=>place(p.l,p.t)); }
-  let pd=null;
-  head.addEventListener('pointerdown',e=>{ if(e.target.closest('button')) return; const r=pnl.getBoundingClientRect(); pd={x:e.clientX,y:e.clientY,l:r.left,t:r.top}; try{ head.setPointerCapture(e.pointerId); }catch(_){} e.preventDefault(); });
-  head.addEventListener('pointermove',e=>{ if(pd) place(pd.l+e.clientX-pd.x,pd.t+e.clientY-pd.y); });
-  const pup=()=>{ if(!pd) return; pd=null; const r=pnl.getBoundingClientRect(); store('dbgPnl',JSON.stringify({l:r.left,t:r.top})); };
-  head.addEventListener('pointerup',pup); head.addEventListener('pointercancel',pup);
-  head.addEventListener('dblclick',e=>{ if(e.target.closest('button')) return; pnl.removeAttribute('style'); store('dbgPnl',''); });
-  addEventListener('resize',()=>{ if(pnl.style.width){ const r=pnl.getBoundingClientRect(); place(r.left,r.top); } });
-
-  // --- boutons de la fenêtre ---
-  $('dbgClose').onclick=()=>{ pnl.hidden=true; };
-  nb.onclick=()=>{ clearTimeout(DBG.closeT); pl.hidden=!pl.hidden; nb.classList.toggle('on',!pl.hidden); if(!pl.hidden) closeVer(); dbgRender(); };
-  $('dbgOk').onclick=async()=>{ if(DICT.on) dictStop(); if(await dbgAdd($('dbgIn').value,'texte')){ $('dbgIn').value=''; $('dbgMsg').textContent='Note enregistrée. Continue à naviguer, la bulle reste là.'; clearTimeout(DBG.closeT); DBG.closeT=setTimeout(()=>{ if(!$('dbgIn').value&&pl.hidden&&ver.hidden) pnl.hidden=true; },900); } else $('dbgIn').focus(); };
-  $('dbgIn').addEventListener('keydown',e=>{ if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){ e.preventDefault(); $('dbgOk').click(); } });
-  $('dbgMic').onclick=()=>DICT.on?dictStop():dictStart();
-
-  // --- mode vérification : une note à la fois ---
-  const V={skip:new Set()};
-  const cur=()=>DBG.notes.find(n=>!n.valide&&!V.skip.has(n));
-  dbgDrawVer=function(){
-    const n=cur(), todo=dbgTodo().length, done=DBG.notes.length-todo;
-    if(!n){ ver.innerHTML=`<p class="dbgvok">${todo?`Il reste ${todo} note${todo>1?'s':''} « pas encore » corrigée${todo>1?'s':''}.`:'Toutes les notes sont validées 🎉'}</p><div class="dbgrow"><button type="button" class="btn" data-vr="restart"${todo?'':' hidden'}>Les revoir</button><button type="button" class="btn solid" data-vr="close">Terminer</button></div>`; return; }
-    const k=DBG.notes.indexOf(n);
-    ver.innerHTML=`<div class="dbgvc"><small>Note ${done+1} sur ${DBG.notes.length} · ${fmtWhen(n.at)} · ${esc(n.ecran)}</small><p>${esc(n.texte)}</p><p class="muted">Vérifie sur l'appli que c'est corrigé.</p></div>
-      <div class="dbgrow vr3"><button type="button" class="btn" data-vr="later">Pas encore</button><button type="button" class="btn" data-vr="edit">Modifier</button><button type="button" class="btn solid" data-vr="ok">✓ Corrigé</button></div><ul class="dbglist dbgpl" id="dbgVerEdit" hidden><li data-k="${k}"></li></ul>`;
-  };
-  function openVer(){ V.skip.clear(); pl.hidden=true; nb.classList.remove('on'); ver.hidden=false; vb.classList.add('on'); pnl.classList.add('vermode'); dbgDrawVer(); }
-  function closeVer(){ ver.hidden=true; vb.classList.remove('on'); pnl.classList.remove('vermode'); }
-  window.dbgVerify=()=>{ openPanel(); openVer(); };
-  vb.onclick=()=>ver.hidden?openVer():closeVer();
-  ver.addEventListener('click',async e=>{ const x=e.target.closest('[data-vr]'); if(!x) return; const a=x.dataset.vr, n=cur();
-    if(a==='ok'&&n){ await dbgUpdate(n,{valide:new Date().toISOString()}); dbgRender(); dbgDrawVer(); }
-    else if(a==='later'&&n){ V.skip.add(n); dbgDrawVer(); }
-    else if(a==='edit'&&n){ const ul=$('dbgVerEdit'); ul.hidden=false; dbgEdit(DBG.notes.indexOf(n),ul.firstElementChild); }
-    else if(a==='restart'){ V.skip.clear(); dbgDrawVer(); }
-    else if(a==='close') closeVer(); });
-
-  // --- menu ⋯ d'une note : modifier, dupliquer, valider, supprimer ---
-  const closePop=()=>{ pop.hidden=true; };
-  document.addEventListener('pointerdown',e=>{ if(!pop.hidden&&!e.target.closest('#dbgDot,[data-dbgdots]')) closePop(); },true);
-  document.addEventListener('click',e=>{ const d=e.target.closest('[data-dbgdots]'); if(!d) return; e.stopPropagation();
-    const k=+d.dataset.dbgdots, n=DBG.notes[k]; if(!n) return; const r=d.getBoundingClientRect();
-    pop.innerHTML=`<button type="button" data-dd="edit">Modifier</button><button type="button" data-dd="dup">Dupliquer et modifier</button><button type="button" data-dd="val">${n.valide?'Remettre à traiter':'✓ Valider (corrigé)'}</button><button type="button" data-dd="del" class="danger">Supprimer</button>`;
-    pop.dataset.k=k; pop.hidden=false; pop.style.top=Math.max(8,Math.min(innerHeight-pop.offsetHeight-8,r.bottom+4))+'px'; pop.style.right=Math.max(8,innerWidth-r.right)+'px'; },true);
-  pop.addEventListener('click',async e=>{ const x=e.target.closest('[data-dd]'); if(!x) return; const k=+pop.dataset.k, n=DBG.notes[k]; if(!n) return closePop();
-    const a=x.dataset.dd;
-    if(a==='del'&&!x.dataset.c){ x.dataset.c='1'; x.textContent='Confirmer la suppression'; return; }
-    closePop();
-    const li=document.querySelector(`#dbgList li[data-k="${k}"], #dbgPnlList li[data-k="${k}"]`);
-    if(a==='edit') dbgEdit(k,li); else if(a==='dup') dbgEdit(k,li,true);
-    else if(a==='val'){ await dbgUpdate(n,{valide:n.valide?null:new Date().toISOString()}); dbgRender(); toast(n.valide?'Note validée.':'Note remise à traiter.'); }
-    else if(a==='del'){ await dbgDel(n); dbgRender(); toast('Note supprimée.'); } });
-
-  // --- appui long sur une note : modification directe ---
-  let lp=null;
-  const lpStart=e=>{ const l=e.target.closest('#dbgPnlList li[data-k], #dbgList li[data-k]'); if(!l||l.querySelector('textarea')||e.target.closest('button')) return;
-    const x=e.clientX, y=e.clientY; clearTimeout(lp&&lp.t); lp={x,y,t:setTimeout(()=>{ lp=null; try{ navigator.vibrate&&navigator.vibrate(12); }catch(_){} dbgEdit(+l.dataset.k,l); },550)}; };
-  const lpEnd=()=>{ if(lp){ clearTimeout(lp.t); lp=null; } };
-  document.addEventListener('pointerdown',lpStart);
-  document.addEventListener('pointermove',e=>{ if(lp&&Math.hypot(e.clientX-lp.x,e.clientY-lp.y)>10) lpEnd(); });
-  document.addEventListener('pointerup',lpEnd); document.addEventListener('pointercancel',lpEnd);
-
-  // --- stockage : base partagée de l'appli (relue par Claude), sinon ce navigateur ---
-  try{ DBG.notes=JSON.parse(store('dbgNotes')||'[]').map(dbgNorm); }catch(_){ DBG.notes=[]; }
-  dbgRender();
-  (async()=>{ try{ const db=window.claude&&await window.claude.use('db'); if(!db) return; DBG.db=db;
-    // notes prises hors ligne : on les envoie dans la base
-    const local=DBG.notes.filter(n=>!n.id); for(const n of local){ try{ const r=await db.collection('debugnotes').add(n); if(r&&r.id) n.id=r.id; }catch(_){} }
-    if(local.length) store('dbgNotes','');
-    db.collection('debugnotes').orderBy('at','desc').limit(300).onSnapshot(s=>{ DBG.notes=s.docs.map(d=>dbgNorm({id:d.id,...d.data()})); dbgRender(); },()=>{}); }catch(_){} })();
-})();
-
+const DBGT=()=>window.Debogage&&window.Debogage.__charge?window.Debogage:null;
 // ---------- Menu (à droite de la recherche) : débogage, clavier, ordre des onglets ----------
 function menuOpen(v){ MENU.view=v||'main'; document.getElementById('menu').hidden=false; document.getElementById('menuScrim').hidden=false; menuRender(); }
 function menuClose(){ document.getElementById('menu').hidden=true; document.getElementById('menuScrim').hidden=true; }
 function menuRender(keep){
   const body=document.getElementById('menuBody'), title=document.getElementById('menuTitle'), back=document.getElementById('menuBack'), st=body.scrollTop;
   back.hidden=MENU.view==='main';
-  const todo=dbgTodo().length; DBG.editing=false;
+  const D=DBGT(), todo=D?D.aTraiter():0, nb=D?D.notes().length:0;
   if(MENU.view==='main'){
     title.textContent='Menu';
-    body.innerHTML=`<button type="button" class="mitem" data-act="debug"><span><b>Débogage</b><small>${DBG.on?'Bulle de notes affichée':'Bulle de notes, dictée, vérification'}${DBG.notes.length?` · ${todo} à traiter`:''}</small></span><i>›</i></button>
+    body.innerHTML=`<button type="button" class="mitem" data-act="debug"><span><b>Débogage</b><small>Notes, captures annotées, mesures, dictée, export${nb?` · ${todo} à traiter`:''}</small></span><i>›</i></button>
       <button type="button" class="mitem" data-act="look"><span><b>Apparence</b><small>Couleur, en-tête, police, coins, clair ou sombre · pour coller à la charte de l'application hôte</small></span><i>›</i></button>
       <button type="button" class="mitem" data-act="kp"><span><b>Clavier à l'écran</b><small>Double-tap sur une case pour l'ouvrir · ${KP.dock?'ancré en bas':'flottant'}</small></span><i>${KP.dock?'Flottant':'En bas'}</i></button>
       <button type="button" class="mitem" data-act="order"><span><b>Ordre des onglets</b><small>Appui long sur un onglet puis glisser pour le déplacer</small></span><i>Réinitialiser</i></button>
@@ -3395,13 +3217,15 @@ function menuRender(keep){
     const tt=body.querySelector('#thTitle'); tt.addEventListener('change',()=>themeSet({title:tt.value.trim()||THEME_DEF.title},true));
   } else if(MENU.view==='debug'){
     title.textContent='Débogage';
-    body.innerHTML=`<p class="mnote2">Note les problèmes au fur et à mesure que tu navigues : chaque note est enregistrée avec l'écran où tu te trouves${DBG.db?', dans la base de l\'appli : Claude peut les relire pour tout corriger':', dans ce navigateur (la base de l\'appli n\'est pas disponible ici) : utilise « Copier » pour les transmettre'}.</p>
-      <div class="aswitch"><span><b>Bulle de notes</b><small>Une petite bulle reste à l'écran : touche-la pour ouvrir ou fermer la fenêtre de note. Glisse-la n'importe où ; vers le bas, une vague apparaît pour la fermer. La fenêtre se déplace en la tenant par son titre.</small></span><button type="button" class="tgl${DBG.on?' on':''}" data-act="bubble" role="switch" aria-checked="${DBG.on}" aria-label="Bulle de notes"><i></i></button></div>
-      <div class="aswitch"><span><b>Écoute continue (micro)</b><small>Parle en naviguant : chaque phrase est notée automatiquement avec l'écran en cours. Le micro peut être bloqué dans l'appli Claude ; il fonctionne dans un navigateur.</small></span><button type="button" class="tgl${DBG.listen?' on':''}" data-act="listen" role="switch" aria-checked="${DBG.listen}" aria-label="Écoute continue"><i></i></button></div>
-      <div class="dbgh"><h4>Notes (${DBG.notes.length})</h4>${DBG.notes.length?`<span class="dbgtools"><button type="button" class="btn" data-act="copy">Copier (${todo})</button><button type="button" class="btn danger" data-act="clear">Effacer</button></span>`:''}</div>
-      <div class="chips dbgf">${[['todo',`À traiter (${todo})`],['ok',`Validées (${DBG.notes.length-todo})`],['all',`Toutes (${DBG.notes.length})`]].map(([k,t])=>`<button type="button" class="chip" data-f="${k}" aria-pressed="${DBG.f===k}">${t}</button>`).join('')}${todo?'<button type="button" class="btn solid dbgvgo" data-act="verify">Vérifier une par une</button>':''}</div>
-      <p class="mnote2 dbghint">Appui long sur une note pour la modifier ; ⋯ pour la dupliquer, la valider ou la supprimer.</p>
-      <ul class="dbglist" id="dbgList">${dbgListHTML(true)}</ul>`;
+    const on=D&&D.estAffichee();
+    body.innerHTML=D?`<p class="mnote2">Note ce qui ne va pas pendant que tu navigues : au clavier, à la voix, en entourant une zone sur une capture, en touchant un élément ou en mesurant. Chaque note garde l'écran, l'appareil et les erreurs récentes, prête à être transmise à Claude.</p>
+      <div class="aswitch"><span><b>Bulle de débogage</b><small>Toucher : noter · appui long : dicter · glisser vers le bas : la masquer.</small></span><button type="button" class="tgl${on?' on':''}" data-act="dbgBulle" role="switch" aria-checked="${!!on}" aria-label="Bulle de débogage"><i></i></button></div>
+      <button type="button" class="mitem" data-act="dbgNote"><span><b>Nouvelle note</b><small>Texte, dictée, capture annotée, élément, texte à remplacer, mesure</small></span><i>›</i></button>
+      <button type="button" class="mitem" data-act="dbgListe"><span><b>Notes</b><small>${nb?`${todo} à traiter sur ${nb}`:'Aucune note pour l\'instant'} · vérification une par une</small></span><i>›</i></button>
+      <button type="button" class="mitem" data-act="dbgRegl"><span><b>Réglages et export</b><small>Texte prêt pour Claude, ZIP avec captures, JSON pour le tableau de bord</small></span><i>›</i></button>
+      <button type="button" class="mitem" data-act="dbgCopie"><span><b>Copier les notes à traiter</b><small>À coller dans la conversation avec Claude</small></span><i>${todo}</i></button>
+      <p class="mver">Outil de débogage ${esc(D.version||'')} · Ctrl + Maj + D sur ordinateur</p>`
+      :'<p class="mnote2">L\'outil de débogage n\'a pas pu se charger sur cet appareil.</p>';
   }
   if(keep) body.scrollTop=st;
 }
@@ -3420,13 +3244,11 @@ function menuRender(keep){
         clipCopy(k==='thLink'?location.href.split(/[?#]/)[0]+(q.toString()?'?'+q:''):JSON.stringify({type:'caisse-outils:theme',theme:THEME},null,1)); }
       else if(k==='kp'){ KP.dock=!KP.dock; store('kpDock',KP.dock?'1':'0'); if(KP.el) kpPlace(); menuRender(true); toast(KP.dock?'Clavier ancré en bas de l\'écran.':'Clavier flottant : glisse-le par sa barre.'); }
       else if(k==='order'){ store('tabOrder',''); [...TOOLS].forEach(t=>tabs.appendChild(document.getElementById('tab-'+t.id))); toast('Ordre des onglets réinitialisé.'); }
-      else if(k==='bubble'){ DBG.on=!DBG.on; store('dbgOn',DBG.on?'1':'0'); dbgRender(); menuRender(true); toast(DBG.on?'Bulle de notes affichée.':'Bulle de notes masquée.'); }
-      else if(k==='listen'){ dbgListen(!DBG.listen); menuRender(true); }
-      else if(k==='verify'){ menuClose(); if(!DBG.on){ DBG.on=true; store('dbgOn','1'); dbgRender(); } window.dbgVerify(); }
-      else if(k==='copy'){ const L=dbgTodo(), txt=L.map(n=>`- [${fmtWhen(n.at)} · ${n.ecran}] ${n.texte}`).join('\n'); try{ await navigator.clipboard.writeText(txt); toast(`${L.length} note(s) à traiter copiée(s).`); }catch(_){ toast('Copie impossible ici.'); } }
-      else if(k==='clear'){ if(!a.dataset.c){ a.dataset.c='1'; a.textContent='Confirmer l\'effacement'; return; } for(const n of [...DBG.notes]) await dbgDel(n); dbgRender(); menuRender(); toast('Notes effacées.'); }
+      else if(k.startsWith('dbg')){ const D=DBGT(); if(!D) return;
+        if(k==='dbgBulle'){ D.basculer(); menuRender(true); }
+        else if(k==='dbgCopie'){ clipCopy(D.texteClaude(false),true); toast('Notes à traiter copiées.'); }
+        else { menuClose(); D.ouvrir(k==='dbgNote'?'note':k==='dbgListe'?'liste':'reglages'); } }
       return; }
-    const f=e.target.closest('[data-f]'); if(f){ DBG.f=f.dataset.f; menuRender(true); }
     const th=e.target.closest('[data-th]'); if(th){ themeSet({[th.dataset.th]:th.dataset.v},true); }
     const hp=e.target.closest('[data-hp]'); if(hp){ HAPT.ms=+hp.dataset.hp; store('haptic',String(HAPT.ms)); haptic('key'); menuRender(true); }
   });
@@ -3484,7 +3306,13 @@ function themeSet(o,save){ Object.keys(o||{}).forEach(k=>{ if(k in THEME_DEF&&o[
   addEventListener('message',e=>{ const d=e.data; if(!d||typeof d!=='object') return;
     if(d.type==='caisse-outils:theme') themeSet(d.theme,false);
     if(d.type==='caisse-outils:show'&&d.tool) show(d.tool); });
-  window.CaisseOutils={version:VERSION,setTheme:o=>themeSet(o,false),getTheme:()=>({...THEME}),show:id=>show(id),tools:TOOLS.map(t=>t.id)};
+  window.CaisseOutils={version:VERSION,setTheme:o=>themeSet(o,false),getTheme:()=>({...THEME}),show:id=>show(id),tools:TOOLS.map(t=>t.id),
+    // bouton Retour d'Android : ferme ce qui est ouvert (barre copier, fiche, menu, clavier, plein écran) ; renvoie false s'il n'y a rien à fermer
+    retour:()=>{ if(CLIP.bar){ clipHide(); return true; } if(document.querySelector('.hmodal')){ closeHelp(); return true; }
+      const m=document.getElementById('menu'); if(m&&!m.hidden){ if(MENU.view!=='main'){ MENU.view='main'; menuRender(); } else menuClose(); return true; }
+      if(KP.el&&!KP.el.hidden){ kpClose(); return true; }
+      const fs=document.querySelector('.perzoom.full #perFS'); if(fs){ fs.click(); return true; }
+      return false; }};
   try{ if(parent!==window) parent.postMessage({type:'caisse-outils:ready',version:VERSION,tools:TOOLS.map(t=>t.id)},'*'); }catch(_){}
 })();
 
@@ -3576,3 +3404,1610 @@ measure(); onScroll();
 initSearch();
 show(store('tab')||'calc');
 </script>
+<script>
+/* Outil de débogage commun — copie de dist/debogage.js (github.com/utillage-hub/outil-debogage). Ne pas modifier ici. */
+/*!
+ * Outil de débogage v1.0.0
+ * Bulle de notes, capture annotée, inspecteur d'élément, sélection de texte,
+ * mesures, contexte technique automatique et export « prêt pour Claude ».
+ * https://github.com/utillage-hub/outil-debogage
+ * Inclut html-to-image (MIT) pour les captures d'écran.
+ */
+(function () {
+"use strict";
+if (window.Debogage && window.Debogage.__charge) return;
+const VERSION_OUTIL = "1.0.0";
+/* ---------- html-to-image 1.11 (MIT) : captures d'écran ---------- */
+const htmlToImage = (function () { var exports = {}, module = { exports: exports }, define; !function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"function"==typeof define&&define.amd?define(["exports"],e):e((t="undefined"!=typeof globalThis?globalThis:t||self).htmlToImage={})}(this,(function(t){"use strict";function e(t,e,n,r){return new(n||(n=Promise))((function(i,o){function u(t){try{a(r.next(t))}catch(t){o(t)}}function c(t){try{a(r.throw(t))}catch(t){o(t)}}function a(t){var e;t.done?i(t.value):(e=t.value,e instanceof n?e:new n((function(t){t(e)}))).then(u,c)}a((r=r.apply(t,e||[])).next())}))}function n(t,e){var n,r,i,o,u={label:0,sent:function(){if(1&i[0])throw i[1];return i[1]},trys:[],ops:[]};return o={next:c(0),throw:c(1),return:c(2)},"function"==typeof Symbol&&(o[Symbol.iterator]=function(){return this}),o;function c(c){return function(a){return function(c){if(n)throw new TypeError("Generator is already executing.");for(;o&&(o=0,c[0]&&(u=0)),u;)try{if(n=1,r&&(i=2&c[0]?r.return:c[0]?r.throw||((i=r.return)&&i.call(r),0):r.next)&&!(i=i.call(r,c[1])).done)return i;switch(r=0,i&&(c=[2&c[0],i.value]),c[0]){case 0:case 1:i=c;break;case 4:return u.label++,{value:c[1],done:!1};case 5:u.label++,r=c[1],c=[0];continue;case 7:c=u.ops.pop(),u.trys.pop();continue;default:if(!(i=u.trys,(i=i.length>0&&i[i.length-1])||6!==c[0]&&2!==c[0])){u=0;continue}if(3===c[0]&&(!i||c[1]>i[0]&&c[1]<i[3])){u.label=c[1];break}if(6===c[0]&&u.label<i[1]){u.label=i[1],i=c;break}if(i&&u.label<i[2]){u.label=i[2],u.ops.push(c);break}i[2]&&u.ops.pop(),u.trys.pop();continue}c=e.call(t,u)}catch(t){c=[6,t],r=0}finally{n=i=0}if(5&c[0])throw c[1];return{value:c[0]?c[1]:void 0,done:!0}}([c,a])}}}var r,i=(r=0,function(){return r+=1,"u".concat("0000".concat((Math.random()*Math.pow(36,4)<<0).toString(36)).slice(-4)).concat(r)});function o(t){for(var e=[],n=0,r=t.length;n<r;n++)e.push(t[n]);return e}var u=null;function c(t){return void 0===t&&(t={}),u||(u=t.includeStyleProperties?t.includeStyleProperties:o(window.getComputedStyle(document.documentElement)))}function a(t,e){var n=(t.ownerDocument.defaultView||window).getComputedStyle(t).getPropertyValue(e);return n?parseFloat(n.replace("px","")):0}function s(t,e){void 0===e&&(e={});var n,r,i,o=e.width||(r=a(n=t,"border-left-width"),i=a(n,"border-right-width"),n.clientWidth+r+i),u=e.height||function(t){var e=a(t,"border-top-width"),n=a(t,"border-bottom-width");return t.clientHeight+e+n}(t);return{width:o,height:u}}var l=16384;function f(t,e){return void 0===e&&(e={}),t.toBlob?new Promise((function(n){t.toBlob(n,e.type?e.type:"image/png",e.quality?e.quality:1)})):new Promise((function(n){for(var r=window.atob(t.toDataURL(e.type?e.type:void 0,e.quality?e.quality:void 0).split(",")[1]),i=r.length,o=new Uint8Array(i),u=0;u<i;u+=1)o[u]=r.charCodeAt(u);n(new Blob([o],{type:e.type?e.type:"image/png"}))}))}function h(t){return new Promise((function(e,n){var r=new Image;r.onload=function(){r.decode().then((function(){requestAnimationFrame((function(){return e(r)}))}))},r.onerror=n,r.crossOrigin="anonymous",r.decoding="async",r.src=t}))}function d(t){return e(this,void 0,void 0,(function(){return n(this,(function(e){return[2,Promise.resolve().then((function(){return(new XMLSerializer).serializeToString(t)})).then(encodeURIComponent).then((function(t){return"data:image/svg+xml;charset=utf-8,".concat(t)}))]}))}))}function v(t,r,i){return e(this,void 0,void 0,(function(){var e,o,u;return n(this,(function(n){return e="http://www.w3.org/2000/svg",o=document.createElementNS(e,"svg"),u=document.createElementNS(e,"foreignObject"),o.setAttribute("width","".concat(r)),o.setAttribute("height","".concat(i)),o.setAttribute("viewBox","0 0 ".concat(r," ").concat(i)),u.setAttribute("width","100%"),u.setAttribute("height","100%"),u.setAttribute("x","0"),u.setAttribute("y","0"),u.setAttribute("externalResourcesRequired","true"),o.appendChild(u),u.appendChild(t),[2,d(o)]}))}))}var p=function(t,e){if(t instanceof e)return!0;var n=Object.getPrototypeOf(t);return null!==n&&(n.constructor.name===e.name||p(n,e))};function g(t,e,n,r){var i=".".concat(t,":").concat(e),o=n.cssText?function(t){var e=t.getPropertyValue("content");return"".concat(t.cssText," content: '").concat(e.replace(/'|"/g,""),"';")}(n):function(t,e){return c(e).map((function(e){var n=t.getPropertyValue(e),r=t.getPropertyPriority(e);return"".concat(e,": ").concat(n).concat(r?" !important":"",";")})).join(" ")}(n,r);return document.createTextNode("".concat(i,"{").concat(o,"}"))}function m(t,e,n,r){var o=window.getComputedStyle(t,n),u=o.getPropertyValue("content");if(""!==u&&"none"!==u){var c=i();try{e.className="".concat(e.className," ").concat(c)}catch(t){return}var a=document.createElement("style");a.appendChild(g(c,n,o,r)),e.appendChild(a)}}var w="application/font-woff",y="image/jpeg",b={woff:w,woff2:w,ttf:"application/font-truetype",eot:"application/vnd.ms-fontobject",png:"image/png",jpg:y,jpeg:y,gif:"image/gif",tiff:"image/tiff",svg:"image/svg+xml",webp:"image/webp"};function S(t){var e=function(t){var e=/\.([^./]*?)$/g.exec(t);return e?e[1]:""}(t).toLowerCase();return b[e]||""}function E(t){return-1!==t.search(/^(data:)/)}function x(t,e){return"data:".concat(e,";base64,").concat(t)}function C(t,r,i){return e(this,void 0,void 0,(function(){var e,o;return n(this,(function(n){switch(n.label){case 0:return[4,fetch(t,r)];case 1:if(404===(e=n.sent()).status)throw new Error('Resource "'.concat(e.url,'" not found'));return[4,e.blob()];case 2:return o=n.sent(),[2,new Promise((function(t,n){var r=new FileReader;r.onerror=n,r.onloadend=function(){try{t(i({res:e,result:r.result}))}catch(t){n(t)}},r.readAsDataURL(o)}))]}}))}))}var P={};function R(t,r,i){return e(this,void 0,void 0,(function(){var e,o,u,c,a;return n(this,(function(n){switch(n.label){case 0:if(e=function(t,e,n){var r=t.replace(/\?.*/,"");return n&&(r=t),/ttf|otf|eot|woff2?/i.test(r)&&(r=r.replace(/.*\//,"")),e?"[".concat(e,"]").concat(r):r}(t,r,i.includeQueryParams),null!=P[e])return[2,P[e]];i.cacheBust&&(t+=(/\?/.test(t)?"&":"?")+(new Date).getTime()),n.label=1;case 1:return n.trys.push([1,3,,4]),[4,C(t,i.fetchRequestInit,(function(t){var e=t.res,n=t.result;return r||(r=e.headers.get("Content-Type")||""),function(t){return t.split(/,/)[1]}(n)}))];case 2:return u=n.sent(),o=x(u,r),[3,4];case 3:return c=n.sent(),o=i.imagePlaceholder||"",a="Failed to fetch resource: ".concat(t),c&&(a="string"==typeof c?c:c.message),a&&console.warn(a),[3,4];case 4:return P[e]=o,[2,o]}}))}))}function T(t){return e(this,void 0,void 0,(function(){var e;return n(this,(function(n){return"data:,"===(e=t.toDataURL())?[2,t.cloneNode(!1)]:[2,h(e)]}))}))}function A(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return t.currentSrc?(e=document.createElement("canvas"),i=e.getContext("2d"),e.width=t.clientWidth,e.height=t.clientHeight,null==i||i.drawImage(t,0,0,e.width,e.height),[2,h(e.toDataURL())]):(o=t.poster,u=S(o),[4,R(o,u,r)]);case 1:return[2,h(n.sent())]}}))}))}function k(t,r){var i;return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return e.trys.push([0,3,,4]),(null===(i=null==t?void 0:t.contentDocument)||void 0===i?void 0:i.body)?[4,I(t.contentDocument.body,r,!0)]:[3,2];case 1:return[2,e.sent()];case 2:return[3,4];case 3:return e.sent(),[3,4];case 4:return[2,t.cloneNode(!1)]}}))}))}var L=function(t){return null!=t.tagName&&"SVG"===t.tagName.toUpperCase()};function N(t,e,n){return p(e,Element)&&(function(t,e,n){var r=e.style;if(r){var i=window.getComputedStyle(t);i.cssText?(r.cssText=i.cssText,r.transformOrigin=i.transformOrigin):c(n).forEach((function(n){var o=i.getPropertyValue(n);if("font-size"===n&&o.endsWith("px")){var u=Math.floor(parseFloat(o.substring(0,o.length-2)))-.1;o="".concat(u,"px")}p(t,HTMLIFrameElement)&&"display"===n&&"inline"===o&&(o="block"),"d"===n&&e.getAttribute("d")&&(o="path(".concat(e.getAttribute("d"),")")),r.setProperty(n,o,i.getPropertyPriority(n))}))}}(t,e,n),function(t,e,n){m(t,e,":before",n),m(t,e,":after",n)}(t,e,n),function(t,e){p(t,HTMLTextAreaElement)&&(e.innerHTML=t.value),p(t,HTMLInputElement)&&e.setAttribute("value",t.value)}(t,e),function(t,e){if(p(t,HTMLSelectElement)){var n=e,r=Array.from(n.children).find((function(e){return t.value===e.getAttribute("value")}));r&&r.setAttribute("selected","")}}(t,e)),e}function I(t,r,i){return e(this,void 0,void 0,(function(){return n(this,(function(u){return i||!r.filter||r.filter(t)?[2,Promise.resolve(t).then((function(t){return function(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){return p(t,HTMLCanvasElement)?[2,T(t)]:p(t,HTMLVideoElement)?[2,A(t,r)]:p(t,HTMLIFrameElement)?[2,k(t,r)]:[2,t.cloneNode(L(t))]}))}))}(t,r)})).then((function(i){return function(t,r,i){var u,c;return e(this,void 0,void 0,(function(){var e;return n(this,(function(n){switch(n.label){case 0:return L(r)?[2,r]:(e=[],0===(e=null!=(a=t).tagName&&"SLOT"===a.tagName.toUpperCase()&&t.assignedNodes?o(t.assignedNodes()):p(t,HTMLIFrameElement)&&(null===(u=t.contentDocument)||void 0===u?void 0:u.body)?o(t.contentDocument.body.childNodes):o((null!==(c=t.shadowRoot)&&void 0!==c?c:t).childNodes)).length||p(t,HTMLVideoElement)?[2,r]:[4,e.reduce((function(t,e){return t.then((function(){return I(e,i)})).then((function(t){t&&r.appendChild(t)}))}),Promise.resolve())]);case 1:return n.sent(),[2,r]}var a}))}))}(t,i,r)})).then((function(e){return N(t,e,r)})).then((function(t){return function(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u,c,a,s,l,f,h,d,v,p;return n(this,(function(n){switch(n.label){case 0:if(0===(e=t.querySelectorAll?t.querySelectorAll("use"):[]).length)return[2,t];i={},p=0,n.label=1;case 1:return p<e.length?(o=e[p],(u=o.getAttribute("xlink:href"))?(c=t.querySelector(u),a=document.querySelector(u),c||!a||i[u]?[3,3]:(s=i,l=u,[4,I(a,r,!0)])):[3,3]):[3,4];case 2:s[l]=n.sent(),n.label=3;case 3:return p++,[3,1];case 4:if((f=Object.values(i)).length){for(h="http://www.w3.org/1999/xhtml",(d=document.createElementNS(h,"svg")).setAttribute("xmlns",h),d.style.position="absolute",d.style.width="0",d.style.height="0",d.style.overflow="hidden",d.style.display="none",v=document.createElementNS(h,"defs"),d.appendChild(v),p=0;p<f.length;p++)v.appendChild(f[p]);t.appendChild(d)}return[2,t]}}))}))}(t,r)}))]:[2,null]}))}))}var D=/url\((['"]?)([^'"]+?)\1\)/g,H=/url\([^)]+\)\s*format\((["']?)([^"']+)\1\)/g,M=/src:\s*(?:url\([^)]+\)\s*format\([^)]+\)[,;]\s*)+/g;function F(t,r,i,o,u){return e(this,void 0,void 0,(function(){var e,c,a,s;return n(this,(function(n){switch(n.label){case 0:return n.trys.push([0,5,,6]),e=i?function(t,e){if(t.match(/^[a-z]+:\/\//i))return t;if(t.match(/^\/\//))return window.location.protocol+t;if(t.match(/^[a-z]+:/i))return t;var n=document.implementation.createHTMLDocument(),r=n.createElement("base"),i=n.createElement("a");return n.head.appendChild(r),n.body.appendChild(i),e&&(r.href=e),i.href=t,i.href}(r,i):r,c=S(r),a=void 0,u?[4,u(e)]:[3,2];case 1:return s=n.sent(),a=x(s,c),[3,4];case 2:return[4,R(e,c,o)];case 3:a=n.sent(),n.label=4;case 4:return[2,t.replace((l=r,f=l.replace(/([.*+?^${}()|\[\]\/\\])/g,"\\$1"),new RegExp("(url\\(['\"]?)(".concat(f,")(['\"]?\\))"),"g")),"$1".concat(a,"$3"))];case 5:return n.sent(),[3,6];case 6:return[2,t]}var l,f}))}))}function V(t){return-1!==t.search(D)}function q(t,r,i){return e(this,void 0,void 0,(function(){var e,o;return n(this,(function(n){return V(t)?(e=function(t,e){var n=e.preferredFontFormat;return n?t.replace(M,(function(t){for(;;){var e=H.exec(t)||[],r=e[0],i=e[2];if(!i)return"";if(i===n)return"src: ".concat(r,";")}})):t}(t,i),o=function(t){var e=[];return t.replace(D,(function(t,n,r){return e.push(r),t})),e.filter((function(t){return!E(t)}))}(e),[2,o.reduce((function(t,e){return t.then((function(t){return F(t,e,r,i)}))}),Promise.resolve(e))]):[2,t]}))}))}function U(t,r,i){var o;return e(this,void 0,void 0,(function(){var e,u;return n(this,(function(n){switch(n.label){case 0:return(e=null===(o=r.style)||void 0===o?void 0:o.getPropertyValue(t))?[4,q(e,null,i)]:[3,2];case 1:return u=n.sent(),r.style.setProperty(t,u,r.style.getPropertyPriority(t)),[2,!0];case 2:return[2,!1]}}))}))}function j(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return[4,U("background",t,r)];case 1:return n.sent()?[3,3]:[4,U("background-image",t,r)];case 2:n.sent(),n.label=3;case 3:return[4,U("mask",t,r)];case 4:return(i=n.sent())?[3,6]:[4,U("-webkit-mask",t,r)];case 5:i=n.sent(),n.label=6;case 6:return(e=i)?[3,8]:[4,U("mask-image",t,r)];case 7:e=n.sent(),n.label=8;case 8:return e?[3,10]:[4,U("-webkit-mask-image",t,r)];case 9:n.sent(),n.label=10;case 10:return[2]}}))}))}function O(t,r){return e(this,void 0,void 0,(function(){var e,i,o;return n(this,(function(n){switch(n.label){case 0:return(e=p(t,HTMLImageElement))&&!E(t.src)||p(t,SVGImageElement)&&!E(t.href.baseVal)?[4,R(i=e?t.src:t.href.baseVal,S(i),r)]:[2];case 1:return o=n.sent(),[4,new Promise((function(n,i){t.onload=n,t.onerror=r.onImageErrorHandler?function(){for(var t=[],e=0;e<arguments.length;e++)t[e]=arguments[e];try{n(r.onImageErrorHandler.apply(r,t))}catch(t){i(t)}}:i;var u=t;u.decode&&(u.decode=n),"lazy"===u.loading&&(u.loading="eager"),e?(t.srcset="",t.src=o):t.href.baseVal=o}))];case 2:return n.sent(),[2]}}))}))}function B(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return e=o(t.childNodes),i=e.map((function(t){return z(t,r)})),[4,Promise.all(i).then((function(){return t}))];case 1:return n.sent(),[2]}}))}))}function z(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return p(t,Element)?[4,j(t,r)]:[3,4];case 1:return e.sent(),[4,O(t,r)];case 2:return e.sent(),[4,B(t,r)];case 3:e.sent(),e.label=4;case 4:return[2]}}))}))}var W={};function $(t){return e(this,void 0,void 0,(function(){var e,r;return n(this,(function(n){switch(n.label){case 0:return null!=(e=W[t])?[2,e]:[4,fetch(t)];case 1:return[4,n.sent().text()];case 2:return r=n.sent(),e={url:t,cssText:r},W[t]=e,[2,e]}}))}))}function G(t,r){return e(this,void 0,void 0,(function(){var i,o,u,c,a=this;return n(this,(function(s){return i=t.cssText,o=/url\(["']?([^"')]+)["']?\)/g,u=i.match(/url\([^)]+\)/g)||[],c=u.map((function(u){return e(a,void 0,void 0,(function(){var e;return n(this,(function(n){return(e=u.replace(o,"$1")).startsWith("https://")||(e=new URL(e,t.url).href),[2,C(e,r.fetchRequestInit,(function(t){var e=t.result;return i=i.replace(u,"url(".concat(e,")")),[u,e]}))]}))}))})),[2,Promise.all(c).then((function(){return i}))]}))}))}function _(t){if(null==t)return[];for(var e=[],n=t.replace(/(\/\*[\s\S]*?\*\/)/gi,""),r=new RegExp("((@.*?keyframes [\\s\\S]*?){([\\s\\S]*?}\\s*?)})","gi");;){if(null===(u=r.exec(n)))break;e.push(u[0])}n=n.replace(r,"");for(var i=/@import[\s\S]*?url\([^)]*\)[\s\S]*?;/gi,o=new RegExp("((\\s*?(?:\\/\\*[\\s\\S]*?\\*\\/)?\\s*?@media[\\s\\S]*?){([\\s\\S]*?)}\\s*?})|(([\\s\\S]*?){([\\s\\S]*?)})","gi");;){var u;if(null===(u=i.exec(n))){if(null===(u=o.exec(n)))break;i.lastIndex=o.lastIndex}else o.lastIndex=i.lastIndex;e.push(u[0])}return e}function J(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){return e=[],i=[],t.forEach((function(e){if("cssRules"in e)try{o(e.cssRules||[]).forEach((function(t,n){if(t.type===CSSRule.IMPORT_RULE){var o=n+1,u=$(t.href).then((function(t){return G(t,r)})).then((function(t){return _(t).forEach((function(t){try{e.insertRule(t,t.startsWith("@import")?o+=1:e.cssRules.length)}catch(e){console.error("Error inserting rule from remote css",{rule:t,error:e})}}))})).catch((function(t){console.error("Error loading remote css",t.toString())}));i.push(u)}}))}catch(o){var n=t.find((function(t){return null==t.href}))||document.styleSheets[0];null!=e.href&&i.push($(e.href).then((function(t){return G(t,r)})).then((function(t){return _(t).forEach((function(t){n.insertRule(t,n.cssRules.length)}))})).catch((function(t){console.error("Error loading remote stylesheet",t)}))),console.error("Error inlining remote css file",o)}})),[2,Promise.all(i).then((function(){return t.forEach((function(t){if("cssRules"in t)try{o(t.cssRules||[]).forEach((function(t){e.push(t)}))}catch(e){console.error("Error while reading CSS rules from ".concat(t.href),e)}})),e}))]}))}))}function Q(t){return t.filter((function(t){return t.type===CSSRule.FONT_FACE_RULE})).filter((function(t){return V(t.style.getPropertyValue("src"))}))}function X(t,r){return e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:if(null==t.ownerDocument)throw new Error("Provided element is not within a Document");return[4,J(o(t.ownerDocument.styleSheets),r)];case 1:return[2,Q(e.sent())]}}))}))}function K(t){return t.trim().replace(/["']/g,"")}function Y(t,r){return e(this,void 0,void 0,(function(){var e,i;return n(this,(function(n){switch(n.label){case 0:return[4,X(t,r)];case 1:return e=n.sent(),i=function(t){var e=new Set;return function t(n){(n.style.fontFamily||getComputedStyle(n).fontFamily).split(",").forEach((function(t){e.add(K(t))})),Array.from(n.children).forEach((function(e){e instanceof HTMLElement&&t(e)}))}(t),e}(t),[4,Promise.all(e.filter((function(t){return i.has(K(t.style.fontFamily))})).map((function(t){var e=t.parentStyleSheet?t.parentStyleSheet.href:null;return q(t.cssText,e,r)})))];case 2:return[2,n.sent().join("\n")]}}))}))}function Z(t,r){return e(this,void 0,void 0,(function(){var e,i,o,u,c;return n(this,(function(n){switch(n.label){case 0:return null==r.fontEmbedCSS?[3,1]:(i=r.fontEmbedCSS,[3,5]);case 1:return r.skipFonts?(o=null,[3,4]):[3,2];case 2:return[4,Y(t,r)];case 3:o=n.sent(),n.label=4;case 4:i=o,n.label=5;case 5:return(e=i)&&(u=document.createElement("style"),c=document.createTextNode(e),u.appendChild(c),t.firstChild?t.insertBefore(u,t.firstChild):t.appendChild(u)),[2]}}))}))}function tt(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,I(t,r,!0)];case 1:return[4,Z(u=n.sent(),r)];case 2:return n.sent(),[4,z(u,r)];case 3:return n.sent(),function(t,e){var n=t.style;e.backgroundColor&&(n.backgroundColor=e.backgroundColor),e.width&&(n.width="".concat(e.width,"px")),e.height&&(n.height="".concat(e.height,"px"));var r=e.style;null!=r&&Object.keys(r).forEach((function(t){n[t]=r[t]}))}(u,r),[4,v(u,i,o)];case 4:return[2,n.sent()]}}))}))}function et(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u,c,a,f,d,v;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,tt(t,r)];case 1:return[4,h(n.sent())];case 2:return u=n.sent(),c=document.createElement("canvas"),a=c.getContext("2d"),f=r.pixelRatio||function(){var t,e;try{e=process}catch(t){}var n=e&&e.env?e.env.devicePixelRatio:null;return n&&(t=parseInt(n,10),Number.isNaN(t)&&(t=1)),t||window.devicePixelRatio||1}(),d=r.canvasWidth||i,v=r.canvasHeight||o,c.width=d*f,c.height=v*f,r.skipAutoScale||function(t){(t.width>l||t.height>l)&&(t.width>l&&t.height>l?t.width>t.height?(t.height*=l/t.width,t.width=l):(t.width*=l/t.height,t.height=l):t.width>l?(t.height*=l/t.width,t.width=l):(t.width*=l/t.height,t.height=l))}(c),c.style.width="".concat(d),c.style.height="".concat(v),r.backgroundColor&&(a.fillStyle=r.backgroundColor,a.fillRect(0,0,c.width,c.height)),a.drawImage(u,0,0,c.width,c.height),[2,c]}}))}))}t.getFontEmbedCSS=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){return[2,Y(t,r)]}))}))},t.toBlob=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[4,f(e.sent())];case 2:return[2,e.sent()]}}))}))},t.toCanvas=et,t.toJpeg=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[2,e.sent().toDataURL("image/jpeg",r.quality||1)]}}))}))},t.toPixelData=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){var e,i,o,u;return n(this,(function(n){switch(n.label){case 0:return e=s(t,r),i=e.width,o=e.height,[4,et(t,r)];case 1:return u=n.sent(),[2,u.getContext("2d").getImageData(0,0,i,o).data]}}))}))},t.toPng=function(t,r){return void 0===r&&(r={}),e(this,void 0,void 0,(function(){return n(this,(function(e){switch(e.label){case 0:return[4,et(t,r)];case 1:return[2,e.sent().toDataURL()]}}))}))},t.toSvg=tt}));
+ return exports; })();
+const CSS_OUTIL = ":host { all: initial; }* { box-sizing: border-box; }[hidden] { display: none !important; }:where(.r), :where(.r) :where(*) { font: 15px/1.4 system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", sans-serif; color: var(--txt); -webkit-tap-highlight-color: transparent; }.r {--fond: #1D2024; --fond2: #262A2F; --fond3: #30353B; --trait: #3C434B;--txt: #EEF0F2; --doux: #AEB4BC; --acc: #FFB224; --acc-enc: #1B1400;--ok: #46D68E; --err: #FF7070; --bleu: #8AB8FF;--mono: ui-monospace, \"SF Mono\", \"Cascadia Mono\", Menlo, Consolas, monospace;--rayon: 16px; --ombre: 0 18px 50px rgba(0,0,0,.45), 0 2px 8px rgba(0,0,0,.3);}button { cursor: pointer; border: 0; background: none; padding: 0; margin: 0; }button:focus-visible, textarea:focus-visible, input:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }small, .doux { color: var(--doux); font-size: 13px; }.mono { font-family: var(--mono) !important; font-size: 12.5px; }.btn { min-height: 44px; padding: 0 16px; border-radius: 12px; background: var(--fond3); color: var(--txt); font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: background .15s, transform .1s; }.btn:hover { background: #3A4047; }.btn:active { transform: scale(.98); }.btn.prim { background: var(--acc); color: var(--acc-enc); }.btn.prim:hover { background: #FFC14D; }.btn.prim * { color: var(--acc-enc); }.btn.danger { color: var(--err); }.btn.petit { min-height: 36px; padding: 0 12px; font-size: 14px; border-radius: 10px; }.btn[disabled] { opacity: .45; pointer-events: none; }.ic { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; color: var(--doux); flex: none; }.ic:hover { background: var(--fond3); color: var(--txt); }.ic svg, .btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }.bulle { position: fixed; right: 12px; top: 58%; width: 56px; height: 56px; border-radius: 50%; background: var(--fond); color: var(--acc); display: grid; place-items: center; box-shadow: 0 8px 24px rgba(0,0,0,.35), 0 0 0 2px rgba(255,178,36,.55); pointer-events: auto; touch-action: none; user-select: none; -webkit-user-select: none; transition: transform .15s, box-shadow .15s; z-index: 3; }.bulle svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }.bulle .compte { position: absolute; top: -5px; right: -5px; min-width: 22px; height: 22px; border-radius: 11px; background: var(--acc); color: var(--acc-enc); font: 700 12px/22px system-ui, sans-serif; font-style: normal; text-align: center; padding: 0 6px; box-shadow: 0 0 0 2px var(--fond); }.bulle .compte:empty { display: none; }.bulle .etat { position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); background: var(--err); color: #fff; font: 800 10px/16px system-ui, sans-serif; letter-spacing: .06em; padding: 0 6px; border-radius: 8px; white-space: nowrap; }.bulle .etat:empty { display: none; }.bulle.rec { color: #fff; background: #B3261E; box-shadow: 0 0 0 2px #FF8A80, 0 8px 24px rgba(0,0,0,.35); animation: pulse 1.6s ease-in-out infinite; }.bulle.glisse { transform: scale(1.1); box-shadow: 0 16px 34px rgba(0,0,0,.5), 0 0 0 2px var(--acc); }@keyframes pulse { 50% { box-shadow: 0 0 0 8px rgba(255,112,112,.25), 0 8px 24px rgba(0,0,0,.35); } }.vague { position: fixed; left: 0; right: 0; bottom: 0; height: 160px; pointer-events: none; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 22px; opacity: 0; transform: translateY(40px); transition: opacity .18s, transform .18s; z-index: 2; }.vague.pres { opacity: calc(.55 + .45 * var(--p, 0)); transform: translateY(calc(40px - 40px * var(--p, 0))); }.vague svg { position: absolute; inset: 0; width: 100%; height: 100%; }.vague path { fill: rgba(20,22,26,.6); transition: fill .15s; }.vague.chaud path { fill: rgba(170,30,30,.7); }.vague .vin { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; }.vague .vin span { width: 46px; height: 46px; border-radius: 50%; border: 2px solid rgba(255,255,255,.9); display: grid; place-items: center; font-size: 18px; color: #fff; transition: transform .15s, background .15s; }.vague.chaud .vin span { transform: scale(1.18); background: rgba(255,255,255,.25); }.vague b { color: #fff; font-weight: 700; text-shadow: 0 1px 3px rgba(0,0,0,.4); }.pnl { position: fixed; left: 0; right: 0; bottom: 0; max-height: 82vh; background: var(--fond); border-radius: 20px 20px 0 0; box-shadow: var(--ombre); display: flex; flex-direction: column; pointer-events: auto; z-index: 4; padding-bottom: env(safe-area-inset-bottom, 0); animation: monte .22s ease-out; }@keyframes monte { from { transform: translateY(24px); opacity: 0; } }@media (min-width: 720px) {.pnl { left: auto; right: 24px; bottom: 24px; width: 420px; max-height: min(78vh, 720px); border-radius: var(--rayon); border: 1px solid var(--trait); }.pnl .poignee { display: none; }}.tete { display: flex; align-items: center; gap: 4px; padding: 6px 6px 6px 16px; border-bottom: 1px solid var(--trait); position: relative; touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; flex: none; }.poignee { position: absolute; top: 6px; left: 50%; width: 40px; height: 4px; margin-left: -20px; border-radius: 2px; background: var(--trait); }.titres { flex: 1; min-width: 0; display: flex; flex-direction: column; padding-top: 6px; }.titres b { font-weight: 700; font-size: 16px; }.titres small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }.onglets { display: flex; gap: 2px; background: var(--fond2); border-radius: 12px; padding: 3px; }.onglets button { min-height: 38px; min-width: 44px; padding: 0 10px; border-radius: 9px; color: var(--doux); font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; }.onglets button[aria-selected=\"true\"] { background: var(--fond3); color: var(--txt); }.onglets i { font-style: normal; min-width: 20px; height: 20px; border-radius: 10px; background: var(--acc); color: var(--acc-enc); font: 700 11px/20px system-ui, sans-serif; text-align: center; padding: 0 5px; }.onglets i:empty { display: none; }.onglets svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }.vue { padding: 14px 16px 16px; overflow: auto; display: flex; flex-direction: column; gap: 12px; min-height: 0; flex: 1 1 auto; overscroll-behavior: contain; }.outils { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }.outils button { min-height: 62px; border-radius: 12px; background: var(--fond2); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--txt); transition: background .15s; }.outils button:hover { background: var(--fond3); }.outils button span { font-size: 12.5px; font-weight: 600; color: var(--doux); }.outils button svg { width: 24px; height: 24px; fill: none; stroke: var(--acc); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }.outils button.on { background: #B3261E; }.outils button.on svg { stroke: #fff; } .outils button.on span { color: #fff; }.pieces { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }.pieces:empty { display: none; }.piece { display: flex; align-items: center; gap: 10px; background: var(--fond2); border: 1px solid var(--trait); border-radius: 12px; padding: 6px 4px 6px 6px; }.piece img, .piece .pic { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; background: var(--fond3); flex: none; display: grid; place-items: center; color: var(--acc); }.piece .pic svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }.piece .pt { flex: 1; min-width: 0; display: flex; flex-direction: column; }.piece .pt b { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }.piece .pt small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }textarea, input[type=text] { width: 100%; background: var(--fond2); border: 1px solid var(--trait); border-radius: 12px; padding: 12px 14px; color: var(--txt); font-size: 16px; resize: vertical; min-height: 48px; }textarea { min-height: 96px; }textarea::placeholder, input::placeholder { color: #858C95; }textarea:focus, input[type=text]:focus { border-color: var(--acc); outline: none; }.pied { display: flex; align-items: center; gap: 10px; }.pied .msg { flex: 1; margin: 0; font-size: 13px; color: var(--doux); }.pied .btn.prim { flex: none; min-width: 180px; }.filtres { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }.puce { min-height: 36px; padding: 0 12px; border-radius: 18px; background: var(--fond2); border: 1px solid var(--trait); color: var(--doux); font-size: 14px; font-weight: 600; }.puce[aria-pressed=\"true\"] { background: var(--txt); color: var(--fond); border-color: var(--txt); }.filtres .btn { margin-left: auto; }.liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }.note { background: var(--fond2); border: 1px solid var(--trait); border-radius: 14px; padding: 10px 6px 10px 12px; display: grid; grid-template-columns: 1fr auto; gap: 4px 6px; position: relative; }.note.val { opacity: .72; }.note .meta { font-size: 12.5px; color: var(--doux); display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }.note .txt { grid-column: 1; white-space: pre-wrap; word-break: break-word; }.note .act { grid-row: 1 / span 3; grid-column: 2; align-self: start; }.note .mini { grid-column: 1; display: flex; gap: 6px; flex-wrap: wrap; }.note .mini img { width: 84px; height: 56px; object-fit: cover; border-radius: 8px; border: 1px solid var(--trait); }.tag { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; background: var(--fond3); color: var(--txt); }.tag.ok { background: rgba(70,214,142,.15); color: var(--ok); }.tag.re { background: rgba(255,112,112,.15); color: var(--err); }.det { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 8px; border-top: 1px dashed var(--trait); padding-top: 8px; margin-top: 4px; }.det .bloc { background: var(--fond); border-radius: 10px; padding: 8px 10px; font-size: 13.5px; }.det .bloc b { font-weight: 700; }.det .bloc code, .det code { font-family: var(--mono); font-size: 12px; color: var(--bleu); word-break: break-all; }.det img { max-width: 100%; border-radius: 10px; border: 1px solid var(--trait); }.vide { text-align: center; color: var(--doux); padding: 28px 8px; }.vide b { display: block; color: var(--txt); font-size: 16px; margin-bottom: 4px; }.verif { background: var(--fond2); border: 1px solid var(--acc); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }.verif .txt { white-space: pre-wrap; font-size: 16px; }.verif img { max-width: 100%; border-radius: 10px; }.trois { display: grid; grid-template-columns: 1fr 1fr 1.3fr; gap: 8px; }.barre-prog { height: 4px; border-radius: 2px; background: var(--fond3); overflow: hidden; }.barre-prog i { display: block; height: 100%; background: var(--acc); }.menu3 { position: fixed; min-width: 230px; background: var(--fond2); border: 1px solid var(--trait); border-radius: 14px; box-shadow: var(--ombre); padding: 6px; display: flex; flex-direction: column; pointer-events: auto; z-index: 6; }.menu3 button { min-height: 44px; text-align: left; padding: 0 12px; border-radius: 10px; font-weight: 500; }.menu3 button:hover { background: var(--fond3); }.menu3 button.danger { color: var(--err); }.sec { display: flex; flex-direction: column; gap: 8px; }.sec h3 { margin: 4px 0 0; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--doux); font-weight: 700; }.ligne { display: flex; align-items: center; gap: 12px; background: var(--fond2); border-radius: 12px; padding: 10px 12px; min-height: 56px; }.ligne > span { flex: 1; display: flex; flex-direction: column; }.ligne b { font-weight: 600; }.bascule { width: 52px; height: 32px; border-radius: 16px; background: var(--fond3); position: relative; flex: none; transition: background .15s; }.bascule::after { content: \"\"; position: absolute; top: 4px; left: 4px; width: 24px; height: 24px; border-radius: 50%; background: #C9CED4; transition: transform .18s ease-out, background .18s; }.bascule[aria-checked=\"true\"] { background: var(--acc); }.bascule[aria-checked=\"true\"]::after { transform: translateX(20px); background: var(--acc-enc); }.grille2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }.grille2 .btn { justify-content: flex-start; }.info { font-family: var(--mono); font-size: 12px; color: var(--doux); line-height: 1.6; }.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0)); transform: translateX(-50%); width: max-content; max-width: min(92vw, 460px); background: #F2F3F5; color: #15171A; border-radius: 14px; padding: 10px 10px 10px 16px; box-shadow: var(--ombre); display: flex; align-items: center; gap: 12px; pointer-events: auto; z-index: 9; animation: monte .2s ease-out; }.toast, .toast * { color: #15171A; }.toast span { flex: 1; font-size: 14.5px; }.toast button { min-height: 36px; padding: 0 12px; border-radius: 10px; font-weight: 700; color: #7A4F00; background: #FFE3A8; }.calque { position: fixed; inset: 0; pointer-events: none; z-index: 5; }.calque.bloque { pointer-events: auto; }.calque canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }.barre { position: absolute; left: 8px; right: 8px; display: flex; align-items: center; gap: 8px; background: var(--fond); border-radius: 16px; padding: 6px; box-shadow: var(--ombre); pointer-events: auto; flex-wrap: wrap; }.barre.haut { top: calc(8px + env(safe-area-inset-top, 0)); }.barre.bas { bottom: calc(8px + env(safe-area-inset-bottom, 0)); }@media (min-width: 720px) { .barre { left: 50%; right: auto; transform: translateX(-50%); max-width: 760px; } }.barre .tt { flex: 1; min-width: 120px; padding: 0 6px; display: flex; flex-direction: column; }.barre .tt b { font-weight: 700; font-size: 14.5px; }.barre .tt small { font-size: 12.5px; }.formes { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; justify-content: center; }.formes button { min-width: 48px; min-height: 48px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; color: var(--doux); padding: 0 6px; }.formes button span { font-size: 11px; font-weight: 600; }.formes button[aria-pressed=\"true\"] { background: var(--fond3); color: var(--txt); box-shadow: inset 0 -2px 0 var(--acc); }.formes svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }.couleurs { display: flex; gap: 6px; padding: 0 4px; }.couleurs button { width: 32px; height: 32px; border-radius: 50%; border: 3px solid transparent; }.couleurs button[aria-pressed=\"true\"] { border-color: #fff; }.sep { width: 1px; align-self: stretch; background: var(--trait); margin: 4px 2px; }.attente { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--doux); }.attente::before { content: \"\"; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--doux); border-top-color: transparent; animation: tourne .8s linear infinite; }@keyframes tourne { to { transform: rotate(360deg); } }.consigne { position: absolute; left: 50%; transform: translateX(-50%); width: min(92vw, 440px); background: var(--fond); border-radius: 16px; padding: 12px; box-shadow: var(--ombre); display: flex; flex-direction: column; gap: 8px; pointer-events: auto; }.consigne .rang { display: flex; gap: 8px; }.consigne .rang input { flex: 1; }.numero { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--acc); color: var(--acc-enc) !important; font-weight: 800; font-size: 13px; margin-right: 6px; }.cadre { position: absolute; border: 2px solid var(--acc); background: rgba(255,178,36,.12); border-radius: 4px; pointer-events: none; transition: all .08s ease-out; box-shadow: 0 0 0 9999px rgba(0,0,0,.18); }.cadre .etq { position: absolute; left: -2px; bottom: 100%; margin-bottom: 4px; background: var(--fond); color: var(--txt); font: 600 12px/1.3 var(--mono); padding: 3px 7px; border-radius: 6px; white-space: nowrap; max-width: 80vw; overflow: hidden; text-overflow: ellipsis; }.cadre.bas .etq { bottom: auto; top: 100%; margin: 4px 0 0; }.surligne { position: absolute; background: rgba(255,178,36,.35); border-bottom: 2px solid var(--acc); pointer-events: none; }.grillev { position: absolute; inset: 0; pointer-events: none; }.resultat { display: flex; flex-direction: column; gap: 6px; font-size: 14px; }.nuance { display: inline-flex; align-items: center; gap: 8px; }.nuance i { width: 22px; height: 22px; border-radius: 6px; border: 1px solid rgba(255,255,255,.3); display: inline-block; }@media (prefers-reduced-motion: reduce) { .r *, .r *::before, .r *::after { animation: none !important; transition: none !important; } }.toast.haut { bottom: auto; top: calc(92px + env(safe-area-inset-top, 0)); }.calque .barre { transition: opacity .15s; }.calque.dessin .barre, .calque.dessin .consigne { opacity: .12; pointer-events: none; }.barre.haut.enbas { top: auto; bottom: var(--bas, 96px); }.coupe-debut { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; direction: rtl; text-align: left; }";
+
+/* ===== 01-utilitaires.js ===== */
+/* =====================================================================
+   Utilitaires communs
+   ===================================================================== */
+
+// Réglages de l'intégration (complétés par Debogage.init)
+const CFG = {
+  projet: "",            // nom court du projet : « mes-comptes », « crm-devis »…
+  version: "",           // version de l'appli testée : « 2.19 »
+  ecran: null,           // () => "Saisie › étape montant" ; sinon détection automatique
+  etat: null,            // () => ({ periode, filtre… }) : instantané joint à chaque note
+  db: "auto",            // "auto" (base de l'artifact si dispo) | objet base | false (appareil seulement)
+  collection: "debugnotes",
+  bulle: true,           // bulle visible au démarrage (sauf si l'utilisateur l'a fermée)
+  langue: "fr-FR",
+  raccourci: true,       // Ctrl+Maj+D
+  partager: null,        // (nomFichier, texte) => … : partage natif (Android)
+  telecharger: null,     // (nomFichier, blob) => … : remplace le téléchargement par défaut
+  ecouter: null,         // async () => texte : reconnaissance vocale native (Android)
+  ignorer: "[data-debogage-ignorer]", // éléments jamais capturés (données sensibles)
+  surNote: null          // (note) => … : appelé après chaque nouvelle note
+};
+
+const iso = () => new Date().toISOString();
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const tronquer = (s, n) => { s = String(s == null ? "" : s); return s.length > n ? s.slice(0, n - 1) + "…" : s; };
+const borne = (v, a, b) => Math.max(a, Math.min(b, v));
+const attendre = ms => new Promise(r => setTimeout(r, ms));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+
+function fmtQuand(s) {
+  const d = new Date(s); if (isNaN(d)) return "";
+  const auj = new Date(); const memeJour = d.toDateString() === auj.toDateString();
+  const h = d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  return memeJour ? "Aujourd'hui " + h : d.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" }) + " " + h;
+}
+const fmtNb = n => String(Math.round(n * 10) / 10).replace(".", ",");
+
+// Stockage local, rangé par projet
+const cle = k => "debogage:" + (CFG.projet || location.pathname) + ":" + k;
+const local = {
+  lire(k, defaut) { try { const v = localStorage.getItem(cle(k)); return v == null ? defaut : JSON.parse(v); } catch (e) { return defaut; } },
+  ecrire(k, v) { try { if (v == null) localStorage.removeItem(cle(k)); else localStorage.setItem(cle(k), JSON.stringify(v)); } catch (e) {} }
+};
+
+// Couleurs
+function versHex(c) {
+  const m = String(c).match(/rgba?\(([^)]+)\)/); if (!m) return c;
+  const p = m[1].split(/[\s,\/]+/).filter(Boolean).map(Number);
+  const hex = "#" + p.slice(0, 3).map(x => Math.round(x).toString(16).padStart(2, "0")).join("");
+  return p.length > 3 && p[3] < 1 ? hex + " (" + Math.round(p[3] * 100) + " %)" : hex;
+}
+function rgbDe(c) { const m = String(c).match(/rgba?\(([^)]+)\)/); if (!m) return null; const p = m[1].split(/[\s,\/]+/).filter(Boolean).map(Number); return { r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1 }; }
+function luminance({ r, g, b }) { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); }
+function contraste(c1, c2) { const a = rgbDe(c1), b = rgbDe(c2); if (!a || !b) return null; const l1 = luminance(a), l2 = luminance(b); return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05); }
+
+// Fond réellement visible derrière un élément
+function fondEffectif(el) {
+  let n = el;
+  while (n && n.nodeType === 1) {
+    const c = getComputedStyle(n).backgroundColor, v = rgbDe(c);
+    if (v && v.a > 0.05) return c;
+    n = n.parentElement;
+  }
+  return "rgb(255, 255, 255)";
+}
+
+/* ---------- Décrire un élément de la page (pour Claude) ---------- */
+const idStable = id => id && !/\d{5,}|^[a-f0-9-]{16,}$/i.test(id);
+function selecteur(el) {
+  if (!el || el.nodeType !== 1) return "";
+  if (idStable(el.id)) return "#" + CSS.escape(el.id);
+  const parts = []; let n = el;
+  while (n && n.nodeType === 1 && n !== document.body && n !== document.documentElement && parts.length < 5) {
+    if (idStable(n.id)) { parts.unshift("#" + CSS.escape(n.id)); break; }
+    let p = n.tagName.toLowerCase();
+    const cls = [...n.classList].filter(c => c.length < 32 && !/^(on|active|open|hover|focus|is-|has-|js-)/.test(c)).slice(0, 2);
+    if (cls.length) p += "." + cls.map(c => CSS.escape(c)).join(".");
+    const par = n.parentElement;
+    if (par) { const memes = [...par.children].filter(c => c.tagName === n.tagName); if (memes.length > 1) p += ":nth-of-type(" + (memes.indexOf(n) + 1) + ")"; }
+    parts.unshift(p); n = n.parentElement;
+  }
+  return parts.join(" > ");
+}
+function texteDe(el, n) {
+  if (!el || el.nodeType !== 1) return "";
+  const a = el.getAttribute("aria-label") || el.getAttribute("title") || el.getAttribute("placeholder") || el.getAttribute("alt");
+  const t = a || (el.tagName === "INPUT" || el.tagName === "TEXTAREA" ? "" : (el.innerText || el.textContent || ""));
+  return tronquer(t.replace(/\s+/g, " ").trim(), n || 80);
+}
+function decrireCourt(el) {
+  if (!el || el.nodeType !== 1) return "";
+  const t = texteDe(el, 50);
+  return el.tagName.toLowerCase() + (t ? " « " + t + " »" : "") + (idStable(el.id) ? " #" + el.id : "");
+}
+function decrireElement(el) {
+  const r = el.getBoundingClientRect(), cs = getComputedStyle(el), fond = fondEffectif(el);
+  const ct = contraste(cs.color, fond);
+  return {
+    selecteur: selecteur(el), balise: el.tagName.toLowerCase(), texte: texteDe(el, 120),
+    role: el.getAttribute("role") || "",
+    taille: Math.round(r.width) + " × " + Math.round(r.height) + " px",
+    position: "x " + Math.round(r.left) + ", y " + Math.round(r.top),
+    styles: {
+      police: cs.fontSize + " " + cs.fontWeight + " " + cs.fontFamily.split(",")[0].replace(/["']/g, ""),
+      couleur: versHex(cs.color), fond: versHex(fond),
+      contraste: ct ? fmtNb(ct) + ":1" + (ct < 4.5 ? " (insuffisant, viser 4,5:1)" : "") : "",
+      marges: cs.margin, retraits: cs.padding,
+      bordure: cs.borderTopWidth !== "0px" ? cs.borderTopWidth + " " + cs.borderTopStyle + " " + versHex(cs.borderTopColor) : "",
+      rayon: cs.borderRadius !== "0px" ? cs.borderRadius : ""
+    }
+  };
+}
+
+/* ---------- Ce qui se trouve dans une zone de l'écran ---------- */
+function elementSous(x, y) {
+  const liste = document.elementsFromPoint(x, y) || [];
+  return liste.find(e => e !== HOTE && !(HOTE && HOTE.contains(e)) && e !== document.documentElement && e !== document.body) || null;
+}
+function elementsDansZone(r) {
+  const vus = new Map(), pas = 6;
+  for (let i = 0; i <= pas; i++) for (let j = 0; j <= pas; j++) {
+    const x = r.x + r.w * (0.05 + 0.9 * i / pas), y = r.y + r.h * (0.05 + 0.9 * j / pas);
+    let e = elementSous(x, y); if (!e) continue;
+    // on remonte au premier élément qui porte du texte ou un rôle
+    let k = e; while (k && k !== document.body && !texteDe(k, 40) && !/^(BUTTON|A|INPUT|SELECT|IMG|SVG|CANVAS)$/.test(k.tagName)) k = k.parentElement;
+    if (k && k !== document.body) vus.set(k, (vus.get(k) || 0) + 1);
+  }
+  // les plus présents d'abord, sans garder un parent et son enfant
+  const tri = [...vus.entries()].sort((a, b) => b[1] - a[1]).map(x => x[0]);
+  const garde = [];
+  for (const e of tri) { if (garde.some(g => g.contains(e) || e.contains(g))) continue; garde.push(e); if (garde.length >= 6) break; }
+  return garde.map(e => ({ s: selecteur(e), t: decrireCourt(e) }));
+}
+
+// Téléchargement : hook de l'appli, capacité « downloads » d'un artifact, ou lien classique
+async function telecharger(nom, blob) {
+  if (CFG.telecharger) return CFG.telecharger(nom, blob);
+  try {
+    const dl = window.claude && window.claude.use ? await Promise.race([window.claude.use("downloads"), attendre(1500).then(() => null)]) : null;
+    if (dl) { await dl.save({ filename: nom, data: blob }); return true; }
+  } catch (e) { if (e && e.code === "declined") return false; }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = nom;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+  return true;
+}
+async function copier(texte) {
+  try { await navigator.clipboard.writeText(texte); return true; }
+  catch (e) {
+    const t = document.createElement("textarea"); t.value = texte; t.style.cssText = "position:fixed;opacity:0;top:0;left:0";
+    document.body.appendChild(t); t.select(); let ok = false; try { ok = document.execCommand("copy"); } catch (er) {} t.remove(); return ok;
+  }
+}
+
+/* ===== 02-contexte.js ===== */
+/* =====================================================================
+   Contexte technique joint automatiquement à chaque note :
+   erreurs JavaScript, parcours récent, appareil, état de l'appli
+   ===================================================================== */
+const CTX = { erreurs: [], parcours: [], dernierEcran: "", installe: false };
+const pousser = (tab, x, max) => { tab.push(x); if (tab.length > max) tab.splice(0, tab.length - max); };
+const fmtArg = a => { if (a instanceof Error) return a.message; if (typeof a === "object") { try { return JSON.stringify(a); } catch (e) { return String(a); } } return String(a); };
+
+function ecranCourant() {
+  if (typeof CFG.ecran === "function") { try { const s = CFG.ecran(); if (s) return tronquer(s, 120); } catch (e) {} }
+  // détection automatique : fenêtre ouverte, sinon onglet actif, sinon titre de la page
+  const visible = e => e && e.offsetParent !== null && !e.closest("[hidden]");
+  const dlg = [...document.querySelectorAll('[role="dialog"],[aria-modal="true"],dialog[open]')].filter(visible).pop();
+  const titreDlg = dlg && dlg.querySelector("h1,h2,h3,[class*=title],[class*=titre]");
+  const onglet = [...document.querySelectorAll('[role="tab"][aria-selected="true"],nav [aria-current="page"],.active[role="tab"]')].find(visible);
+  const parts = [];
+  if (onglet) parts.push(texteDe(onglet, 40));
+  if (titreDlg) parts.push(texteDe(titreDlg, 50));
+  if (!parts.length) { const h = [...document.querySelectorAll("h1,h2")].find(visible); if (h) parts.push(texteDe(h, 50)); }
+  if (location.hash && location.hash.length > 1 && location.hash.length < 40) parts.push(location.hash);
+  return parts.filter(Boolean).join(" › ") || document.title || "Accueil";
+}
+
+function appareil() {
+  const ua = navigator.userAgent;
+  const nav = /Edg\//.test(ua) ? "Edge" : /SamsungBrowser/.test(ua) ? "Samsung Internet" : /Chrome\//.test(ua) ? "Chrome" : /Firefox\//.test(ua) ? "Firefox" : /Safari\//.test(ua) ? "Safari" : "Navigateur";
+  const os = /Android/.test(ua) ? "Android" : /iPhone|iPad/.test(ua) ? "iOS" : /Windows/.test(ua) ? "Windows" : /Mac OS/.test(ua) ? "macOS" : /Linux/.test(ua) ? "Linux" : "";
+  const mq = q => window.matchMedia && matchMedia(q).matches;
+  return {
+    ecran: innerWidth + " × " + innerHeight, densite: Math.round((window.devicePixelRatio || 1) * 100) / 100,
+    orientation: innerWidth > innerHeight ? "paysage" : "portrait",
+    theme: mq("(prefers-color-scheme: dark)") ? "sombre" : "clair",
+    zoom: window.visualViewport ? Math.round(visualViewport.scale * 100) + " %" : "",
+    tactile: navigator.maxTouchPoints > 0, systeme: os, navigateur: nav,
+    webview: /; wv\)/.test(ua) || !!window.AndroidBridge, enLigne: navigator.onLine,
+    agent: ua.slice(0, 180)
+  };
+}
+
+function etatApp() {
+  if (typeof CFG.etat !== "function") return "";
+  try { const v = CFG.etat(); return v == null ? "" : tronquer(typeof v === "string" ? v : JSON.stringify(v), 3000); }
+  catch (e) { return "(lecture de l'état impossible : " + e.message + ")"; }
+}
+
+function contexteNote() {
+  const depuis = Date.now() - 10 * 60 * 1000; // erreurs des 10 dernières minutes
+  return {
+    erreurs: CTX.erreurs.filter(e => Date.parse(e.at) > depuis).slice(-8),
+    parcours: CTX.parcours.slice(-12),
+    appareil: appareil(),
+    etat: etatApp(),
+    url: location.href.split("#")[0].slice(0, 200) + (location.hash ? location.hash.slice(0, 60) : "")
+  };
+}
+
+function installerContexte() {
+  if (CTX.installe) return; CTX.installe = true;
+  addEventListener("error", e => {
+    const t = e.target;
+    if (t && t !== window && (t.src || t.href)) { pousser(CTX.erreurs, { at: iso(), type: "ressource", message: "Échec de chargement : " + tronquer(t.src || t.href, 160) }, 30); return; }
+    pousser(CTX.erreurs, { at: iso(), type: "erreur", message: tronquer(e.message, 300), source: ((e.filename || "").split("/").pop() || "page") + ":" + (e.lineno || 0) + ":" + (e.colno || 0), pile: e.error && e.error.stack ? tronquer(e.error.stack, 700) : "" }, 30);
+  }, true);
+  addEventListener("unhandledrejection", e => {
+    const r = e.reason;
+    pousser(CTX.erreurs, { at: iso(), type: "promesse rejetée", message: tronquer(r && r.message || fmtArg(r), 300), pile: r && r.stack ? tronquer(r.stack, 700) : "" }, 30);
+  });
+  ["error", "warn"].forEach(k => {
+    const orig = console[k];
+    console[k] = function (...a) {
+      try { pousser(CTX.erreurs, { at: iso(), type: "console." + k, message: tronquer(a.map(fmtArg).join(" "), 400) }, 30); } catch (e) {}
+      return orig.apply(this, a);
+    };
+  });
+  // parcours : clics et saisies (sans les valeurs tapées), changements d'écran
+  const deMoi = e => HOTE && e.composedPath && e.composedPath().includes(HOTE);
+  document.addEventListener("click", e => {
+    if (deMoi(e) || OUTIL.actif) return;
+    const t = e.target.closest ? (e.target.closest('button,a,[role="button"],[role="tab"],input,select,textarea,label,summary,[onclick],[data-go]') || e.target) : e.target;
+    pousser(CTX.parcours, { at: iso(), type: "clic", cible: decrireCourt(t), ecran: ecranCourant() }, 30);
+  }, true);
+  document.addEventListener("change", e => {
+    if (deMoi(e) || OUTIL.actif) return;
+    pousser(CTX.parcours, { at: iso(), type: "saisie", cible: decrireCourt(e.target) }, 30);
+  }, true);
+  const suivreEcran = () => { const s = ecranCourant(); if (s !== CTX.dernierEcran) { CTX.dernierEcran = s; pousser(CTX.parcours, { at: iso(), type: "écran", ecran: s }, 30); } };
+  setInterval(suivreEcran, 1000); addEventListener("hashchange", suivreEcran); addEventListener("popstate", suivreEcran);
+}
+
+/* ===== 03-stockage.js ===== */
+/* =====================================================================
+   Stockage des notes
+   - base de l'appli (artifact Claude : claude.use("db"), ou objet compatible
+     fourni par l'appli, comme le stockage en fichiers de l'APK Android) ;
+   - sinon cet appareil (localStorage).
+   Les notes prises hors ligne attendent sur l'appareil puis partent dans la base.
+   Les captures sont gardées dans IndexedDB (et envoyées dans les fichiers
+   de l'artifact quand la capacité « assets » est déclarée).
+   ===================================================================== */
+const ST = { db: null, assets: null, mode: "local", notes: [], pret: false, abonnes: new Set() };
+
+function notifier() { ST.abonnes.forEach(f => { try { f(ST.notes); } catch (e) {} }); }
+const trierNotes = () => ST.notes.sort((a, b) => String(b.at).localeCompare(String(a.at)));
+function normaliser(n) {
+  // compatibilité avec les notes de Mes comptes et de la Caisse à Outils
+  if (!n.uid) n.uid = n.id || uid();
+  if (n.valide === undefined) n.valide = n.statut === "done" ? (n.modifie || n.at) : null;
+  delete n.statut;
+  if (!Array.isArray(n.pieces)) n.pieces = [];
+  if (!Array.isArray(n.rouvertes)) n.rouvertes = [];
+  return n;
+}
+const sansId = n => { const { id, ...r } = n; return JSON.parse(JSON.stringify(r)); };
+
+async function capacite(nom, delai) {
+  try { if (!window.claude || !window.claude.use) return null; return await Promise.race([window.claude.use(nom), attendre(delai || 4000).then(() => null)]); }
+  catch (e) { return null; }
+}
+
+async function stockageInit() {
+  // 1. ce qui est déjà sur l'appareil (affichage immédiat)
+  ST.notes = (local.lire("notes", []) || []).map(normaliser); trierNotes(); notifier();
+  // 2. la base
+  let db = CFG.db;
+  if (db === "auto") db = await capacite("db", 6000);
+  if (db && typeof db.collection === "function") {
+    ST.db = db; ST.mode = "base";
+    const col = db.collection(CFG.collection);
+    const appliquer = docs => {
+      const enAttente = local.lire("attente", []) || [];
+      const deBase = docs.map(d => normaliser({ id: d.id, ...d.data() }));
+      const connus = new Set(deBase.map(n => n.uid));
+      ST.notes = deBase.concat(enAttente.filter(n => !connus.has(n.uid)).map(normaliser));
+      trierNotes(); notifier();
+    };
+    try {
+      if (typeof col.onSnapshot === "function") {
+        await new Promise(res => {
+          const t = setTimeout(res, 8000);
+          col.onSnapshot(s => { clearTimeout(t); appliquer(s.docs || []); res(); }, () => { clearTimeout(t); res(); });
+        });
+      } else if (typeof col.get === "function") { const s = await col.get(); appliquer(s.docs || []); }
+    } catch (e) {}
+    local.ecrire("notes", null); // la base fait foi
+    viderAttente();
+  }
+  ST.assets = await capacite("assets", 3000);
+  ST.pret = true; notifier();
+}
+
+function sauverLocal() { if (ST.mode === "local") local.ecrire("notes", ST.notes.slice(0, 500)); }
+function mettreEnAttente(n) { const a = local.lire("attente", []) || []; if (!a.some(x => x.uid === n.uid)) a.unshift(sansId(n)); local.ecrire("attente", a.slice(0, 300)); }
+async function viderAttente() {
+  const a = local.lire("attente", []) || []; if (!a.length || !ST.db) return;
+  const reste = [];
+  for (const n of a) { if (!(await ecrireBase(n))) reste.push(n); }
+  local.ecrire("attente", reste.length ? reste : null);
+}
+async function ecrireBase(n) {
+  const col = ST.db.collection(CFG.collection), data = sansId(n);
+  try { if (typeof col.doc === "function") { const d = col.doc(n.uid); if (d && typeof d.set === "function") { await d.set(data); n.id = n.uid; return true; } } } catch (e) {}
+  try { const r = await col.add(data); if (r && r.id) n.id = r.id; return true; } catch (e) { return false; }
+}
+const docDe = n => ST.db.collection(CFG.collection).doc(n.id || n.uid);
+
+async function noteAjouter(n) {
+  normaliser(n); ST.notes.unshift(n); trierNotes(); notifier();
+  if (ST.db) { if (!(await ecrireBase(n))) { mettreEnAttente(n); toast("Note gardée sur cet appareil : elle partira dans la base dès que possible."); } }
+  sauverLocal(); notifier();
+  if (typeof CFG.surNote === "function") { try { CFG.surNote(n); } catch (e) {} }
+  return n;
+}
+async function noteModifier(n, champs) {
+  Object.assign(n, champs); notifier();
+  if (ST.db) { try { await docDe(n).update(JSON.parse(JSON.stringify(champs))); } catch (e) { mettreEnAttente(n); } }
+  sauverLocal();
+}
+async function noteSupprimer(n) {
+  ST.notes = ST.notes.filter(x => x !== n); notifier();
+  if (ST.db) { try { await docDe(n).delete(); } catch (e) {} }
+  const a = (local.lire("attente", []) || []).filter(x => x.uid !== n.uid); local.ecrire("attente", a.length ? a : null);
+  sauverLocal();
+}
+
+/* ---------- Images (captures) : IndexedDB + fichiers de l'artifact ---------- */
+let idbP = null;
+function idb() {
+  if (idbP) return idbP;
+  idbP = new Promise(res => {
+    try {
+      const r = indexedDB.open("outil-debogage", 1);
+      r.onupgradeneeded = () => r.result.createObjectStore("images");
+      r.onsuccess = () => res(r.result); r.onerror = () => res(null);
+    } catch (e) { res(null); }
+  });
+  return idbP;
+}
+async function imageMettre(cleImg, blob) {
+  const base = await idb();
+  if (base) await new Promise(res => { try { const t = base.transaction("images", "readwrite"); t.objectStore("images").put(blob, cleImg); t.oncomplete = res; t.onerror = res; } catch (e) { res(); } });
+  let asset = "";
+  if (ST.assets) { try { const r = await ST.assets.upload(blob); asset = r && r.id || ""; } catch (e) {} }
+  return { cle: cleImg, asset };
+}
+async function imageBlob(ref) {
+  if (!ref) return null;
+  const base = await idb();
+  if (base) { const b = await new Promise(res => { try { const q = base.transaction("images").objectStore("images").get(ref.cle); q.onsuccess = () => res(q.result || null); q.onerror = () => res(null); } catch (e) { res(null); } }); if (b) return b; }
+  if (ref.asset) { try { const r = await fetch("/_blob/" + ref.asset); if (r.ok) return await r.blob(); } catch (e) {} }
+  if (ref.data) { try { return await (await fetch(ref.data)).blob(); } catch (e) {} }
+  return null;
+}
+const urlsImages = new Map();
+async function imageUrl(ref) {
+  if (!ref) return "";
+  if (urlsImages.has(ref.cle)) return urlsImages.get(ref.cle);
+  const b = await imageBlob(ref); if (!b) return ref.asset ? "/_blob/" + ref.asset : "";
+  const u = URL.createObjectURL(b); urlsImages.set(ref.cle, u); return u;
+}
+
+/* ===== 04-notes.js ===== */
+/* =====================================================================
+   Notes : création, validation avec version de correction, réouverture
+   ===================================================================== */
+const OUTIL = { actif: null };       // outil d'annotation en cours (capture, pointer…)
+const COMPO = { pieces: [] };        // pièces jointes de la note en cours d'écriture
+
+const aTraiter = () => ST.notes.filter(n => !n.valide);
+
+async function creerNote(texte, via, pieces) {
+  texte = String(texte || "").trim(); pieces = pieces || [];
+  if (!texte && !pieces.length) return null;
+  if (!texte) texte = resumePieces(pieces);
+  const n = {
+    uid: uid(), at: iso(), texte, ecran: ecranCourant(), via: via || "texte",
+    projet: CFG.projet, version: CFG.version, outil: VERSION_OUTIL,
+    valide: null, corrigeeEn: "", rouvertes: [], pieces,
+    contexte: PREFS.contexte === false ? null : contexteNote(),
+    appareil: navigator.userAgent.slice(0, 160)
+  };
+  return noteAjouter(n);
+}
+function validerNote(n) { return noteModifier(n, { valide: iso(), corrigeeEn: CFG.version || "" }); }
+function rouvrirNote(n) {
+  const r = (n.rouvertes || []).concat([{ at: iso(), version: CFG.version || "", corrigeeEn: n.corrigeeEn || "" }]);
+  return noteModifier(n, { valide: null, rouvertes: r });
+}
+
+// Une ligne qui résume les pièces jointes (pour les puces et quand la note n'a pas de texte)
+function resumePiece(p) {
+  if (p.type === "capture") { const z = (p.zones || []).length; return "Capture" + (z ? " · " + z + " zone" + (z > 1 ? "s" : "") : ""); }
+  if (p.type === "element") return "Élément : " + tronquer(p.texte ? p.balise + " « " + p.texte + " »" : p.selecteur, 50);
+  if (p.type === "texte") return "Texte : « " + tronquer(p.texte, 30) + " »" + (p.remplacement ? " → « " + tronquer(p.remplacement, 30) + " »" : "");
+  if (p.type === "mesure") return "Mesure : " + tronquer(p.resume, 60);
+  return p.type;
+}
+const resumePieces = ps => ps.map(resumePiece).join(" ; ");
+
+/* ===== 05-interface.js ===== */
+/* =====================================================================
+   Interface : bulle, fenêtre de note, liste, vérification, réglages
+   ===================================================================== */
+const ICO = {
+  bulle: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg>',
+  capture: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16"/><path d="M8.5 12.5c0-2.2 1.6-3.8 3.6-3.8s3.4 1.3 3.4 3c0 2.4-2.6 3.6-4.6 3.3-1.4-.2-2.4-1.2-2.4-2.5z"/></svg>',
+  element: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5l13 6.2-5.6 1.8-1.9 5.7z"/><path d="M13 13l5.5 5.5"/></svg>',
+  texte: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7V5h11v2M10.5 5v13M8 18h5"/><path d="M15 12h5M17.5 12v7M16 19h3"/></svg>',
+  mesure: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 16.5l13-13 4 4-13 13z"/><path d="M7.5 12.5l2 2M10.5 9.5l1.5 1.5M13.5 6.5l2 2"/></svg>',
+  micro: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>',
+  stop: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>',
+  fermer: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  points: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg>',
+  reglages: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>',
+  liste: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg>',
+  crayon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>'
+};
+
+let HOTE = null, RACINE = null;
+const PREFS = { bulle: null, contexte: true, filtre: "todo" };
+const UI = { vue: "note", ouverts: new Set(), edition: null, verif: false, saut: new Set(), refs: new Map(), via: "texte", fermeT: 0 };
+const q = s => RACINE.querySelector(s);
+const estLarge = () => innerWidth >= 720;
+
+function construireUI() {
+  HOTE = document.createElement("div");
+  HOTE.setAttribute("data-outil-debogage", VERSION_OUTIL);
+  HOTE.style.cssText = "position:fixed;inset:0;z-index:2147483000;pointer-events:none;display:block;";
+  RACINE = HOTE.attachShadow({ mode: "open" });
+  RACINE.innerHTML = `<style>${CSS_OUTIL}</style><div class="r">
+    <button type="button" class="bulle" id="bulle" hidden aria-label="Outil de débogage : toucher pour noter, appui long pour dicter">${ICO.bulle}<i class="compte"></i><b class="etat"></b></button>
+    <div class="vague" id="vague" hidden aria-hidden="true"><svg viewBox="0 0 400 160" preserveAspectRatio="none"><path d="M0 160V60C60 60 80 0 200 0s140 60 200 60v100z"/></svg><div class="vin"><span>✕</span><b>Fermer la bulle</b></div></div>
+    <section class="pnl" id="pnl" hidden role="dialog" aria-label="Outil de débogage">
+      <header class="tete" id="tete">
+        <div class="poignee" aria-hidden="true"></div>
+        <div class="titres"><b id="titre">Nouvelle note</b><small id="ou"></small></div>
+        <nav class="onglets" role="tablist" aria-label="Sections">
+          <button type="button" role="tab" data-vue="note" aria-selected="true" aria-label="Nouvelle note">${ICO.crayon}</button>
+          <button type="button" role="tab" data-vue="liste" aria-selected="false" aria-label="Notes">${ICO.liste}<i id="nbTodo"></i></button>
+          <button type="button" role="tab" data-vue="reglages" aria-selected="false" aria-label="Export et réglages">${ICO.reglages}</button>
+        </nav>
+        <button type="button" class="ic" id="fermer" aria-label="Fermer la fenêtre">${ICO.fermer}</button>
+      </header>
+      <div class="vue" id="v-note">
+        <div class="outils" role="toolbar" aria-label="Outils d'annotation">
+          <button type="button" data-outil="capture" title="Figer l'écran et entourer ce qu'il faut modifier">${ICO.capture}<span>Capture</span></button>
+          <button type="button" data-outil="element" title="Désigner un bouton, un bloc, une image…">${ICO.element}<span>Élément</span></button>
+          <button type="button" data-outil="texte" title="Sélectionner un texte à changer">${ICO.texte}<span>Texte</span></button>
+          <button type="button" data-outil="mesure" title="Règle, écart, couleur, grille">${ICO.mesure}<span>Mesure</span></button>
+          <button type="button" data-outil="dicter" id="bDicter" title="Dicter la note">${ICO.micro}<span>Dicter</span></button>
+        </div>
+        <ul class="pieces" id="pieces"></ul>
+        <textarea id="saisie" rows="3" placeholder="Ce qui ne va pas, ce qu'il faut changer…" aria-label="Texte de la note"></textarea>
+        <div class="pied"><p class="msg" id="msg" role="status" aria-live="polite"></p><button type="button" class="btn prim" id="enreg">Enregistrer la note</button></div>
+      </div>
+      <div class="vue" id="v-liste" hidden></div>
+      <div class="vue" id="v-reglages" hidden></div>
+    </section>
+    <div class="menu3" id="menu3" hidden role="menu"></div>
+    <div class="calque" id="calque" hidden></div>
+    <div class="toast" id="toast" hidden role="status" aria-live="polite"><span></span><button type="button" hidden></button></div>
+  </div>`;
+  document.documentElement.appendChild(HOTE);
+  // si l'appli remplace le contenu de la page, on se remet en place
+  new MutationObserver(() => { if (!HOTE.isConnected) document.documentElement.appendChild(HOTE); }).observe(document.documentElement, { childList: true });
+  brancherBulle(); brancherPanneau(); brancherListe();
+}
+
+/* ---------- Message en bas de l'écran, avec action facultative (Annuler…) ---------- */
+let toastT = 0;
+function toast(texte, action, duree) {
+  if (!RACINE) return;
+  const t = q("#toast"), b = t.querySelector("button");
+  t.querySelector("span").textContent = texte;
+  b.hidden = !action; if (action) { b.textContent = action.libelle; b.onclick = () => { t.hidden = true; action.faire(); }; }
+  t.classList.toggle("haut", !!OUTIL.actif); t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, duree || (action ? 6000 : 3200));
+}
+
+/* ---------- Bulle ---------- */
+function afficherBulle(v) { PREFS.bulle = v; local.ecrire("prefs", PREFS); rendreBulle(); }
+function rendreBulle() {
+  const b = q("#bulle"); if (!b) return;
+  b.hidden = !PREFS.bulle || !!OUTIL.actif;
+  b.querySelector(".compte").textContent = aTraiter().length || "";
+  b.classList.toggle("rec", !!DICT.mode);
+  b.querySelector(".etat").textContent = DICT.mode === "ecoute" ? "ÉCOUTE" : DICT.mode ? "REC" : "";
+}
+function brancherBulle() {
+  const b = q("#bulle"), vague = q("#vague");
+  const xy = local.lire("bulleXY", null);
+  const placer = (x, y) => { b.style.left = borne(x, 4, innerWidth - 60) + "px"; b.style.top = borne(y, 4, innerHeight - 60) + "px"; b.style.right = "auto"; };
+  if (xy) placer(xy.x, xy.y);
+  addEventListener("resize", () => { if (b.style.left) placer(parseFloat(b.style.left), parseFloat(b.style.top)); });
+  let g = null;
+  const surVague = y => y > innerHeight - 110;
+  b.addEventListener("pointerdown", e => {
+    const r = b.getBoundingClientRect();
+    g = { x: e.clientX, y: e.clientY, l: r.left, t: r.top, bouge: false, long: false };
+    try { b.setPointerCapture(e.pointerId); } catch (er) {}
+    g.timer = setTimeout(() => { if (g && !g.bouge) { g.long = true; try { navigator.vibrate && navigator.vibrate(18); } catch (er) {} ouvrirPanneau("note"); dicteeBasculer("dictee"); } }, 550);
+  });
+  b.addEventListener("pointermove", e => {
+    if (!g) return; const dx = e.clientX - g.x, dy = e.clientY - g.y;
+    if (!g.bouge && Math.hypot(dx, dy) < 8) return;
+    if (!g.bouge) { g.bouge = true; clearTimeout(g.timer); b.classList.add("glisse"); vague.hidden = false; if (!estLarge()) fermerPanneau(); }
+    placer(g.l + dx, g.t + dy);
+    const r = b.getBoundingClientRect(), d = innerHeight - (r.top + r.height / 2);
+    vague.classList.toggle("pres", d < 200); vague.style.setProperty("--p", String(borne((200 - d) / 110, 0, 1)));
+    vague.classList.toggle("chaud", surVague(e.clientY));
+  });
+  const fin = e => {
+    if (!g) return; const s = g; g = null; clearTimeout(s.timer);
+    b.classList.remove("glisse"); vague.hidden = true; vague.classList.remove("pres", "chaud");
+    if (s.long) return;
+    if (!s.bouge) { if (q("#pnl").hidden) ouvrirPanneau("note"); else fermerPanneau(); return; }
+    if (surVague(e.clientY)) {
+      b.style.left = b.style.top = b.style.right = ""; local.ecrire("bulleXY", null); fermerPanneau(); afficherBulle(false);
+      toast("Bulle masquée.", { libelle: "Annuler", faire: () => afficherBulle(true) });
+    } else local.ecrire("bulleXY", { x: parseFloat(b.style.left), y: parseFloat(b.style.top) });
+  };
+  b.addEventListener("pointerup", fin); b.addEventListener("pointercancel", fin);
+  b.addEventListener("click", e => e.preventDefault());
+  b.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (q("#pnl").hidden) ouvrirPanneau("note"); else fermerPanneau(); } });
+}
+
+/* ---------- Fenêtre ---------- */
+function ouvrirPanneau(vue) {
+  const p = q("#pnl"); clearTimeout(UI.fermeT);
+  if (vue) changerVue(vue);
+  q("#ou").textContent = ecranCourant();
+  p.hidden = false; placerPanneau();
+  if (UI.vue === "note" && !DICT.mode && estLarge()) setTimeout(() => q("#saisie").focus({ preventScroll: true }), 60);
+  rendre();
+}
+function fermerPanneau() { q("#pnl").hidden = true; q("#menu3").hidden = true; }
+function changerVue(v) {
+  UI.vue = v;
+  RACINE.querySelectorAll(".onglets [data-vue]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.vue === v)));
+  ["note", "liste", "reglages"].forEach(k => { q("#v-" + k).hidden = k !== v; });
+  q("#titre").textContent = v === "note" ? "Nouvelle note" : v === "liste" ? "Notes" : "Export et réglages";
+  if (v !== "liste") UI.verif = false;
+  rendre();
+}
+function placerPanneau() {
+  const p = q("#pnl"), pos = local.lire("pnlXY", null);
+  if (!estLarge() || !pos) { p.style.left = p.style.top = p.style.right = p.style.bottom = ""; return; }
+  const w = p.offsetWidth || 420, h = Math.min(p.offsetHeight || 400, 160);
+  Object.assign(p.style, { left: borne(pos.x, 8, innerWidth - w - 8) + "px", top: borne(pos.y, 8, innerHeight - h) + "px", right: "auto", bottom: "auto" });
+}
+function brancherPanneau() {
+  const p = q("#pnl"), tete = q("#tete");
+  q("#fermer").onclick = fermerPanneau;
+  RACINE.querySelectorAll(".onglets [data-vue]").forEach(b => b.onclick = () => changerVue(b.dataset.vue));
+  // déplacer (PC) ou glisser vers le bas pour fermer (téléphone)
+  let d = null;
+  tete.addEventListener("pointerdown", e => { if (e.target.closest("button")) return; const r = p.getBoundingClientRect(); d = { x: e.clientX, y: e.clientY, l: r.left, t: r.top }; try { tete.setPointerCapture(e.pointerId); } catch (er) {} });
+  tete.addEventListener("pointermove", e => {
+    if (!d) return;
+    if (estLarge()) Object.assign(p.style, { left: borne(d.l + e.clientX - d.x, 8, innerWidth - p.offsetWidth - 8) + "px", top: borne(d.t + e.clientY - d.y, 8, innerHeight - 120) + "px", right: "auto", bottom: "auto" });
+    else { const dy = Math.max(0, e.clientY - d.y); p.style.transform = "translateY(" + dy + "px)"; }
+  });
+  const fin = e => {
+    if (!d) return; const s = d; d = null;
+    if (estLarge()) { const r = p.getBoundingClientRect(); if (Math.hypot(e.clientX - s.x, e.clientY - s.y) > 4) local.ecrire("pnlXY", { x: r.left, y: r.top }); }
+    else { p.style.transform = ""; if (e.clientY - s.y > 90) fermerPanneau(); }
+  };
+  tete.addEventListener("pointerup", fin); tete.addEventListener("pointercancel", fin);
+  tete.addEventListener("dblclick", e => { if (e.target.closest("button")) return; local.ecrire("pnlXY", null); placerPanneau(); });
+  addEventListener("resize", () => { if (!p.hidden) placerPanneau(); });
+
+  // outils
+  RACINE.querySelectorAll("[data-outil]").forEach(b => b.onclick = () => {
+    const o = b.dataset.outil;
+    if (o === "dicter") return dicteeBasculer("dictee");
+    if (DICT.mode === "dictee") dicteeArreter();
+    ({ capture: outilCapture, element: outilElement, texte: outilTexte, mesure: outilMesure })[o]();
+  });
+  // enregistrer
+  const saisie = q("#saisie");
+  q("#enreg").onclick = enregistrer;
+  saisie.addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); enregistrer(); } });
+  saisie.addEventListener("input", () => { if (!DICT.mode) q("#msg").textContent = ""; });
+  q("#pieces").addEventListener("click", e => { const x = e.target.closest("[data-retirer]"); if (!x) return; COMPO.pieces.splice(+x.dataset.retirer, 1); rendrePieces(); });
+}
+async function enregistrer() {
+  if (DICT.mode === "dictee") await dicteeArreter();
+  const s = q("#saisie"), txt = s.value;
+  if (!txt.trim() && !COMPO.pieces.length) { q("#msg").textContent = "Écris, dicte ou ajoute une capture avant d'enregistrer."; s.focus(); return; }
+  const n = await creerNote(txt, UI.via, COMPO.pieces.slice());
+  if (!n) return;
+  s.value = ""; COMPO.pieces = []; UI.via = "texte"; rendrePieces();
+  q("#msg").textContent = "Note enregistrée.";
+  toast("Note enregistrée · " + aTraiter().length + " à traiter.", { libelle: "Voir", faire: () => ouvrirPanneau("liste") });
+  clearTimeout(UI.fermeT); UI.fermeT = setTimeout(() => { if (UI.vue === "note" && !s.value) fermerPanneau(); q("#msg").textContent = ""; }, 900);
+}
+
+function rendrePieces() {
+  const ul = q("#pieces");
+  ul.innerHTML = COMPO.pieces.map((p, i) => {
+    const ico = p.type === "capture" ? "" : `<span class="pic">${ICO[p.type] || ICO.mesure}</span>`;
+    const img = p.type === "capture" ? `<img alt="" data-img="${esc(p.image && p.image.cle)}">` : "";
+    const sous = p.type === "capture" ? (p.zones || []).map(z => "① ② ③ ④ ⑤ ⑥ ⑦ ⑧ ⑨".split(" ")[z.n - 1] + " " + (z.consigne || "zone")).join(" · ") || "Sans zone entourée"
+      : p.type === "element" ? p.selecteur : p.type === "texte" ? (p.remplacement ? "Remplacer par « " + p.remplacement + " »" : "Texte sélectionné") : p.details || "";
+    return `<li class="piece">${img}${ico}<span class="pt"><b>${esc(resumePiece(p))}</b><small>${esc(tronquer(sous, 90))}</small></span><button type="button" class="ic" data-retirer="${i}" aria-label="Retirer cette pièce">${ICO.fermer}</button></li>`;
+  }).join("");
+  COMPO.pieces.forEach(p => { if (p.image) UI.refs.set(p.image.cle, p.image); });
+  chargerImages(ul);
+}
+async function chargerImages(racine) {
+  for (const im of racine.querySelectorAll("img[data-img]")) {
+    const ref = UI.refs.get(im.dataset.img); if (!ref || im.src) continue;
+    const u = await imageUrl(ref); if (u) im.src = u;
+  }
+}
+
+/* ---------- Rendu général ---------- */
+function rendre() {
+  if (!RACINE) return;
+  rendreBulle();
+  q("#nbTodo").textContent = aTraiter().length || "";
+  const pnl = q("#pnl"); if (pnl.hidden) return;
+  if (UI.vue === "liste") rendreListe();
+  else if (UI.vue === "reglages") rendreReglages();
+  const d = q("#bDicter");
+  d.classList.toggle("on", DICT.mode === "dictee");
+  d.innerHTML = DICT.mode === "dictee" ? ICO.stop + "<span>Arrêter</span>" : ICO.micro + "<span>Dicter</span>";
+}
+
+/* ---------- Liste des notes ---------- */
+const NUM = "① ② ③ ④ ⑤ ⑥ ⑦ ⑧ ⑨ ⑩ ⑪ ⑫".split(" ");
+function noteLi(n) {
+  const ouvert = UI.ouverts.has(n.uid), edit = UI.edition === n.uid;
+  const tags = [];
+  if (n.valide) tags.push(`<span class="tag ok">✓ corrigée${n.corrigeeEn ? " en v" + esc(n.corrigeeEn) : ""}</span>`);
+  if ((n.rouvertes || []).length) tags.push(`<span class="tag re">↺ rouverte${n.rouvertes.length > 1 ? " ×" + n.rouvertes.length : ""}</span>`);
+  if (n.via === "voix") tags.push(`<span title="Dictée">🎤</span>`);
+  if (n.version && n.version !== CFG.version) tags.push(`<span class="mono">v${esc(n.version)}</span>`);
+  const caps = (n.pieces || []).filter(p => p.type === "capture" && p.image);
+  caps.forEach(p => UI.refs.set(p.image.cle, p.image));
+  const autres = (n.pieces || []).filter(p => p.type !== "capture");
+  const mini = caps.length || autres.length ? `<div class="mini">${caps.map(p => `<img alt="Capture" data-img="${esc(p.image.cle)}">`).join("")}${autres.map(p => `<span class="tag">${esc(tronquer(resumePiece(p), 34))}</span>`).join("")}</div>` : "";
+  const corps = edit
+    ? `<div class="txt"><textarea data-edit rows="3" aria-label="Modifier la note">${esc(n.texte)}</textarea><div class="pied" style="margin-top:8px"><span class="msg"></span><button type="button" class="btn petit" data-a="annulerEdit">Annuler</button><button type="button" class="btn petit prim" data-a="sauverEdit">Enregistrer</button></div></div>`
+    : `<div class="txt">${esc(n.texte)}</div>`;
+  return `<li class="note${n.valide ? " val" : ""}" data-u="${esc(n.uid)}">
+    <div class="meta"><span>${esc(fmtQuand(n.at))}</span><span>·</span><span>${esc(n.ecran || "")}</span>${tags.join("")}</div>
+    ${corps}${edit ? "" : mini}
+    <button type="button" class="ic act" data-a="menu" aria-label="Options de la note" aria-haspopup="menu">${ICO.points}</button>
+    ${ouvert && !edit ? detailsNote(n) : ""}
+  </li>`;
+}
+function detailsNote(n) {
+  const b = [];
+  for (const p of n.pieces || []) {
+    if (p.type === "capture") b.push(`<div class="bloc"><img alt="Capture annotée" data-img="${esc(p.image && p.image.cle)}">${(p.zones || []).map(z => `<div style="margin-top:6px"><span class="numero">${z.n}</span>${esc(z.consigne || "(sans consigne)")}${z.elements && z.elements.length ? `<br><small>${z.elements.map(e => esc(e.t)).join(" · ")}</small>` : ""}</div>`).join("")}${p.textes && p.textes.length ? `<div style="margin-top:6px"><small>Textes écrits sur la capture : ${p.textes.map(t => "« " + esc(t) + " »").join(", ")}</small></div>` : ""}</div>`);
+    else if (p.type === "element") b.push(`<div class="bloc"><b>Élément</b> ${esc(p.balise)}${p.texte ? " « " + esc(p.texte) + " »" : ""}<br><code>${esc(p.selecteur)}</code><br><small>${esc(p.taille)} · ${esc(p.styles.police)} · ${esc(p.styles.couleur)} sur ${esc(p.styles.fond)}${p.styles.contraste ? " · contraste " + esc(p.styles.contraste) : ""}</small>${p.image ? `<br><img alt="Élément" data-img="${esc(p.image.cle)}" style="margin-top:6px;max-height:120px">` : ""}</div>`);
+    else if (p.type === "texte") b.push(`<div class="bloc"><b>Texte</b> « ${esc(p.texte)} »${p.remplacement ? ` → « ${esc(p.remplacement)} »` : ""}<br><code>${esc(p.element)}</code></div>`);
+    else if (p.type === "mesure") b.push(`<div class="bloc"><b>Mesure</b> ${esc(p.resume)}${p.details ? `<br><small>${esc(p.details)}</small>` : ""}</div>`);
+    if (p.image) UI.refs.set(p.image.cle, p.image);
+  }
+  const c = n.contexte;
+  if (c) {
+    if (c.erreurs && c.erreurs.length) b.push(`<div class="bloc"><b>${c.erreurs.length} erreur${c.erreurs.length > 1 ? "s" : ""} JavaScript</b> avant la note<br>${c.erreurs.slice(-3).map(e => `<code>${esc(e.type)} : ${esc(tronquer(e.message, 140))}</code>`).join("<br>")}</div>`);
+    if (c.parcours && c.parcours.length) b.push(`<div class="bloc"><b>Parcours</b><br><small>${c.parcours.slice(-6).map(x => esc(x.type === "écran" ? "→ " + x.ecran : x.type + " " + x.cible)).join("<br>")}</small></div>`);
+    if (c.appareil) b.push(`<div class="bloc"><small>${esc(c.appareil.systeme)} · ${esc(c.appareil.navigateur)} · ${esc(c.appareil.ecran)} ×${c.appareil.densite} · ${esc(c.appareil.orientation)} · thème ${esc(c.appareil.theme)}${n.version ? " · appli v" + esc(n.version) : ""}</small></div>`);
+  }
+  (n.rouvertes || []).forEach(r => b.push(`<div class="bloc"><small>↺ Rouverte le ${esc(fmtQuand(r.at))}${r.version ? " en v" + esc(r.version) : ""}${r.corrigeeEn ? " (avait été corrigée en v" + esc(r.corrigeeEn) + ")" : ""}</small></div>`));
+  return `<div class="det">${b.join("") || '<small>Pas de détail joint.</small>'}</div>`;
+}
+function rendreListe() {
+  const v = q("#v-liste"), todo = aTraiter().length, total = ST.notes.length, f = PREFS.filtre;
+  if (UI.verif) return rendreVerif(v);
+  const st = v.scrollTop;
+  const filtres = [["todo", "À traiter", todo], ["ok", "Corrigées", total - todo], ["all", "Toutes", total]]
+    .map(([k, t, n]) => `<button type="button" class="puce" data-f="${k}" aria-pressed="${f === k}">${t} (${n})</button>`).join("");
+  const liste = ST.notes.filter(n => f === "all" || (f === "todo" ? !n.valide : !!n.valide));
+  const vide = !total ? `<li class="vide"><b>Aucune note pour l'instant</b>Touche la bulle en naviguant pour noter ce qui ne va pas.</li>`
+    : !liste.length ? `<li class="vide"><b>${f === "todo" ? "Tout est corrigé 🎉" : "Rien ici"}</b>${f === "todo" ? "Aucune note à traiter." : ""}</li>` : "";
+  v.innerHTML = `<div class="filtres">${filtres}${todo ? `<button type="button" class="btn petit prim" data-a="verifier">Vérifier une par une</button>` : ""}</div>
+    <small>Touche une note pour voir le détail · appui long pour la modifier · ⋯ pour plus d'actions.</small>
+    <ul class="liste">${liste.map(noteLi).join("") || vide}</ul>`;
+  v.scrollTop = st; chargerImages(v);
+  const ta = v.querySelector("textarea[data-edit]"); if (ta && !ta.dataset.f) { ta.dataset.f = 1; ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+}
+function noteDe(el) { const li = el.closest("[data-u]"); return li ? ST.notes.find(n => n.uid === li.dataset.u) : null; }
+function brancherListe() {
+  const v = q("#v-liste"), m3 = q("#menu3");
+  v.addEventListener("click", async e => {
+    const f = e.target.closest("[data-f]"); if (f) { PREFS.filtre = f.dataset.f; local.ecrire("prefs", PREFS); return rendreListe(); }
+    const a = e.target.closest("[data-a]");
+    if (a) {
+      const k = a.dataset.a, n = noteDe(a);
+      if (k === "verifier") { UI.verif = true; UI.saut.clear(); return rendreListe(); }
+      if (k === "menu" && n) return ouvrirMenu3(a, n);
+      if (k === "annulerEdit") { UI.edition = null; return rendreListe(); }
+      if (k === "sauverEdit" && n) { const t = v.querySelector("textarea[data-edit]").value.trim(); UI.edition = null; if (t && t !== n.texte) { await noteModifier(n, { texte: t, modifie: iso() }); toast("Note modifiée."); } return rendreListe(); }
+      if (k.startsWith("v-")) return actionVerif(k.slice(2));
+      return;
+    }
+    if (e.target.closest("textarea,button,a")) return;
+    const n = noteDe(e.target); if (!n || UI.edition) return;
+    UI.ouverts.has(n.uid) ? UI.ouverts.delete(n.uid) : UI.ouverts.add(n.uid); rendreListe();
+  });
+  // appui long = modifier
+  let t = 0, p0 = null;
+  v.addEventListener("pointerdown", e => { const li = e.target.closest(".note"); if (!li || e.target.closest("button,textarea")) return; p0 = { x: e.clientX, y: e.clientY }; clearTimeout(t); t = setTimeout(() => { const n = noteDe(li); if (n) { try { navigator.vibrate && navigator.vibrate(15); } catch (er) {} UI.edition = n.uid; rendreListe(); } }, 550); });
+  v.addEventListener("pointermove", e => { if (p0 && Math.hypot(e.clientX - p0.x, e.clientY - p0.y) > 8) clearTimeout(t); });
+  ["pointerup", "pointercancel"].forEach(k => v.addEventListener(k, () => { clearTimeout(t); p0 = null; }));
+  v.addEventListener("contextmenu", e => { const li = e.target.closest(".note"); if (li && !e.target.closest("textarea")) { e.preventDefault(); const n = noteDe(li), b = li.querySelector("[data-a=menu]"); if (n) ouvrirMenu3(b, n); } });
+  v.addEventListener("keydown", e => { if (e.target.matches("textarea[data-edit]")) { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) v.querySelector("[data-a=sauverEdit]").click(); if (e.key === "Escape") { e.stopPropagation(); UI.edition = null; rendreListe(); } } });
+
+  // menu ⋯
+  RACINE.addEventListener("pointerdown", e => { if (!m3.hidden && !e.composedPath().some(x => x === m3 || (x.dataset && x.dataset.a === "menu"))) m3.hidden = true; }, true);
+  m3.addEventListener("click", async e => {
+    const b = e.target.closest("[data-m]"); if (!b) return; const n = ST.notes.find(x => x.uid === m3.dataset.u); if (!n) { m3.hidden = true; return; }
+    const k = b.dataset.m;
+    if (k === "suppr" && !b.dataset.c) { b.dataset.c = 1; b.textContent = "Confirmer la suppression"; return; }
+    m3.hidden = true;
+    if (k === "modifier") { UI.edition = n.uid; rendreListe(); }
+    else if (k === "dupliquer") { const c = await creerNote(n.texte, "copie", JSON.parse(JSON.stringify(n.pieces || []))); if (c) { c.ecran = n.ecran; c.copieDe = n.uid; await noteModifier(c, { ecran: n.ecran, copieDe: n.uid }); UI.edition = c.uid; PREFS.filtre = "todo"; rendreListe(); } }
+    else if (k === "valider") { await validerNote(n); toast("Note marquée corrigée" + (CFG.version ? " en v" + CFG.version : "") + ".", { libelle: "Annuler", faire: () => noteModifier(n, { valide: null, corrigeeEn: "" }) }); }
+    else if (k === "rouvrir") { await rouvrirNote(n); toast("Note rouverte : le problème est revenu."); }
+    else if (k === "copier") { const ok = await copier(promptClaude([n])); toast(ok ? "Note copiée, prête à coller dans Claude." : "Copie impossible ici."); }
+    else if (k === "suppr") {
+      const sauve = JSON.parse(JSON.stringify(n)); await noteSupprimer(n);
+      toast("Note supprimée.", { libelle: "Annuler", faire: async () => { delete sauve.id; await noteAjouter(sauve); } });
+    }
+  });
+}
+function ouvrirMenu3(bouton, n) {
+  const m3 = q("#menu3"), r = bouton.getBoundingClientRect();
+  m3.dataset.u = n.uid;
+  m3.innerHTML = `<button type="button" role="menuitem" data-m="modifier">Modifier</button>
+    <button type="button" role="menuitem" data-m="dupliquer">Dupliquer et modifier</button>
+    ${n.valide ? `<button type="button" role="menuitem" data-m="rouvrir">↺ Rouvrir (le problème revient)</button>` : `<button type="button" role="menuitem" data-m="valider">✓ Marquer corrigée${CFG.version ? " en v" + esc(CFG.version) : ""}</button>`}
+    <button type="button" role="menuitem" data-m="copier">Copier pour Claude</button>
+    <button type="button" role="menuitem" data-m="suppr" class="danger">Supprimer</button>`;
+  m3.hidden = false;
+  const h = m3.offsetHeight, w = m3.offsetWidth;
+  m3.style.top = (r.bottom + h + 8 > innerHeight ? Math.max(8, r.top - h - 4) : r.bottom + 4) + "px";
+  m3.style.left = borne(r.right - w, 8, innerWidth - w - 8) + "px";
+  m3.querySelector("button").focus({ preventScroll: true });
+}
+
+/* ---------- Vérification une par une ---------- */
+function noteAVerifier() { return ST.notes.filter(n => !n.valide && !UI.saut.has(n.uid)).slice(-1)[0]; } // la plus ancienne d'abord
+function rendreVerif(v) {
+  const n = noteAVerifier(), todo = aTraiter().length, total = ST.notes.length, faites = total - todo;
+  if (!n) {
+    v.innerHTML = `<div class="verif"><b>${todo ? `Il reste ${todo} note${todo > 1 ? "s" : ""} pas encore corrigée${todo > 1 ? "s" : ""}.` : "Toutes les notes sont corrigées 🎉"}</b>
+      <div class="trois" style="grid-template-columns:1fr 1fr">${todo ? `<button type="button" class="btn" data-a="v-revoir">Les revoir</button>` : "<span></span>"}<button type="button" class="btn prim" data-a="v-fin">Terminer</button></div></div>`;
+    return;
+  }
+  (n.pieces || []).forEach(p => p.image && UI.refs.set(p.image.cle, p.image));
+  const cap = (n.pieces || []).find(p => p.type === "capture" && p.image);
+  v.innerHTML = `<div class="verif">
+    <div class="barre-prog" aria-hidden="true"><i style="width:${total ? Math.round(faites / total * 100) : 0}%"></i></div>
+    <small>${faites} corrigée${faites > 1 ? "s" : ""} sur ${total} · note du ${esc(fmtQuand(n.at))} · ${esc(n.ecran || "")}</small>
+    <div class="txt">${esc(n.texte)}</div>
+    ${cap ? `<img alt="Capture" data-img="${esc(cap.image.cle)}">` : ""}
+    <small>Va vérifier sur l'appli, puis indique si c'est corrigé${CFG.version ? " dans la v" + esc(CFG.version) : ""}.</small>
+    <div class="trois"><button type="button" class="btn" data-a="v-plustard">Pas encore</button><button type="button" class="btn" data-a="v-modifier">Modifier</button><button type="button" class="btn prim" data-a="v-ok">✓ Corrigé</button></div>
+    <button type="button" class="btn petit" data-a="v-fin" style="align-self:flex-start">Quitter la vérification</button>
+  </div>`;
+  v.dataset.u = n.uid; chargerImages(v);
+}
+async function actionVerif(k) {
+  const n = ST.notes.find(x => x.uid === q("#v-liste").dataset.u);
+  if (k === "ok" && n) { await validerNote(n); toast("Corrigée" + (CFG.version ? " en v" + CFG.version : "") + ".", { libelle: "Annuler", faire: () => noteModifier(n, { valide: null, corrigeeEn: "" }) }); }
+  else if (k === "plustard" && n) UI.saut.add(n.uid);
+  else if (k === "modifier" && n) { UI.verif = false; UI.edition = n.uid; PREFS.filtre = "todo"; }
+  else if (k === "revoir") UI.saut.clear();
+  else if (k === "fin") UI.verif = false;
+  rendreListe();
+}
+
+/* ---------- Export et réglages ---------- */
+function rendreReglages() {
+  const v = q("#v-reglages"), todo = aTraiter().length, attente = (local.lire("attente", []) || []).length;
+  const ok = ST.notes.length - todo;
+  v.innerHTML = `
+    <div class="sec"><h3>Transmettre à Claude</h3>
+      <button type="button" class="btn prim" data-r="copier"${todo ? "" : " disabled"}>Copier les ${todo} note${todo > 1 ? "s" : ""} à traiter</button>
+      <div class="grille2">
+        <button type="button" class="btn" data-r="zip"${ST.notes.length ? "" : " disabled"}>⬇ ZIP avec captures</button>
+        <button type="button" class="btn" data-r="json"${ST.notes.length ? "" : " disabled"}>⬇ Pour le tableau de bord</button>
+      </div>
+      ${CFG.partager ? `<button type="button" class="btn" data-r="partager"${todo ? "" : " disabled"}>Partager (WhatsApp, mail…)</button>` : ""}
+      <small>Le texte copié est rangé par écran, avec les consignes de chaque zone, les éléments repérés et les erreurs. Le ZIP ajoute les captures.</small>
+    </div>
+    <div class="sec"><h3>Prise de notes</h3>
+      <div class="ligne"><span><b>Écoute continue</b><small>Parle en naviguant : chaque phrase devient une note, avec l'écran en cours.</small></span><button type="button" class="bascule" role="switch" aria-label="Écoute continue" aria-checked="${DICT.mode === "ecoute"}" data-r="ecoute"></button></div>
+      <div class="ligne"><span><b>Joindre le contexte technique</b><small>Erreurs JavaScript, parcours récent, appareil et état de l'appli.</small></span><button type="button" class="bascule" role="switch" aria-label="Joindre le contexte technique" aria-checked="${PREFS.contexte !== false}" data-r="contexte"></button></div>
+      <div class="ligne"><span><b>Bulle à l'écran</b><small>Pour la remettre ensuite : ${CFG.raccourci ? "Ctrl + Maj + D, ou " : ""}le menu de l'appli.</small></span><button type="button" class="bascule" role="switch" aria-label="Bulle à l'écran" aria-checked="${!!PREFS.bulle}" data-r="bulle"></button></div>
+    </div>
+    <div class="sec"><h3>Ménage</h3>
+      <div class="grille2">
+        <button type="button" class="btn danger" data-r="viderOk"${ok ? "" : " disabled"}>Effacer les ${ok} corrigée${ok > 1 ? "s" : ""}</button>
+        <button type="button" class="btn danger" data-r="viderTout"${ST.notes.length ? "" : " disabled"}>Tout effacer</button>
+      </div>
+    </div>
+    <p class="info">${esc(CFG.projet || "projet")}${CFG.version ? " v" + esc(CFG.version) : ""} · ${ST.notes.length} note${ST.notes.length > 1 ? "s" : ""}<br>
+    Rangement : ${ST.mode === "base" ? "base de l'appli" : "cet appareil seulement"}${attente ? " · " + attente + " en attente d'envoi" : ""}${ST.assets ? " · captures dans les fichiers de l'appli" : ""}<br>
+    Outil de débogage v${VERSION_OUTIL}${estLarge() ? " · Ctrl+Maj+D ouvrir · Ctrl+Entrée enregistrer · Échap fermer" : ""}</p>`;
+  v.onclick = async e => {
+    const b = e.target.closest("[data-r]"); if (!b) return; const k = b.dataset.r;
+    if (k === "copier") { const ok2 = await copier(promptClaude(aTraiter())); toast(ok2 ? todo + " note(s) copiée(s), prêtes à coller dans Claude." : "Copie impossible ici."); }
+    else if (k === "zip") { b.disabled = true; try { await exporterZip(); } finally { b.disabled = false; } }
+    else if (k === "json") { b.disabled = true; try { await exporterJson(); } finally { b.disabled = false; } }
+    else if (k === "partager") { try { await CFG.partager("notes_debogage_" + (CFG.projet || "projet") + ".txt", promptClaude(aTraiter())); } catch (er) { toast("Partage impossible."); } }
+    else if (k === "ecoute") { dicteeBasculer("ecoute"); }
+    else if (k === "contexte") { PREFS.contexte = PREFS.contexte === false; local.ecrire("prefs", PREFS); rendreReglages(); }
+    else if (k === "bulle") { afficherBulle(!PREFS.bulle); rendreReglages(); }
+    else if (k === "viderOk" || k === "viderTout") {
+      if (!b.dataset.c) { b.dataset.c = 1; b.textContent = "Confirmer ?"; return; }
+      const cible = ST.notes.filter(n => k === "viderTout" || n.valide);
+      for (const n of cible) await noteSupprimer(n);
+      toast(cible.length + " note(s) effacée(s)."); rendreReglages();
+    }
+  };
+}
+
+/* ===== 06-dictee.js ===== */
+/* =====================================================================
+   Voix : dictée d'une note (le texte s'affiche pendant qu'on parle, la
+   dictée continue fenêtre fermée) et écoute continue (chaque phrase
+   devient une note). Trois moteurs, dans l'ordre :
+   1. reconnaissance native de l'appli (CFG.ecouter, ex. APK Android) ;
+   2. capacité « dictation » d'un artifact Claude (micro autorisé) ;
+   3. reconnaissance vocale du navigateur (Chrome, Edge…).
+   ===================================================================== */
+const DICT = { mode: null, cap: null, rec: null, base: "", cible: null };
+
+async function dicteePreparer() {
+  DICT.cap = await capacite("dictation", 4000);
+  if (DICT.cap) {
+    try {
+      DICT.cap.onPartial(({ text }) => DICT.cible && DICT.cible.partiel(text));
+      DICT.cap.onFinal(({ text }) => DICT.cible && DICT.cible.final(text));
+      DICT.cap.onState(({ state }) => { if (state === "idle" && DICT.mode && DICT.moteur === "cap") { const m = DICT.mode; DICT.mode = null; DICT.cible = null; if (m === "dictee") finDictee(); rendre(); } });
+    } catch (e) { DICT.cap = null; }
+  }
+}
+
+function cibleDictee() {
+  const s = q("#saisie");
+  DICT.base = s.value ? s.value.trimEnd() + " " : "";
+  return {
+    partiel: t => { s.value = DICT.base + String(t || "").trim(); },
+    final: t => { t = String(t || "").trim(); if (!t) return; DICT.base = (DICT.base + t).trimEnd() + " "; s.value = DICT.base.trimEnd(); UI.via = "voix"; }
+  };
+}
+const cibleEcoute = () => ({ partiel: () => {}, final: t => { t = String(t || "").trim(); if (t) creerNote(t, "voix", []).then(() => toast("Note dictée : « " + tronquer(t, 50) + " »")); } });
+
+// Appelé directement depuis le clic (la capacité « dictation » l'exige)
+function dicteeBasculer(mode) {
+  if (DICT.mode === mode) return dicteeArreter();
+  if (DICT.mode) dicteeArreter();
+  DICT.mode = mode; DICT.cible = mode === "dictee" ? cibleDictee() : cibleEcoute();
+  const msg = t => { if (q("#msg")) q("#msg").textContent = t; };
+  const echec = t => { DICT.mode = null; DICT.cible = null; msg(t); toast(t); rendre(); };
+
+  if (typeof CFG.ecouter === "function") {
+    DICT.moteur = "natif";
+    (async () => {
+      while (DICT.mode === mode) {
+        try { const t = await CFG.ecouter(); if (DICT.mode !== mode) break; DICT.cible.final(t); }
+        catch (e) { if (/permission|refus|not-allowed|denied/i.test(String(e && e.message))) { echec("Autorise le micro pour cette appli dans les réglages."); return; } await attendre(400); }
+      }
+    })();
+  } else if (DICT.cap) {
+    DICT.moteur = "cap";
+    DICT.cap.start().catch(e => echec(e && e.code === "not_granted" ? "Micro refusé : tu peux écrire la note, ou utiliser le micro du clavier." : "Le micro n'a pas pu démarrer."));
+  } else {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { echec("Dictée indisponible ici : touche le cadre puis le micro de ton clavier."); if (mode === "dictee") q("#saisie").focus(); return; }
+    DICT.moteur = "web";
+    const lancer = () => {
+      if (DICT.mode !== mode) return;
+      const r = new SR(); DICT.rec = r; r.lang = CFG.langue; r.continuous = true; r.interimResults = true;
+      let base = "";
+      r.onresult = e => {
+        let partiel = "";
+        for (let k = e.resultIndex; k < e.results.length; k++) {
+          const x = e.results[k];
+          if (x.isFinal) DICT.cible.final(x[0].transcript); else partiel += x[0].transcript;
+        }
+        if (partiel) DICT.cible.partiel(partiel);
+      };
+      r.onerror = e => { if (e.error === "not-allowed" || e.error === "service-not-allowed") echec("Micro bloqué ici : touche le cadre puis le micro de ton clavier."); };
+      r.onend = () => { if (DICT.mode === mode) setTimeout(lancer, 250); };
+      try { r.start(); } catch (e) { echec("Le micro n'a pas pu démarrer."); }
+    };
+    lancer();
+  }
+  if (DICT.mode === "dictee") msg("J'écoute… tu peux fermer la fenêtre, la bulle reste rouge tant que je note.");
+  if (DICT.mode === "ecoute") toast("Écoute continue activée : parle en naviguant.");
+  rendre();
+}
+async function dicteeArreter() {
+  const m = DICT.mode; if (!m) return;
+  DICT.mode = null;
+  try { DICT.rec && DICT.rec.stop(); } catch (e) {} DICT.rec = null;
+  if (DICT.moteur === "cap" && DICT.cap) { try { await DICT.cap.stop(); } catch (e) {} }
+  DICT.cible = null;
+  if (m === "dictee") finDictee(); else if (m === "ecoute") toast("Écoute continue arrêtée.");
+  rendre();
+}
+function finDictee() { const s = q("#saisie"); if (q("#msg")) q("#msg").textContent = s && s.value.trim() ? "Dictée arrêtée. Relis puis « Enregistrer la note »." : ""; }
+
+/* ===== 07-capture.js ===== */
+/* =====================================================================
+   Outils : cadre commun + Capture annotée
+   L'écran est figé : on dessine par-dessus l'appli (zones à main levée,
+   rectangles, flèches, traits, textes, flou). Chaque zone reçoit une
+   consigne et la liste des éléments de l'appli qu'elle contient.
+   ===================================================================== */
+function outilOuvrir(nom, html, bloque) {
+  if (OUTIL.actif) outilFermer();
+  OUTIL.actif = nom;
+  const c = q("#calque"); c.innerHTML = html; c.hidden = false; c.classList.toggle("bloque", !!bloque);
+  fermerPanneau(); rendreBulle();
+  return c;
+}
+function outilFermer(piece) {
+  const nom = OUTIL.actif; OUTIL.actif = null;
+  (OUTIL.nettoyer || []).forEach(f => { try { f(); } catch (e) {} }); OUTIL.nettoyer = [];
+  const c = q("#calque"); c.innerHTML = ""; c.hidden = true; c.classList.remove("bloque");
+  if (piece) { COMPO.pieces.push(piece); rendrePieces(); }
+  if (nom) ouvrirPanneau("note");
+}
+// écouteur posé sur la page pendant l'outil, retiré à la fermeture
+function surPage(type, f, opts) { document.addEventListener(type, f, opts); (OUTIL.nettoyer = OUTIL.nettoyer || []).push(() => document.removeEventListener(type, f, opts)); }
+function surFenetre(type, f, opts) { addEventListener(type, f, opts); (OUTIL.nettoyer = OUTIL.nettoyer || []).push(() => removeEventListener(type, f, opts)); }
+const deMoiEvt = e => e.composedPath && e.composedPath().includes(HOTE);
+// Échap ferme l'outil en cours
+function echapFerme(annuler) { surFenetre("keydown", e => { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); annuler(); } }, true); }
+
+/* ---------- Photographier l'écran visible ---------- */
+function fondPage() {
+  for (const el of [document.body, document.documentElement]) { const v = rgbDe(getComputedStyle(el).backgroundColor); if (v && v.a > 0.05) return getComputedStyle(el).backgroundColor; }
+  return "#ffffff";
+}
+async function rasteriser() {
+  if (!htmlToImage) return null;
+  const cs = getComputedStyle(document.body);
+  const opts = {
+    width: innerWidth, height: innerHeight,
+    pixelRatio: Math.min(window.devicePixelRatio || 1, 2), backgroundColor: fondPage(), cacheBust: false,
+    imagePlaceholder: "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
+    // le contenu remonte de la hauteur défilée ; les éléments fixes restent où on les voit
+    style: { marginTop: (parseFloat(cs.marginTop) - scrollY) + "px", marginLeft: (parseFloat(cs.marginLeft) - scrollX) + "px", height: "auto", minHeight: "0", maxHeight: "none", overflow: "visible", transform: "none" },
+    filter: n => !(n.nodeType === 1 && CFG.ignorer && n.matches && n.matches(CFG.ignorer))
+  };
+  const essai = (o, ms) => Promise.race([htmlToImage.toCanvas(document.body, o), attendre(ms).then(() => { throw new Error("délai dépassé"); })]);
+  try { return await essai(opts, 15000); }
+  catch (e) { try { return await essai(Object.assign({}, opts, { skipFonts: true }), 10000); } catch (e2) { console.warn("[débogage] capture impossible :", e2 && e2.message); return null; } }
+}
+
+/* ---------- Dessin ---------- */
+const COULEURS = ["#FF3B30", "#FFB224", "#2F80ED"];
+const FORMES = [
+  ["zone", "Zone", '<svg viewBox="0 0 24 24"><path d="M6 8c1.5-3 7-4.5 11-2s3 8-2 10-10 1-11-2 0-4 2-6z" stroke-dasharray="3 2"/></svg>'],
+  ["rect", "Cadre", '<svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" rx="2"/></svg>'],
+  ["fleche", "Flèche", '<svg viewBox="0 0 24 24"><path d="M5 19L19 5M10 5h9v9"/></svg>'],
+  ["trait", "Trait", '<svg viewBox="0 0 24 24"><path d="M4 16c3-6 5-8 7-5s4 2 9-6"/></svg>'],
+  ["texte", "Texte", '<svg viewBox="0 0 24 24"><path d="M6 6h12M12 6v13"/></svg>'],
+  ["flou", "Masquer", '<svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" rx="2"/><path d="M4 10l6-4M4 15l11-9M7 18l13-9M12 18l8-5"/></svg>']
+];
+function dessinerFormes(ctx, formes, s, apercu) {
+  ctx.lineCap = "round"; ctx.lineJoin = "round";
+  for (const f of formes) {
+    ctx.save(); ctx.strokeStyle = f.c; ctx.fillStyle = f.c; ctx.lineWidth = 3.5 * s;
+    if (f.t === "zone" || f.t === "trait") {
+      if (f.p.length < 2) { ctx.restore(); continue; }
+      ctx.beginPath(); ctx.moveTo(f.p[0][0] * s, f.p[0][1] * s); for (const [x, y] of f.p) ctx.lineTo(x * s, y * s);
+      if (f.t === "zone" && f.fini) { ctx.closePath(); ctx.globalAlpha = 0.14; ctx.fill(); ctx.globalAlpha = 1; }
+      ctx.stroke();
+    } else if (f.t === "rect") {
+      ctx.globalAlpha = 0.12; ctx.fillRect(f.x * s, f.y * s, f.w * s, f.h * s); ctx.globalAlpha = 1; ctx.strokeRect(f.x * s, f.y * s, f.w * s, f.h * s);
+    } else if (f.t === "fleche") {
+      const a = Math.atan2(f.y2 - f.y1, f.x2 - f.x1), L = 16 * s;
+      ctx.beginPath(); ctx.moveTo(f.x1 * s, f.y1 * s); ctx.lineTo(f.x2 * s, f.y2 * s); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(f.x2 * s, f.y2 * s); ctx.lineTo(f.x2 * s - L * Math.cos(a - 0.45), f.y2 * s - L * Math.sin(a - 0.45)); ctx.lineTo(f.x2 * s - L * Math.cos(a + 0.45), f.y2 * s - L * Math.sin(a + 0.45)); ctx.closePath(); ctx.fill();
+    } else if (f.t === "texte") {
+      ctx.font = `700 ${17 * s}px system-ui, sans-serif`; const w = ctx.measureText(f.txt).width, pad = 6 * s;
+      ctx.fillStyle = "rgba(20,22,26,.88)"; ctx.fillRect(f.x * s - pad, f.y * s - 20 * s, w + pad * 2, 28 * s);
+      ctx.fillStyle = f.c; ctx.fillText(f.txt, f.x * s, f.y * s);
+    } else if (f.t === "flou" && apercu) {
+      ctx.fillStyle = "rgba(30,32,36,.82)"; ctx.fillRect(f.x * s, f.y * s, f.w * s, f.h * s);
+      ctx.fillStyle = "#fff"; ctx.font = `600 ${13 * s}px system-ui, sans-serif`; ctx.fillText("masqué", f.x * s + 8 * s, f.y * s + 20 * s);
+    }
+    // numéro de zone
+    if (f.n) { const [bx, by] = f.t === "rect" ? [f.x, f.y] : f.p.reduce((m, p) => p[1] < m[1] ? p : m, f.p[0]);
+      ctx.fillStyle = f.c; ctx.beginPath(); ctx.arc(bx * s, by * s, 13 * s, 0, 7); ctx.fill();
+      ctx.fillStyle = "#fff"; ctx.font = `800 ${14 * s}px system-ui, sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(String(f.n), bx * s, by * s + 0.5 * s); }
+    ctx.restore();
+  }
+}
+const boite = f => {
+  if (f.t === "rect" || f.t === "flou") return { x: f.x, y: f.y, w: f.w, h: f.h };
+  const xs = f.p.map(p => p[0]), ys = f.p.map(p => p[1]); const x = Math.min(...xs), y = Math.min(...ys);
+  return { x, y, w: Math.max(...xs) - x, h: Math.max(...ys) - y };
+};
+
+function outilCapture() {
+  const rasterP = rasteriser(); // la photo se prend pendant qu'on dessine
+  const st = { forme: "zone", c: COULEURS[0], formes: [], en: null, raster: undefined };
+  const c = outilOuvrir("capture", `
+    <canvas id="toile" aria-label="Zone de dessin sur la capture"></canvas>
+    <div class="barre haut"><button type="button" class="btn petit" data-c="annuler">Annuler</button>
+      <span class="tt"><b>Entoure ce qu'il faut modifier</b><small id="cEtat" class="attente">Photo de l'écran…</small></span>
+      <button type="button" class="ic" data-c="deplacer" aria-label="Déplacer cette barre pour dessiner dessous" title="Déplacer la barre">⇅</button>
+      <button type="button" class="btn petit prim" data-c="ok">Terminer</button></div>
+    <div class="consigne" id="cons" hidden></div>
+    <div class="barre bas"><div class="formes" role="toolbar" aria-label="Formes">${FORMES.map(([k, t, svg]) => `<button type="button" data-forme="${k}" aria-pressed="${k === "zone"}" title="${t}">${svg}<span>${t}</span></button>`).join("")}</div>
+      <span class="sep"></span><div class="couleurs">${COULEURS.map((k, i) => `<button type="button" data-coul="${k}" aria-pressed="${i === 0}" style="background:${k}" aria-label="Couleur ${["rouge", "ambre", "bleu"][i]}"></button>`).join("")}</div>
+      <button type="button" class="ic" data-c="defaire" aria-label="Défaire" title="Défaire">↶</button></div>`, true);
+  const cv = c.querySelector("#toile"), ctx = cv.getContext("2d"), dpr = window.devicePixelRatio || 1;
+  const taille = () => { cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; redessiner(); caler(); };
+  // la consigne et la barre déplacée se posent juste au-dessus de la barre d'outils du bas
+  const caler = () => { const h = c.querySelector(".barre.bas").offsetHeight + 16; c.style.setProperty("--bas", h + "px"); c.querySelector("#cons").style.bottom = h + "px"; };
+  const redessiner = () => { ctx.clearRect(0, 0, cv.width, cv.height); dessinerFormes(ctx, st.formes.concat(st.en ? [st.en] : []), dpr, true); };
+  taille(); surFenetre("resize", taille);
+  rasterP.then(r => { st.raster = r; const e = c.querySelector("#cEtat"); if (e) { e.classList.remove("attente"); e.textContent = r ? "Écran figé · dessine avec le doigt ou la souris" : "Photo impossible ici : tes annotations et les éléments repérés seront gardés"; } });
+  // la page ne défile pas pendant le dessin
+  const bloquer = e => { if (deMoiEvt(e)) e.preventDefault(); };
+  surPage("wheel", bloquer, { passive: false, capture: true }); surPage("touchmove", bloquer, { passive: false, capture: true });
+  const nZones = () => st.formes.filter(f => f.n).length;
+
+  cv.addEventListener("pointerdown", e => {
+    if (!c.querySelector("#cons").hidden) return;
+    const x = e.clientX, y = e.clientY; try { cv.setPointerCapture(e.pointerId); } catch (er) {}
+    if (st.forme === "texte") return demanderTexte(x, y);
+    c.classList.add("dessin");
+    st.en = st.forme === "zone" || st.forme === "trait" ? { t: st.forme, c: st.c, p: [[x, y]] }
+      : st.forme === "fleche" ? { t: "fleche", c: st.c, x1: x, y1: y, x2: x, y2: y }
+      : { t: st.forme, c: st.c, x, y, w: 0, h: 0, x0: x, y0: y };
+    redessiner();
+  });
+  cv.addEventListener("pointermove", e => {
+    const f = st.en; if (!f) return; const x = e.clientX, y = e.clientY;
+    if (f.p) f.p.push([x, y]); else if (f.t === "fleche") { f.x2 = x; f.y2 = y; }
+    else { f.x = Math.min(f.x0, x); f.y = Math.min(f.y0, y); f.w = Math.abs(x - f.x0); f.h = Math.abs(y - f.y0); }
+    redessiner();
+  });
+  const fin = () => {
+    c.classList.remove("dessin");
+    const f = st.en; st.en = null; if (!f) return;
+    const b = f.t === "fleche" ? { w: Math.abs(f.x2 - f.x1), h: Math.abs(f.y2 - f.y1) } : boite(f);
+    if (b.w < 10 && b.h < 10) { redessiner(); return; }
+    if (f.t === "zone") f.fini = true;
+    if (f.t === "zone" || f.t === "rect") { f.n = nZones() + 1; f.elements = elementsDansZone(boite(f)); }
+    st.formes.push(f); redessiner();
+    if (f.n) demanderConsigne(f);
+  };
+  cv.addEventListener("pointerup", fin); cv.addEventListener("pointercancel", fin);
+
+  function demanderConsigne(f) {
+    const box = c.querySelector("#cons");
+    box.innerHTML = `<small><span class="numero">${f.n}</span>Que faut-il faire dans cette zone ?</small>
+      ${f.elements.length ? `<small>Contient : ${esc(f.elements.slice(0, 3).map(e => e.t).join(" · "))}</small>` : ""}
+      <div class="rang"><input type="text" id="consIn" placeholder="Ex. : agrandir, aligner à gauche, mettre en rouge…" aria-label="Consigne pour la zone ${f.n}"></div>
+      <div class="rang"><button type="button" class="btn" data-cs="micro" aria-label="Dicter la consigne">${ICO.micro}</button><button type="button" class="btn" data-cs="passer" style="flex:1">Passer</button><button type="button" class="btn prim" data-cs="ok" style="flex:1">OK</button></div>`;
+    box.hidden = false; const inp = box.querySelector("#consIn"); setTimeout(() => inp.focus({ preventScroll: true }), 30);
+    const valider = garder => { if (garder) f.consigne = inp.value.trim(); box.hidden = true; box.innerHTML = ""; if (DICT.mode === "consigne") dicteeArreter(); };
+    inp.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); valider(true); } });
+    box.onclick = e => {
+      const k = e.target.closest("[data-cs]"); if (!k) return;
+      if (k.dataset.cs === "micro") return dicterDans(inp);
+      valider(k.dataset.cs === "ok");
+    };
+  }
+  function demanderTexte(x, y) {
+    const box = c.querySelector("#cons");
+    box.innerHTML = `<small>Texte à écrire sur la capture</small><div class="rang"><input type="text" id="txtIn" placeholder="Ex. : trop petit" aria-label="Texte à écrire"><button type="button" class="btn prim" data-t="ok">OK</button></div>`;
+    box.hidden = false; const inp = box.querySelector("#txtIn"); setTimeout(() => inp.focus({ preventScroll: true }), 30);
+    const ok = () => { const t = inp.value.trim(); box.hidden = true; box.innerHTML = ""; if (t) { st.formes.push({ t: "texte", c: st.c, x, y, txt: t }); redessiner(); } };
+    inp.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); ok(); } if (e.key === "Escape") { e.stopPropagation(); box.hidden = true; } });
+    box.onclick = e => { if (e.target.closest("[data-t]")) ok(); };
+  }
+
+  c.addEventListener("click", async e => {
+    const fo = e.target.closest("[data-forme]"); if (fo) { st.forme = fo.dataset.forme; c.querySelectorAll("[data-forme]").forEach(b => b.setAttribute("aria-pressed", String(b === fo))); return; }
+    const co = e.target.closest("[data-coul]"); if (co) { st.c = co.dataset.coul; c.querySelectorAll("[data-coul]").forEach(b => b.setAttribute("aria-pressed", String(b === co))); return; }
+    const a = e.target.closest("[data-c]"); if (!a) return;
+    if (a.dataset.c === "defaire") { st.formes.pop(); redessiner(); }
+    else if (a.dataset.c === "deplacer") { caler(); c.querySelector(".barre.haut").classList.toggle("enbas"); }
+    else if (a.dataset.c === "annuler") outilFermer();
+    else if (a.dataset.c === "ok") {
+      a.disabled = true; a.textContent = "Finalisation…";
+      const cons = c.querySelector("#cons"); if (!cons.hidden) { const i = cons.querySelector("#consIn"); const z = st.formes.filter(f => f.n).pop(); if (i && z) z.consigne = i.value.trim(); }
+      const raster = st.raster === undefined ? await rasterP : st.raster;
+      outilFermer(await composerCapture(raster, st.formes));
+    }
+  });
+  echapFerme(() => outilFermer());
+}
+
+// Dictée rapide dans un petit champ (consigne de zone, remplacement de texte)
+function dicterDans(inp) {
+  if (DICT.mode) { dicteeArreter(); return; }
+  const base = inp.value ? inp.value.trimEnd() + " " : "";
+  const cible = { partiel: t => { inp.value = base + t; }, final: t => { inp.value = (base + t).trim(); } };
+  // on réutilise le moteur de la dictée avec une cible ponctuelle
+  dicteeBasculer("consigne"); if (DICT.mode === "consigne") DICT.cible = cible;
+}
+
+async function composerCapture(raster, formes) {
+  const L = innerWidth, H = innerHeight;
+  const s = raster ? raster.width / L : Math.min(window.devicePixelRatio || 1, 2);
+  const cv = document.createElement("canvas"); cv.width = Math.round(L * s); cv.height = Math.round(H * s);
+  const ctx = cv.getContext("2d");
+  if (raster) ctx.drawImage(raster, 0, 0);
+  else {
+    ctx.fillStyle = "#E9EBEE"; ctx.fillRect(0, 0, cv.width, cv.height);
+    ctx.fillStyle = "#5E6670"; ctx.font = `600 ${15 * s}px system-ui, sans-serif`;
+    ctx.fillText("Photo de l'écran indisponible ici : annotations seules", 16 * s, 28 * s);
+  }
+  // zones masquées : pixellisation
+  for (const f of formes.filter(f => f.t === "flou")) {
+    const x = f.x * s, y = f.y * s, w = Math.max(1, f.w * s), h = Math.max(1, f.h * s), k = 14 * s;
+    const t = document.createElement("canvas"); t.width = Math.max(1, Math.round(w / k)); t.height = Math.max(1, Math.round(h / k));
+    t.getContext("2d").drawImage(cv, x, y, w, h, 0, 0, t.width, t.height);
+    ctx.save(); ctx.imageSmoothingEnabled = false; ctx.drawImage(t, 0, 0, t.width, t.height, x, y, w, h); ctx.restore();
+  }
+  dessinerFormes(ctx, formes.filter(f => f.t !== "flou"), s, false);
+  // image raisonnable : 1440 px de large au plus
+  let out = cv;
+  if (cv.width > 1440) { out = document.createElement("canvas"); out.width = 1440; out.height = Math.round(cv.height * 1440 / cv.width); out.getContext("2d").drawImage(cv, 0, 0, out.width, out.height); }
+  const blob = await new Promise(r => out.toBlob(r, "image/jpeg", 0.84));
+  const image = blob ? await imageMettre("cap-" + uid(), blob) : null;
+  return {
+    type: "capture", image, largeur: out.width, hauteur: out.height, ecran: L + " × " + H, photo: !!raster,
+    zones: formes.filter(f => f.n).map(f => ({ n: f.n, forme: f.t === "rect" ? "cadre" : "zone", consigne: f.consigne || "", elements: f.elements || [], boite: (b => ({ x: Math.round(b.x), y: Math.round(b.y), l: Math.round(b.w), h: Math.round(b.h) }))(boite(f)) })),
+    textes: formes.filter(f => f.t === "texte").map(f => f.txt),
+    fleches: formes.filter(f => f.t === "fleche").length,
+    masques: formes.filter(f => f.t === "flou").length
+  };
+}
+
+/* ===== 08-element.js ===== */
+/* =====================================================================
+   Outil Élément : désigner un bouton, un bloc, une image…
+   Survol (ordinateur) ou toucher (téléphone) → l'élément s'encadre.
+   « ↑ Parent » pour élargir. La note retient son sélecteur CSS, son
+   texte, sa taille, sa police, ses couleurs et le contraste.
+   ===================================================================== */
+function bloquerAppli(garderPointeur) {
+  // pendant l'outil, l'appli ne réagit pas aux clics (on ne veut pas déclencher d'action)
+  const stop = e => { if (deMoiEvt(e)) return; e.stopPropagation(); e.stopImmediatePropagation(); if (e.type === "click" || e.type === "contextmenu" || e.type === "submit") e.preventDefault(); };
+  ["click", "dblclick", "contextmenu", "submit", "mousedown", "mouseup", "touchstart", "touchend", "keydown"].forEach(t => surPage(t, ev => { if (t === "keydown" && ev.key === "Escape") return; stop(ev); }, true));
+  if (!garderPointeur) ["pointerdown", "pointerup"].forEach(t => surPage(t, ev => { if (!deMoiEvt(ev)) ev.stopPropagation(); }, true));
+}
+function placerCadre(cadre, el, etiquette) {
+  if (!el) { cadre.hidden = true; return; }
+  const r = el.getBoundingClientRect();
+  Object.assign(cadre.style, { left: r.left - 2 + "px", top: r.top - 2 + "px", width: r.width + 4 + "px", height: r.height + 4 + "px" });
+  cadre.hidden = false; cadre.classList.toggle("bas", r.top < 40);
+  cadre.querySelector(".etq").textContent = etiquette || (decrireCourt(el) + " · " + Math.round(r.width) + "×" + Math.round(r.height));
+}
+
+function outilElement() {
+  const c = outilOuvrir("element", `
+    <div class="cadre" id="cadre" hidden><span class="etq"></span></div>
+    <div class="barre haut"><button type="button" class="btn petit" data-e="annuler">Annuler</button>
+      <span class="tt"><b>Touche l'élément à signaler</b><small>${estLarge() ? "Survole puis clique · ↑ pour le bloc parent · Entrée pour choisir" : "Touche un bouton, un texte, une image…"}</small></span></div>
+    <div class="barre bas" id="eChoix" hidden><span class="tt" style="min-width:0"><b id="eNom" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></b><small id="eSel" class="mono coupe-debut"></small></span>
+      <button type="button" class="btn petit" data-e="parent" title="Élargir au bloc qui le contient">↑ Parent</button>
+      <button type="button" class="btn petit" data-e="enfant" title="Revenir à l'élément intérieur">↓</button>
+      <button type="button" class="btn petit prim" data-e="ok">Choisir</button></div>`);
+  const cadre = c.querySelector("#cadre"); let survol = null, choisi = null; const pile = [];
+  bloquerAppli(false);
+  const montrerChoix = () => {
+    placerCadre(cadre, choisi);
+    c.querySelector("#eChoix").hidden = !choisi; if (!choisi) return;
+    const r = choisi.getBoundingClientRect();
+    c.querySelector("#eNom").textContent = decrireCourt(choisi) + " · " + Math.round(r.width) + "×" + Math.round(r.height) + " px";
+    c.querySelector("#eSel").textContent = selecteur(choisi);
+    c.querySelector('[data-e="enfant"]').disabled = !pile.length;
+  };
+  let p0 = null;
+  surPage("pointermove", e => { if (deMoiEvt(e) || e.pointerType !== "mouse" || choisi) return; survol = elementSous(e.clientX, e.clientY); placerCadre(cadre, survol); }, true);
+  surPage("pointerdown", e => { if (deMoiEvt(e)) return; p0 = { x: e.clientX, y: e.clientY }; }, true);
+  surPage("pointerup", e => {
+    if (deMoiEvt(e) || !p0) return; const bouge = Math.hypot(e.clientX - p0.x, e.clientY - p0.y) > 10; p0 = null; if (bouge) return;
+    const el = elementSous(e.clientX, e.clientY); if (!el) return; choisi = el; pile.length = 0; montrerChoix();
+  }, true);
+  surFenetre("scroll", () => { if (choisi) placerCadre(cadre, choisi); }, true);
+  surFenetre("keydown", e => {
+    if (!choisi && survol && e.key === "Enter") { choisi = survol; montrerChoix(); return; }
+    if (!choisi) return;
+    if (e.key === "ArrowUp") { e.preventDefault(); c.querySelector('[data-e="parent"]').click(); }
+    if (e.key === "ArrowDown") { e.preventDefault(); c.querySelector('[data-e="enfant"]').click(); }
+    if (e.key === "Enter") { e.preventDefault(); c.querySelector('[data-e="ok"]').click(); }
+  }, true);
+  c.addEventListener("click", async e => {
+    const a = e.target.closest("[data-e]"); if (!a) return; const k = a.dataset.e;
+    if (k === "annuler") return outilFermer();
+    if (k === "parent" && choisi && choisi.parentElement && choisi.parentElement !== document.body) { pile.push(choisi); choisi = choisi.parentElement; montrerChoix(); }
+    if (k === "enfant" && pile.length) { choisi = pile.pop(); montrerChoix(); }
+    if (k === "ok" && choisi) {
+      a.disabled = true; a.textContent = "…";
+      const p = Object.assign({ type: "element" }, decrireElement(choisi));
+      cadre.hidden = true;
+      p.image = await photoElement(choisi);
+      outilFermer(p);
+    }
+  });
+  echapFerme(() => outilFermer());
+}
+async function photoElement(el) {
+  if (!htmlToImage) return null;
+  try {
+    const r = el.getBoundingClientRect(); if (r.width < 2 || r.height < 2 || r.width * r.height > 1600 * 1600) return null;
+    const blob = await Promise.race([htmlToImage.toBlob(el, { pixelRatio: Math.min(2, window.devicePixelRatio || 1), backgroundColor: fondEffectif(el), cacheBust: false, skipFonts: true }), attendre(6000).then(() => null)]);
+    return blob ? await imageMettre("el-" + uid(), blob) : null;
+  } catch (e) { return null; }
+}
+
+/* ===== 09-texte.js ===== */
+/* =====================================================================
+   Outil Texte : sélectionner un texte de l'appli et proposer
+   « remplacer par… ». La sélection est forcée même là où l'appli
+   l'interdit (user-select: none), le temps de l'outil.
+   ===================================================================== */
+function outilTexte() {
+  const c = outilOuvrir("texte", `<div id="tSurl"></div>
+    <div class="barre haut"><button type="button" class="btn petit" data-x="annuler">Annuler</button>
+      <span class="tt"><b>Sélectionne le texte à changer</b><small id="tAide">${estLarge() ? "Glisse sur le texte avec la souris" : "Appui long sur un mot, puis étire la sélection"}</small></span>
+      <button type="button" class="btn petit prim" data-x="prendre" disabled>Utiliser</button></div>
+    <div class="consigne" id="tForm" hidden style="bottom:12px"></div>`);
+  const style = document.createElement("style"); style.setAttribute("data-outil-debogage", "");
+  style.textContent = "*{-webkit-user-select:text!important;user-select:text!important;-webkit-touch-callout:default!important}";
+  document.head.appendChild(style); (OUTIL.nettoyer = OUTIL.nettoyer || []).push(() => style.remove());
+  bloquerAppli(true);
+  let sel = null, choix = null;
+  const lire = () => {
+    const s = document.getSelection(); if (!s || s.isCollapsed || !s.rangeCount) return null;
+    const t = s.toString().replace(/\s+/g, " ").trim(); if (!t) return null;
+    const r = s.getRangeAt(0); let el = r.commonAncestorContainer; if (el.nodeType !== 1) el = el.parentElement;
+    return { texte: t, el, rects: [...r.getClientRects()].slice(0, 20) };
+  };
+  surPage("selectionchange", () => {
+    if (choix) return;
+    sel = lire(); const b = c.querySelector('[data-x="prendre"]'); if (b) b.disabled = !sel;
+    c.querySelector("#tAide").textContent = sel ? "« " + tronquer(sel.texte, 60) + " »" : (estLarge() ? "Glisse sur le texte avec la souris" : "Appui long sur un mot, puis étire la sélection");
+  });
+  const formulaire = () => {
+    const box = c.querySelector("#tForm"), s = choix = sel;
+    c.querySelector('[data-x="prendre"]').hidden = true;
+    c.querySelector("#tSurl").innerHTML = s.rects.map(r => `<div class="surligne" style="left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px"></div>`).join("");
+    try { document.getSelection().removeAllRanges(); } catch (e) {}
+    box.innerHTML = `<small>Texte actuel</small><b>« ${esc(tronquer(s.texte, 200))} »</b>
+      <small>Remplacer par (laisser vide pour signaler seulement)</small>
+      <div class="rang"><input type="text" id="tNouv" value="${esc(s.texte.length < 160 ? s.texte : "")}" aria-label="Nouveau texte"><button type="button" class="btn" data-x="micro" aria-label="Dicter">${ICO.micro}</button></div>
+      <div class="rang"><button type="button" class="btn" data-x="refaire" style="flex:1">Autre sélection</button><button type="button" class="btn prim" data-x="ok" style="flex:1.4">Ajouter à la note</button></div>`;
+    box.hidden = false; const inp = box.querySelector("#tNouv"); setTimeout(() => { inp.focus({ preventScroll: true }); inp.select(); }, 30);
+    inp.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); box.querySelector('[data-x="ok"]').click(); } });
+  };
+  c.addEventListener("click", e => {
+    const a = e.target.closest("[data-x]"); if (!a) return; const k = a.dataset.x;
+    if (k === "annuler") return outilFermer();
+    if (k === "prendre" && sel) return formulaire();
+    if (k === "micro") return dicterDans(c.querySelector("#tNouv"));
+    if (k === "refaire") { choix = sel = null; c.querySelector("#tForm").hidden = true; c.querySelector("#tSurl").innerHTML = ""; const b = c.querySelector('[data-x="prendre"]'); b.hidden = false; b.disabled = true; return; }
+    if (k === "ok" && choix) {
+      const sel = choix;
+      if (DICT.mode === "consigne") dicteeArreter();
+      const nouv = c.querySelector("#tNouv").value.trim();
+      outilFermer({ type: "texte", texte: sel.texte, remplacement: nouv && nouv !== sel.texte ? nouv : "", element: selecteur(sel.el), dans: decrireCourt(sel.el) });
+    }
+  });
+  echapFerme(() => outilFermer());
+}
+
+/* ===== 10-mesure.js ===== */
+/* =====================================================================
+   Outil Mesure
+   - Règle : glisser pour mesurer une distance en pixels ;
+   - Écart : toucher deux éléments → espace entre eux et décalages d'alignement ;
+   - Couleur : toucher un élément → couleur du texte, du fond, contraste, police ;
+   - Grille : quadrillage d'alignement (4, 8, 16 ou 24 px), gardé pendant les mesures.
+   ===================================================================== */
+function outilMesure() {
+  const st = { mode: "regle", grille: local.lire("grille", 0), a: null, b: null, p1: null, p2: null, res: null };
+  const c = outilOuvrir("mesure", `
+    <canvas id="mToile"></canvas>
+    <div class="barre haut"><button type="button" class="btn petit" data-m="fin">Fermer</button>
+      <div class="formes" role="tablist">${[["regle", "Règle"], ["ecart", "Écart"], ["couleur", "Couleur"]].map(([k, t]) => `<button type="button" role="tab" data-mode="${k}" aria-pressed="${k === "regle"}"><span style="font-size:13px">${t}</span></button>`).join("")}
+      <button type="button" data-m="grille" aria-pressed="false" title="Grille d'alignement"><span style="font-size:13px" id="mGr">Grille</span></button></div></div>
+    <div class="consigne" id="mRes" style="bottom:12px"></div>`, true);
+  const cv = c.querySelector("#mToile"), ctx = cv.getContext("2d"), dpr = window.devicePixelRatio || 1;
+  const taille = () => { cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; dessiner(); };
+  const aide = { regle: "Glisse d'un point à un autre pour mesurer.", ecart: "Touche un premier élément, puis un second.", couleur: "Touche un texte ou un bloc pour lire ses couleurs." };
+  const res = c.querySelector("#mRes");
+  const afficher = (html, piece) => {
+    st.res = piece || null;
+    res.innerHTML = `<div class="resultat">${html}</div>${piece ? `<div class="rang"><button type="button" class="btn prim" data-m="ajouter" style="flex:1">Ajouter à la note</button></div>` : ""}`;
+  };
+  const boiteEl = el => { const r = el.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; };
+  function dessiner() {
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, innerWidth, innerHeight);
+    if (st.grille) {
+      ctx.strokeStyle = "rgba(255,0,140,.22)"; ctx.lineWidth = 1; ctx.beginPath();
+      for (let x = 0.5; x < innerWidth; x += st.grille) { ctx.moveTo(x, 0); ctx.lineTo(x, innerHeight); }
+      for (let y = 0.5; y < innerHeight; y += st.grille) { ctx.moveTo(0, y); ctx.lineTo(innerWidth, y); }
+      ctx.stroke(); ctx.strokeStyle = "rgba(255,0,140,.5)"; ctx.beginPath(); ctx.moveTo(innerWidth / 2, 0); ctx.lineTo(innerWidth / 2, innerHeight); ctx.stroke();
+    }
+    const cadre = (b, coul, lettre) => { ctx.strokeStyle = coul; ctx.lineWidth = 2; ctx.fillStyle = coul + "22"; ctx.fillRect(b.x, b.y, b.w, b.h); ctx.strokeRect(b.x, b.y, b.w, b.h); if (lettre) { ctx.fillStyle = coul; ctx.fillRect(b.x, b.y - 18, 18, 18); ctx.fillStyle = "#fff"; ctx.font = "700 12px system-ui"; ctx.fillText(lettre, b.x + 5, b.y - 5); } };
+    const etiquette = (x, y, t) => { ctx.font = "600 12.5px ui-monospace, Menlo, monospace"; const w = ctx.measureText(t).width + 12; x = borne(x - w / 2, 4, innerWidth - w - 4); y = borne(y, 22, innerHeight - 4); ctx.fillStyle = "#1D2024"; ctx.fillRect(x, y - 18, w, 22); ctx.fillStyle = "#FFB224"; ctx.fillText(t, x + 6, y - 3); };
+    if (st.mode === "regle" && st.p1 && st.p2) {
+      ctx.strokeStyle = "#FFB224"; ctx.lineWidth = 2; ctx.setLineDash([6, 4]); ctx.beginPath(); ctx.moveTo(st.p1.x, st.p1.y); ctx.lineTo(st.p2.x, st.p2.y); ctx.stroke(); ctx.setLineDash([]);
+      [st.p1, st.p2].forEach(p => { ctx.fillStyle = "#FFB224"; ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, 7); ctx.fill(); });
+      const dx = Math.abs(st.p2.x - st.p1.x), dy = Math.abs(st.p2.y - st.p1.y);
+      etiquette((st.p1.x + st.p2.x) / 2, (st.p1.y + st.p2.y) / 2 - 8, fmtNb(Math.hypot(dx, dy)) + " px");
+    }
+    if (st.mode === "ecart") {
+      if (st.a) cadre(boiteEl(st.a), "#2F80ED", "A");
+      if (st.b) {
+        cadre(boiteEl(st.b), "#FF3B30", "B");
+        const A = boiteEl(st.a), B = boiteEl(st.b);
+        ctx.strokeStyle = "#FFB224"; ctx.lineWidth = 2;
+        const gx = B.x > A.x + A.w ? [A.x + A.w, B.x] : A.x > B.x + B.w ? [B.x + B.w, A.x] : null;
+        const gy = B.y > A.y + A.h ? [A.y + A.h, B.y] : A.y > B.y + B.h ? [B.y + B.h, A.y] : null;
+        if (gx) { const y = Math.max(A.y, B.y) + 10; ctx.beginPath(); ctx.moveTo(gx[0], y); ctx.lineTo(gx[1], y); ctx.stroke(); etiquette((gx[0] + gx[1]) / 2, y - 6, Math.round(gx[1] - gx[0]) + " px"); }
+        if (gy) { const x = Math.max(A.x, B.x) + 10; ctx.beginPath(); ctx.moveTo(x, gy[0]); ctx.lineTo(x, gy[1]); ctx.stroke(); etiquette(x + 30, (gy[0] + gy[1]) / 2 + 6, Math.round(gy[1] - gy[0]) + " px"); }
+      }
+    }
+    if (st.mode === "couleur" && st.a) cadre(boiteEl(st.a), "#FFB224");
+  }
+  taille(); surFenetre("resize", taille);
+  afficher(`<small>${aide.regle}</small>`);
+  if (st.grille) c.querySelector("#mGr").textContent = "Grille " + st.grille;
+
+  cv.addEventListener("pointerdown", e => {
+    const x = e.clientX, y = e.clientY;
+    if (st.mode === "regle") { st.p1 = { x, y }; st.p2 = { x, y }; st.glisse = true; try { cv.setPointerCapture(e.pointerId); } catch (er) {} dessiner(); }
+  });
+  cv.addEventListener("pointermove", e => { if (st.mode === "regle" && st.glisse) { st.p2 = { x: e.clientX, y: e.clientY }; if (e.shiftKey) { if (Math.abs(st.p2.x - st.p1.x) > Math.abs(st.p2.y - st.p1.y)) st.p2.y = st.p1.y; else st.p2.x = st.p1.x; } dessiner(); } });
+  cv.addEventListener("pointerup", e => {
+    const x = e.clientX, y = e.clientY;
+    if (st.mode === "regle") {
+      st.glisse = false; const dx = Math.round(Math.abs(st.p2.x - st.p1.x)), dy = Math.round(Math.abs(st.p2.y - st.p1.y));
+      if (dx + dy < 3) { afficher(`<small>${aide.regle}</small>`); return; }
+      const d = fmtNb(Math.hypot(dx, dy));
+      const de = decrireCourt(elementSous(st.p1.x, st.p1.y)), a = decrireCourt(elementSous(st.p2.x, st.p2.y));
+      afficher(`<b>${d} px</b><small>horizontal ${dx} px · vertical ${dy} px</small><small>de ${esc(de)} à ${esc(a)}</small>`,
+        { type: "mesure", genre: "distance", resume: d + " px (Δx " + dx + ", Δy " + dy + ")", details: "De " + de + " à " + a });
+    } else if (st.mode === "ecart") {
+      const el = elementSous(x, y); if (!el) return;
+      if (!st.a || st.b) { st.a = el; st.b = null; afficher(`<small>A : ${esc(decrireCourt(el))}. Touche maintenant le second élément.</small>`); }
+      else {
+        st.b = el; const A = boiteEl(st.a), B = boiteEl(st.b);
+        const ex = Math.round(Math.max(B.x - (A.x + A.w), A.x - (B.x + B.w), 0)), ey = Math.round(Math.max(B.y - (A.y + A.h), A.y - (B.y + B.h), 0));
+        const dg = Math.round(B.x - A.x), dh = Math.round(B.y - A.y), dc = Math.round((B.x + B.w / 2) - (A.x + A.w / 2)), dd = Math.round((B.x + B.w) - (A.x + A.w));
+        const lignes = [ex ? "Espace horizontal : " + ex + " px" : "", ey ? "Espace vertical : " + ey + " px" : "", !ex && !ey ? "Les deux éléments se touchent ou se chevauchent" : "",
+          "Bords gauches décalés de " + dg + " px" + (dg === 0 ? " (alignés)" : ""), "Bords hauts décalés de " + dh + " px" + (dh === 0 ? " (alignés)" : ""),
+          "Centres décalés de " + dc + " px horizontalement" + (dc === 0 ? " (centrés)" : ""), "Bords droits décalés de " + dd + " px" + (dd === 0 ? " (alignés)" : "")].filter(Boolean);
+        const tA = decrireCourt(st.a), tB = decrireCourt(st.b);
+        afficher(`<small>A : ${esc(tA)}<br>B : ${esc(tB)}</small>${lignes.map(l => `<span>${esc(l)}</span>`).join("")}`,
+          { type: "mesure", genre: "ecart", resume: (ex || ey ? "écart " + [ex ? ex + " px horizontal" : "", ey ? ey + " px vertical" : ""].filter(Boolean).join(", ") : "éléments collés") + " entre A et B",
+            details: "A = " + tA + " (" + selecteur(st.a) + ") ; B = " + tB + " (" + selecteur(st.b) + ") ; " + lignes.join(" ; ") });
+      }
+      dessiner();
+    } else if (st.mode === "couleur") {
+      const el = elementSous(x, y); if (!el) return; st.a = el; dessiner();
+      const cs = getComputedStyle(el), fond = fondEffectif(el), ct = contraste(cs.color, fond);
+      const ok = ct >= 4.5, verdict = ct ? fmtNb(ct) + ":1 " + (ok ? "✓ lisible (AA)" : ct >= 3 ? "⚠ juste pour du gros texte" : "✗ insuffisant") : "";
+      afficher(`<small>${esc(decrireCourt(el))}</small>
+        <span class="nuance"><i style="background:${esc(cs.color)}"></i>Texte <b class="mono">${esc(versHex(cs.color))}</b></span>
+        <span class="nuance"><i style="background:${esc(fond)}"></i>Fond <b class="mono">${esc(versHex(fond))}</b></span>
+        <span>Contraste <b>${esc(verdict)}</b></span>
+        <small class="mono">${esc(cs.fontSize + " / " + cs.lineHeight + " · " + cs.fontWeight + " · " + cs.fontFamily.split(",")[0])}</small>`,
+        { type: "mesure", genre: "couleur", resume: "texte " + versHex(cs.color) + " sur " + versHex(fond) + (ct ? ", contraste " + fmtNb(ct) + ":1" : ""),
+          details: decrireCourt(el) + " (" + selecteur(el) + ") · police " + cs.fontSize + " " + cs.fontWeight + " " + cs.fontFamily.split(",")[0] + (ct && !ok ? " · contraste sous 4,5:1" : "") });
+    }
+  });
+  c.addEventListener("click", e => {
+    const md = e.target.closest("[data-mode]");
+    if (md) { st.mode = md.dataset.mode; st.a = st.b = st.p1 = st.p2 = null; c.querySelectorAll("[data-mode]").forEach(b => b.setAttribute("aria-pressed", String(b === md))); afficher(`<small>${aide[st.mode]}</small>`); dessiner(); return; }
+    const a = e.target.closest("[data-m]"); if (!a) return;
+    if (a.dataset.m === "fin") return outilFermer();
+    if (a.dataset.m === "grille") { const pas = [0, 4, 8, 16, 24]; st.grille = pas[(pas.indexOf(st.grille) + 1) % pas.length]; local.ecrire("grille", st.grille); a.setAttribute("aria-pressed", String(!!st.grille)); c.querySelector("#mGr").textContent = st.grille ? "Grille " + st.grille : "Grille"; dessiner(); }
+    if (a.dataset.m === "ajouter" && st.res) outilFermer(st.res);
+  });
+  echapFerme(() => outilFermer());
+}
+
+/* ===== 11-export.js ===== */
+/* =====================================================================
+   Export : texte « prêt pour Claude », ZIP (texte + JSON + captures),
+   JSON pour le tableau de bord multi-projets
+   ===================================================================== */
+const FORMAT = "outil-debogage";
+const nomCapture = ref => "captures/" + String(ref.cle).replace(/[^a-z0-9_-]/gi, "_") + ".jpg";
+
+function promptClaude(notes, opts) {
+  opts = opts || {};
+  const liste = notes.slice().sort((a, b) => String(a.at).localeCompare(String(b.at)));
+  const L = [];
+  L.push(`# Notes de débogage — ${CFG.projet || "projet"}${CFG.version ? " v" + CFG.version : ""}`);
+  L.push(`${liste.length} note${liste.length > 1 ? "s" : ""} · exportées le ${new Date().toLocaleString("fr-FR")} · outil-debogage ${VERSION_OUTIL}`);
+  L.push("");
+  L.push("Corrige chaque point ci-dessous dans le code de l'appli. Les sélecteurs CSS indiquent les éléments concernés ; les numéros ①②… renvoient aux zones entourées sur les captures" + (opts.avecImages ? " (dossier captures/)" : "") + ". Quand un point est corrigé, dis-moi dans quelle version, pour que je le marque « corrigé ».");
+  const parEcran = new Map();
+  liste.forEach(n => { const k = n.ecran || "Écran inconnu"; if (!parEcran.has(k)) parEcran.set(k, []); parEcran.get(k).push(n); });
+  let i = 0;
+  for (const [ecran, ns] of parEcran) {
+    L.push("", `## Écran : ${ecran}`);
+    for (const n of ns) {
+      i++;
+      const titre = String(n.texte || "").split("\n")[0];
+      L.push("", `### ${i}. ${tronquer(titre, 110)}`);
+      const meta = [fmtQuand(n.at), n.version ? "v" + n.version : "", n.via === "voix" ? "dictée" : "", n.valide ? "corrigée" + (n.corrigeeEn ? " en v" + n.corrigeeEn : "") : "",
+        (n.rouvertes || []).length ? "rouverte " + n.rouvertes.length + " fois" + (n.rouvertes[n.rouvertes.length - 1].corrigeeEn ? " (avait été corrigée en v" + n.rouvertes[n.rouvertes.length - 1].corrigeeEn + ")" : "") : ""].filter(Boolean).join(" · ");
+      L.push(`_${meta}_`);
+      if (String(n.texte || "").includes("\n") || titre.length > 110) L.push("", n.texte);
+      for (const p of n.pieces || []) {
+        if (p.type === "capture") {
+          L.push(`- **Capture** ${p.image ? "`" + nomCapture(p.image) + "`" : ""}${p.photo === false ? " (annotations seules, sans photo de l'écran)" : ""}`);
+          for (const z of p.zones || []) L.push(`  - Zone ${NUM[z.n - 1] || z.n} : ${z.consigne ? "« " + z.consigne + " »" : "(pas de consigne)"}${z.elements && z.elements.length ? " — contient " + z.elements.map(e => e.t + " `" + e.s + "`").join(", ") : ""}`);
+          if (p.textes && p.textes.length) L.push(`  - Textes écrits sur la capture : ${p.textes.map(t => "« " + t + " »").join(", ")}`);
+        } else if (p.type === "element") {
+          L.push(`- **Élément** ${p.balise}${p.texte ? " « " + p.texte + " »" : ""} — \`${p.selecteur}\` — ${p.taille} — police ${p.styles.police}, ${p.styles.couleur} sur ${p.styles.fond}${p.styles.contraste ? ", contraste " + p.styles.contraste : ""}${p.styles.retraits && p.styles.retraits !== "0px" ? ", padding " + p.styles.retraits : ""}${p.styles.marges && p.styles.marges !== "0px" ? ", margin " + p.styles.marges : ""}`);
+        } else if (p.type === "texte") {
+          L.push(p.remplacement ? `- **Texte à remplacer** : « ${p.texte} » → « ${p.remplacement} » (dans \`${p.element}\`)` : `- **Texte signalé** : « ${p.texte} » (dans \`${p.element}\`)`);
+        } else if (p.type === "mesure") {
+          L.push(`- **Mesure** (${p.genre}) : ${p.resume}${p.details ? " — " + p.details : ""}`);
+        }
+      }
+      const c = n.contexte;
+      if (c) {
+        if (c.erreurs && c.erreurs.length) { L.push(`- **Erreurs JavaScript juste avant** :`); c.erreurs.slice(-5).forEach(e => L.push(`  - ${e.type} : ${e.message}${e.source ? " (" + e.source + ")" : ""}${e.pile ? "\n    ```\n    " + e.pile.split("\n").slice(0, 4).join("\n    ") + "\n    ```" : ""}`)); }
+        if (c.parcours && c.parcours.length) L.push(`- **Parcours** : ${c.parcours.slice(-8).map(x => x.type === "écran" ? "→ " + x.ecran : x.type + " " + x.cible).join(" · ")}`);
+        if (c.appareil) { const a = c.appareil; L.push(`- **Appareil** : ${[a.systeme, a.navigateur + (a.webview ? " (appli)" : ""), a.ecran + " ×" + a.densite, a.orientation, "thème " + a.theme, a.zoom && a.zoom !== "100 %" ? "zoom " + a.zoom : ""].filter(Boolean).join(", ")}`); }
+        if (c.etat) L.push(`- **État de l'appli** : \`${c.etat}\``);
+      }
+    }
+  }
+  return L.join("\n");
+}
+
+/* ---------- ZIP minimal (sans compression), lisible partout ---------- */
+const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(u8) { let c = 0xFFFFFFFF; for (let i = 0; i < u8.length; i++) c = CRC[(c ^ u8[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+async function creerZip(fichiers) {
+  const enc = new TextEncoder(), parts = [], central = []; let offset = 0;
+  const d = new Date(), heure = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1), jour = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+  for (const f of fichiers) {
+    const nom = enc.encode(f.nom), data = f.data instanceof Uint8Array ? f.data : typeof f.data === "string" ? enc.encode(f.data) : new Uint8Array(await f.data.arrayBuffer());
+    const crc = crc32(data), h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 0, true);
+    h.setUint16(10, heure, true); h.setUint16(12, jour, true); h.setUint32(14, crc, true); h.setUint32(18, data.length, true); h.setUint32(22, data.length, true);
+    h.setUint16(26, nom.length, true); h.setUint16(28, 0, true);
+    parts.push(new Uint8Array(h.buffer), nom, data);
+    const c = new DataView(new ArrayBuffer(46));
+    c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(10, 0, true);
+    c.setUint16(12, heure, true); c.setUint16(14, jour, true); c.setUint32(16, crc, true); c.setUint32(20, data.length, true); c.setUint32(24, data.length, true);
+    c.setUint16(28, nom.length, true); c.setUint32(42, offset, true);
+    central.push(new Uint8Array(c.buffer), nom);
+    offset += 30 + nom.length + data.length;
+  }
+  const tailleCentral = central.reduce((s, x) => s + x.length, 0), fin = new DataView(new ArrayBuffer(22));
+  fin.setUint32(0, 0x06054b50, true); fin.setUint16(8, fichiers.length, true); fin.setUint16(10, fichiers.length, true); fin.setUint32(12, tailleCentral, true); fin.setUint32(16, offset, true);
+  return new Blob([...parts, ...central, new Uint8Array(fin.buffer)], { type: "application/zip" });
+}
+
+const horodatage = () => { const d = new Date(), p = n => String(n).padStart(2, "0"); return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + "_" + p(d.getHours()) + "h" + p(d.getMinutes()); };
+const nomBase = () => "debogage_" + (CFG.projet || "projet").replace(/[^a-z0-9_-]+/gi, "-") + "_" + horodatage();
+function paquet(notes) { return { format: FORMAT, formatVersion: 1, outil: VERSION_OUTIL, projet: CFG.projet || "", versionApp: CFG.version || "", exporteLe: iso(), notes: notes.map(sansId) }; }
+const blobVersDataUrl = b => new Promise(r => { const f = new FileReader(); f.onload = () => r(f.result); f.onerror = () => r(""); f.readAsDataURL(b); });
+
+async function exporterZip() {
+  toast("Préparation du ZIP…");
+  const notes = ST.notes, fichiers = [], vus = new Set();
+  fichiers.push({ nom: "notes_a_traiter.md", data: promptClaude(notes.filter(n => !n.valide), { avecImages: true }) });
+  fichiers.push({ nom: "toutes_les_notes.md", data: promptClaude(notes, { avecImages: true }) });
+  fichiers.push({ nom: "notes.json", data: JSON.stringify(paquet(notes), null, 1) });
+  for (const n of notes) for (const p of n.pieces || []) {
+    if (!p.image || vus.has(p.image.cle)) continue; vus.add(p.image.cle);
+    const b = await imageBlob(p.image); if (b) fichiers.push({ nom: nomCapture(p.image), data: b });
+  }
+  const ok = await telecharger(nomBase() + ".zip", await creerZip(fichiers));
+  if (ok !== false) toast("ZIP prêt : " + notes.length + " note(s), " + (fichiers.length - 3) + " image(s).");
+}
+async function exporterJson() {
+  toast("Préparation de l'export…");
+  const p = paquet(ST.notes);
+  for (const n of p.notes) for (const pc of n.pieces || []) {
+    if (!pc.image) continue; const b = await imageBlob(pc.image); if (b) pc.image.data = await blobVersDataUrl(b);
+  }
+  const ok = await telecharger(nomBase() + ".json", new Blob([JSON.stringify(p)], { type: "application/json" }));
+  if (ok !== false) toast("Export prêt : à importer dans le tableau de bord.");
+}
+
+/* ===== 12-api.js ===== */
+/* =====================================================================
+   API publique : window.Debogage
+   ===================================================================== */
+let demarre = false;
+async function init(options) {
+  if (demarre) { Object.assign(CFG, options || {}); rendre(); return API; }
+  demarre = true;
+  Object.assign(CFG, options || {});
+  if (!CFG.projet) CFG.projet = (document.title || location.hostname || "projet").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
+  Object.assign(PREFS, local.lire("prefs", {}) || {});
+  if (PREFS.bulle == null) PREFS.bulle = !!CFG.bulle;
+  if (/[?&#]debug(=1|ogage)?\b/.test(location.search + location.hash)) PREFS.bulle = true;
+  installerContexte();
+  const go = () => {
+    construireUI();
+    ST.abonnes.add(() => rendre());
+    rendre();
+    stockageInit();
+    dicteePreparer();
+    addEventListener("keydown", e => {
+      if (CFG.raccourci && (e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "D" || e.key === "d")) {
+        e.preventDefault(); if (!PREFS.bulle) afficherBulle(true);
+        if (q("#pnl").hidden) ouvrirPanneau("note"); else fermerPanneau();
+      } else if (e.key === "Escape" && !OUTIL.actif && !q("#pnl").hidden && e.composedPath().includes(HOTE)) { fermerPanneau(); }
+    }, true);
+    addEventListener("online", viderAttente);
+  };
+  if (document.body) go(); else document.addEventListener("DOMContentLoaded", go);
+  return API;
+}
+
+const API = {
+  __charge: true,
+  version: VERSION_OUTIL,
+  init,
+  /** Afficher / masquer la bulle (à relier au menu de l'appli). */
+  afficher: () => afficherBulle(true),
+  masquer: () => { fermerPanneau(); afficherBulle(false); },
+  basculer: () => afficherBulle(!PREFS.bulle),
+  estAffichee: () => !!PREFS.bulle,
+  /** Ouvrir la fenêtre : "note" | "liste" | "reglages". */
+  ouvrir: vue => { if (!PREFS.bulle) afficherBulle(true); ouvrirPanneau(vue || "note"); },
+  fermer: () => fermerPanneau(),
+  /** Ajouter une note par programme (ex. depuis un bouton « Signaler » de l'appli). */
+  noter: (texte, pieces) => creerNote(texte, "appli", pieces || []),
+  /** Notes (copie) et abonnement aux changements. */
+  notes: () => JSON.parse(JSON.stringify(ST.notes)),
+  aTraiter: () => aTraiter().length,
+  surChangement: f => { ST.abonnes.add(f); return () => ST.abonnes.delete(f); },
+  /** Exports. */
+  texteClaude: (tout) => promptClaude(tout ? ST.notes : aTraiter()),
+  exporterZip, exporterJson,
+  /** Changer la version de l'appli (la version de correction des notes validées). */
+  definirVersion: v => { CFG.version = String(v || ""); rendre(); }
+};
+window.Debogage = API;
+// Démarrage automatique : <script src="debogage.js" data-projet="mon-appli" data-version="1.2"><\/script>
+(() => {
+  const s = document.currentScript;
+  if (s && s.dataset && (s.dataset.projet || s.hasAttribute("data-auto"))) init({ projet: s.dataset.projet || "", version: s.dataset.version || "", bulle: s.dataset.bulle !== "non" });
+})();
+})();
+
+</script>
+<script>
+// Branchement de l'outil de débogage sur la Caisse à Outils
+(function(){ if(!window.Debogage) return; const NB=window.NB;   // NB : passerelle native de l'APK Android, absente ailleurs
+  const o={projet:'caisse-outils',version:VERSION.replace(/^v/,''),ecran:dbgScreen,
+    etat:()=>({outil:store('tab'),largeur:innerWidth,hauteur:innerHeight,accent:THEME.accent,mode:THEME.mode,police:THEME.font,clavier:!!(KP.el&&!KP.el.hidden)})};
+  if(NB&&NB.share) o.partager=(nom,texte)=>NB.share(nom,texte);
+  if(NB&&NB.listen) o.ecouter=()=>new Promise(res=>{ window.__nbEcoute=t=>res(t||''); NB.listen(); });
+  Debogage.init(o);
+  Debogage.surChangement(()=>{ const m=document.getElementById('menu'); if(m&&!m.hidden&&MENU.view!=='look') menuRender(true); });
+})();
+</script>
+
+</body>
+</html>
