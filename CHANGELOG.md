@@ -1,5 +1,14 @@
 # Historique
 
+## v1.15
+- Forets › **Conditions de coupe** remplace l'onglet « Vitesses de coupe », qui devient l'abaque dépliable du nouveau module.
+- Quatre familles d'usinage, douze opérations : tournage (chariotage-dressage, rainurage-tronçonnage), perçage (foret 2 arêtes, foret à plaquettes, alésage), fraisage (surfaçage, contournage, rainurage), filetage (taraudage par coupe, par déformation, fraisage de filets).
+- Calculs selon le modèle de Kienzle (kc = kc1.1 / h^mc) : débit de copeaux, épaisseur de copeau, effort de coupe, effort d'avance, couple, puissance machine, temps de coupe, rugosité théorique.
+- Bibliothèque de 53 groupes de matières ISO P/M/K/N/S/H/O avec dureté, Rm, kc1.1 et mc ; recherche par nuance dans la base Matières de l'application, reliée au groupe de calcul le plus proche.
+- Les grandeurs liées se déduisent l'une de l'autre dans les deux sens : vitesse de coupe et rotation, avance par dent, avance par tour et avance linéaire. Les cases déduites sont marquées « calculé ».
+- Chaque opération garde ses propres valeurs, avec des points de départ réalistes.
+- Bandeau de résultats collant au bloc de saisie, détail du calcul et formules employées dépliables.
+
 ## v1.14
 - En-tête : le titre repartait sur le côté (une valeur de secours CSS avait écrasé la marge droite de la barre).
 - La remise à zéro CSS du gabarit est désormais dans la source : sans elle, les versions autonomes (APK, site) héritaient des marges du navigateur et tout était décalé.
