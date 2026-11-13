@@ -1,5 +1,14 @@
 # Historique
 
+## v1.16
+- **Usinage** : les onglets Forets et Taraudage fusionnent en une rubrique qui s'ouvre sur six icônes : Perçage, Taraudage, Fraisage, Tournage, Information outils, Coûts. L'ordre d'onglets mémorisé, la recherche et les anciens identifiants (`tap`, `drill`) suivent.
+- **Comprendre l'opération** : un schéma animé par opération (pièce, outil, rotation, avance, cotes). Toucher une cote ou une pastille donne sa définition et sa valeur du moment ; un texte explique l'opération et ses limites. Bouton pour figer l'animation, respect de « réduire les animations ».
+- **Information outils** : anatomie, matériaux d'outils (HSS, carbure…), revêtements, angles, normes, matières ISO, abaque des vitesses de coupe, fabricants.
+- **Coûts** : coût de revient à la pièce et au lot (temps machine, outil consommé par arête, mise en train répartie), avec reprise du temps de coupe calculé dans Conditions de coupe.
+- **À l'ouverture** (Menu) : l'appli s'ouvre sur un outil de base au choix, la calculatrice d'office. Si on revient avant le délai réglé (10 min d'office), on retrouve l'outil où l'on était ; la règle vaut aussi quand l'appli est restée en arrière-plan.
+- **Retour tactile sur Android** : l'APK n'avait pas de commande du vibreur et la WebView n'offre pas `navigator.vibrate`. Passerelle native ajoutée : vibreur commandé directement (usage média, indépendant du réglage « vibration au toucher »), durée minimale adaptée au moteur, bouton de test et diagnostic de l'appareil dans Menu › Apparence.
+- Grand écran : dans Perçage, Fraisage et Tournage, le schéma se place à côté des saisies.
+
 ## v1.15
 - Forets › **Conditions de coupe** remplace l'onglet « Vitesses de coupe », qui devient l'abaque dépliable du nouveau module.
 - Quatre familles d'usinage, douze opérations : tournage (chariotage-dressage, rainurage-tronçonnage), perçage (foret 2 arêtes, foret à plaquettes, alésage), fraisage (surfaçage, contournage, rainurage), filetage (taraudage par coupe, par déformation, fraisage de filets).

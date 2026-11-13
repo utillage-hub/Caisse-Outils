@@ -822,8 +822,96 @@ main[data-tool="calc"]{padding-bottom:12px}
 .ccopt button{flex:1 1 0;min-height:40px}
 .ccwarn{margin:0;font:500 .82rem var(--body);line-height:1.45;color:var(--fg);
   background:var(--tri);border-radius:var(--rc,8px);padding:9px 11px}
+/* Schéma animé de l'opération */
+.ccsch>summary{font-size:1.08rem}
+.ccschw{position:relative}
+.ccs{display:block;width:100%;height:auto;max-width:430px;margin:0 auto;overflow:hidden;color:var(--ink)}
+.ccs .pie{fill:var(--tri);stroke:var(--ink);stroke-width:1.5;stroke-linejoin:round}
+.ccs .out{fill:var(--chip);stroke:var(--ink);stroke-width:1.4;stroke-linejoin:round}
+.ccs .plaq{fill:var(--kfn);stroke:var(--ink);stroke-width:1}
+.ccs .lobe{fill:var(--kfn);stroke:none}
+.ccs .bride{color:var(--muted)}
+.ccs .ar{fill:none;stroke:var(--red);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ccs .cote{fill:none;stroke:var(--red);stroke-width:1.1;stroke-linecap:round;stroke-linejoin:round}
+.ccs .ax{fill:none;stroke:var(--muted);stroke-width:.9;stroke-dasharray:7 3 1.5 3}
+.ccs .cop{fill:none;stroke:var(--muted);stroke-width:1.6;stroke-linecap:round}
+.ccs .goujure{fill:none;stroke:var(--ink);stroke-width:1.1;opacity:.6}
+.ccs .filet{fill:none;stroke:var(--ink);stroke-width:1.3;stroke-linejoin:round}
+.ccs .dent{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linecap:round}
+.ccs .moy{fill:var(--ink)}
+.ccs .trou{fill:var(--card);stroke:var(--ink);stroke-width:1.5}
+.ccs .orbp{fill:none;stroke:var(--red);stroke-width:1;stroke-dasharray:5 4}
+.ccs .arc{fill:none;stroke:var(--red);stroke-width:3.4;stroke-linecap:round}
+.ccs text{font:600 11.5px var(--num);fill:var(--red)}
+.ccs [data-s]{cursor:pointer}
+.ccs .hi text,.ccs text.hi{fill:var(--hl2)}
+.ccs .hi .cote,.ccs .hi.cote,.ccs .hi .ar,.ccs .hi.arc,.ccs .hi.orbp{stroke:var(--hl2)}
+.ccs .hi.out,.ccs .hi.pie{stroke:var(--hl2);stroke-width:2.4}
+.ccs .hi.goujure,.ccs .hi.filet{stroke:var(--hl2);stroke-width:2;opacity:1}
+.ccs .spin,.ccs .orb{transform-box:view-box}
+.ccs .spin{animation:ccSpin 2.6s linear infinite}
+.ccs .av{animation:ccAv 3.2s ease-in-out infinite alternate}
+.ccs .avy{animation:ccAvy 3.2s ease-in-out infinite alternate}
+.ccs .orb{animation:ccOrb 5s linear infinite}
+.ccs.fige .spin,.ccs.fige .av,.ccs.fige .avy,.ccs.fige .orb{animation:none}
+@keyframes ccSpin{to{transform:rotate(360deg)}}
+@keyframes ccAv{from{transform:translateX(0)}to{transform:translateX(-26px)}}
+@keyframes ccAvy{from{transform:translateY(0)}to{transform:translateY(18px)}}
+@keyframes ccOrb{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.ccs .spin,.ccs .av,.ccs .avy,.ccs .orb{animation:none}}
+.ccschw{display:grid}
+.ccpause{position:static;justify-self:end;margin-top:2px;background:var(--card);border:1px solid var(--line);color:var(--muted);
+  border-radius:999px;padding:5px 12px;font:600 .74rem var(--body);cursor:pointer;min-height:32px}
+.ccpause:hover{border-color:var(--red);color:var(--red)}
+.ccpause:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.ccsyms{margin:0}
+.ccsy{font-size:.78rem;padding:5px 10px}
+.ccsy b{font-family:var(--num);font-weight:600}
+.ccsy[aria-pressed="true"]{background:var(--hl2);border-color:var(--hl2);color:#fff}
+#ccSdef[hidden]{display:none}
+#ccSdef em{font:500 1rem var(--num);font-style:normal;color:var(--calc-fg)}
+.ccplus>summary{cursor:pointer;font:600 .86rem var(--body);color:var(--red);padding:6px 0;min-height:32px;list-style:none;display:flex;align-items:center}
+.ccplus>summary::-webkit-details-marker{display:none}
+.ccplus>summary:after{content:"+";font:500 1.1rem var(--num);margin-left:8px}
+.ccplus[open]>summary:after{content:"−"}
+.ccplus>summary:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.ccdoc h3{margin:4px 0 2px;font:600 1.02rem var(--body)}
+.ccdoc p{margin:0 0 7px;font-size:.9rem;line-height:1.5;color:var(--fg)}
+.ccdoc p:last-child{margin-bottom:0}
+/* Usinage : grille d'icônes et en-tête de section */
+.usig{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.usit{display:block;box-sizing:border-box;width:100%;text-align:left;background:var(--chip);color:var(--fg);
+  border:1px solid var(--line);border-radius:var(--rc,8px);padding:14px 14px 12px;cursor:pointer;font:inherit;min-height:116px}
+.usit:hover{border-color:var(--red)}
+.usit:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.usit b{display:block;font:600 1.08rem var(--display);margin-top:8px}
+.usit i{display:block;font:400 .78rem var(--body);font-style:normal;color:var(--muted);line-height:1.35;margin-top:3px}
+.usii{display:block;width:34px;height:34px;color:var(--red)}
+.usii svg{width:100%;height:100%}
+.usii.sm{width:22px;height:22px;flex:0 0 auto}
+.usihead{display:flex;align-items:center;gap:9px;min-width:0}
+.usihead b{font:600 1.25rem var(--display);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.usiback{flex:0 0 auto;background:var(--card);border:1px solid var(--line);color:var(--fg);border-radius:999px;
+  padding:7px 13px;font:600 .82rem var(--body);cursor:pointer;min-height:38px}
+.usiback:hover{border-color:var(--red);color:var(--red)}
+.usiback:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+/* Usinage sur grand écran : l'en-tête prend la largeur, le schéma se place à côté des saisies */
+@media (min-width:960px){
+  main[data-tool="usi"]>.usihead,main[data-tool="usi"]>.usicard{grid-column:1/-1}
+  main[data-sec="cout"]{max-width:800px;grid-template-columns:minmax(0,1fr)}
+  main[data-sec="perc"]>#ccCard,main[data-sec="frai"]>#ccCard,main[data-sec="tour"]>#ccCard{grid-column:1/-1;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto auto auto auto auto 1fr auto;column-gap:24px;align-items:start}
+  main[data-sec="perc"]>#ccCard>*,main[data-sec="frai"]>#ccCard>*,main[data-sec="tour"]>#ccCard>*{grid-column:2}
+  main[data-sec="perc"]>#ccCard>h2,main[data-sec="frai"]>#ccCard>h2,main[data-sec="tour"]>#ccCard>h2,
+  main[data-sec="perc"]>#ccCard>.hint,main[data-sec="frai"]>#ccCard>.hint,main[data-sec="tour"]>#ccCard>.hint,
+  main[data-sec="perc"]>#ccCard>.ccsub,main[data-sec="frai"]>#ccCard>.ccsub,main[data-sec="tour"]>#ccCard>.ccsub,
+  main[data-sec="perc"]>#ccCard>.note,main[data-sec="frai"]>#ccCard>.note,main[data-sec="tour"]>#ccCard>.note{grid-column:1/-1}
+  main[data-sec="perc"]>#ccCard>.ccsch,main[data-sec="frai"]>#ccCard>.ccsch,main[data-sec="tour"]>#ccCard>.ccsch{grid-column:1;grid-row:span 4}
+}
+@media (max-width:420px){.usig{grid-template-columns:1fr 1fr;gap:8px}.usit{padding:11px 11px 10px;min-height:0}
+  .usit b{font-size:.95rem;margin-top:6px}.usit i{display:none}.usii{width:28px;height:28px}}
 .ccbloc{display:grid;gap:10px;min-width:0}
-.ccres{position:sticky;bottom:0;z-index:2;display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:1px;
+.ccres{position:sticky;bottom:0;z-index:2;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;
   background:var(--line);border:1px solid var(--line);border-radius:var(--rc,8px);overflow:hidden;
   box-shadow:0 -6px 16px rgba(0,0,0,.08)}
 .ccr{background:var(--calc);padding:7px 10px;display:block;min-width:0}
@@ -857,7 +945,9 @@ main[data-tool="calc"]{padding-bottom:12px}
 .ccm:focus-visible{outline:2px solid var(--red);outline-offset:-2px}
 .ccm .isob.sm{width:26px;height:26px;font-size:.78rem;margin:2px 0 0}
 @media (min-width:760px){.ccin{grid-template-columns:repeat(auto-fit,minmax(132px,1fr))}}
-@media (max-width:420px){.ccres{grid-template-columns:1fr 1fr}.ccr{padding:6px 8px}.ccr strong{font-size:1.05rem}}
+.ccres .ccr:only-child{grid-column:1/-1}
+@media (min-width:700px) and (max-width:959px){.ccres{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:420px){.ccr{padding:6px 8px}.ccr strong{font-size:1.05rem}}
 @media (max-width:360px){.ccf input{font-size:1rem}.ccin{grid-template-columns:1fr 1fr}}
 @media (prefers-reduced-motion:reduce){.ccres{box-shadow:none}}
 
@@ -976,7 +1066,7 @@ main[data-tool="calc"]{padding-bottom:12px}
 </script>
 
 <header>
-  <div class="bar"><div class="brand"><h1>Caisse à Outils</h1><span class="ver">v1.15</span></div>
+  <div class="bar"><div class="brand"><h1>Caisse à Outils</h1><span class="ver">v1.16</span></div>
     <div class="search" role="search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11 L14.5 14.5"/></svg><input id="q" type="text" enterkeyhint="search" placeholder="Recherche" autocomplete="off" spellcheck="false" aria-label="Recherche" role="combobox" aria-controls="sugg" aria-expanded="false" aria-autocomplete="list"></div>
     <button type="button" class="menubtn" id="menuBtn" aria-label="Ouvrir le menu"><span></span><span></span><span></span></button>
     <div class="sugg" id="sugg" role="listbox" aria-label="Suggestions" hidden></div></div>
@@ -998,8 +1088,7 @@ function store(k,v){ try{ if(v===undefined) return localStorage.getItem(k); loca
 const TOOLS = [
   {id:'calc', label:'Calcul', icon:'<svg viewBox="0 0 30 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="8" y="1.5" width="14" height="21" rx="2"/><path d="M11 6.5 H19" stroke-width="2.4"/><g fill="currentColor" stroke="none"><circle cx="12" cy="11.5" r="1.3"/><circle cx="15" cy="11.5" r="1.3"/><circle cx="18" cy="11.5" r="1.3"/><circle cx="12" cy="15" r="1.3"/><circle cx="15" cy="15" r="1.3"/><circle cx="18" cy="15" r="1.3"/><circle cx="12" cy="18.5" r="1.3"/><circle cx="15" cy="18.5" r="1.3"/><circle cx="18" cy="18.5" r="1.3"/></g></svg>', render:renderCalc},
   {id:'pct', label:'Pourcentage', icon:'<span class="ic-pm"><span class="st"><span>+</span><span>−</span></span><span class="pc">%</span></span>', render:renderPct},
-  {id:'tap', label:'Taraudage', icon:'<svg viewBox="0 0 30 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="11" y="1.5" width="8" height="5" rx="1"/><path d="M12 6.5 V20 L15 23 L18 20 V6.5"/><path d="M12 10 L18 8.5 M12 13.5 L18 12 M12 17 L18 15.5" stroke-width="1.5"/></svg>', render:renderTap},
-  {id:'drill', label:'Forets', icon:'<svg viewBox="0 0 30 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9 H11 V15 H2 Z"/><path d="M11 9 H23 L28 12 L23 15 H11"/><path d="M13 9 L16 15 M17 9 L20 15 M21 9 L23.5 13.5" stroke-width="1.5"/></svg>', render:renderDrill},
+  {id:'usi', label:'Usinage', aria:'Usinage : perçage, taraudage, fraisage, tournage', icon:'<svg viewBox="0 0 30 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 1.5h8v5h-8z"/><path d="M11 6.5h8v9l-4 4-4-4z"/><path d="M12.5 8.5l5 2.5M12.5 12l5 2.5" stroke-width="1.3"/><path d="M2 22h26" stroke-width="2"/></svg>', render:renderUsi, reset:()=>{ USI.sec=''; store('usiSec',''); }},
   {id:'mat', label:'Matières', icon:'<svg viewBox="0 0 30 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 20 L8 15 H26 L22 20 Z"/><path d="M7 14 L11 9 H23 L19 14 Z"/><path d="M10 8 L13 4 H21 L18 8 Z"/></svg>', render:renderMat},
   {id:'per', label:'Éléments', aria:'Classification périodique', icon:'<svg viewBox="0 0 30 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="6" y="1.5" width="18" height="21" rx="2"/><text x="15" y="17" text-anchor="middle" font-size="10" font-weight="700" font-family="sans-serif" fill="currentColor" stroke="none">Fe</text><path d="M9 5.5h4" stroke-width="1.5"/></svg>', render:renderPer},
   {id:'prof', label:'Profilés', icon:'<svg viewBox="0 0 30 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M7 3 H23 V7 H17 V17 H23 V21 H7 V17 H13 V7 H7 Z"/></svg>', render:renderProf},
@@ -1007,13 +1096,20 @@ const TOOLS = [
   {id:'trigo', label:'Trigo', icon:'<svg viewBox="0 0 30 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21 H27 V3 Z" stroke-linejoin="round"/><path d="M22 21 V16 H27" stroke-width="1.5"/></svg>', render:renderTrigo},
 ];
 const tabs=document.getElementById('tabs'); let view=document.getElementById('view');
-const TAB_ORD=(store('tabOrder')||'').split(',').filter(Boolean);
+let TAB_ORD=(store('tabOrder')||'').split(',').filter(Boolean);
+// Forets et Taraudage ont fusionné : l'ordre mémorisé garde la place du premier des deux.
+if(TAB_ORD.includes('tap')||TAB_ORD.includes('drill')){
+  const i=Math.min.apply(null,['tap','drill'].map(x=>TAB_ORD.indexOf(x)).filter(x=>x>=0));
+  TAB_ORD=TAB_ORD.filter(x=>x!=='tap'&&x!=='drill'); TAB_ORD.splice(i,0,'usi');
+  store('tabOrder',TAB_ORD.join(','));
+}
 // un onglet nouveau se place à côté de son voisin naturel (Éléments à droite de Matières)
 if(TAB_ORD.length&&!TAB_ORD.includes('per')){ const i=TAB_ORD.indexOf('mat'); TAB_ORD.splice(i<0?TAB_ORD.length:i+1,0,'per'); }
 [...TOOLS].sort((a,b)=>{ const ia=TAB_ORD.indexOf(a.id), ib=TAB_ORD.indexOf(b.id); return (ia<0?99:ia)-(ib<0?99:ib); }).forEach(t=>{
   const b=document.createElement('button'); b.role='tab'; b.id='tab-'+t.id;
   b.setAttribute('aria-label',t.aria||t.label);
-  b.innerHTML=`<span class="ic">${t.icon}</span><span class="lbl">${t.label}</span>`; b.onclick=()=>show(t.id); tabs.appendChild(b);
+  b.innerHTML=`<span class="ic">${t.icon}</span><span class="lbl">${t.label}</span>`;
+  b.onclick=()=>{ if(t.reset) t.reset(); show(t.id); }; tabs.appendChild(b);
 });
 // Appui long sur un onglet : on le fait glisser à une autre place (ordre mémorisé)
 (function tabDrag(){
@@ -1073,6 +1169,7 @@ if(TAB_ORD.length&&!TAB_ORD.includes('per')){ const i=TAB_ORD.indexOf('mat'); TA
 })();
 function show(id){
   if(typeof kpClose==='function') kpClose(); document.documentElement.classList.remove('perfull');
+  if(id==='tap'||id==='drill'){ USI.sec=id==='tap'?'tar':'info'; id='usi'; }
   const t=TOOLS.find(x=>x.id===id)||TOOLS[0];
   tabs.querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected', b.id==='tab-'+t.id));
   const fresh=view.cloneNode(false); view.replaceWith(fresh); view=fresh;
@@ -1676,13 +1773,11 @@ function initDrill3D(box,onPick){
   return {set};
 }
 
-const DRILL_TABS=[['anat','Anatomie'],['iso','Matières ISO'],['cc','Conditions de coupe'],['mat','Matériaux'],['coat','Revêtements'],['ang','Angles'],['norm','Normes'],['fab','Fabricants']];
-function renderDrill(view){
-  let sel=store('drillPart'); if(!PARTS[sel]) sel='listel';
-  let tab=store('drillTab'); if(tab==='vc') tab='cc'; if(!DRILL_TABS.some(t=>t[0]===tab)) tab='anat';
-  view.append(el(`<div class="subnav" role="tablist" aria-label="Rubriques forets">${DRILL_TABS.map(([k,l])=>`<button role="tab" data-t="${k}">${l}</button>`).join('')}</div>`));
+// Rubriques documentaires de l'outil (anatomie, matériaux, revêtements, angles, normes, matières ISO,
+// fabricants) : elles vivent dans Usinage › Information outils.
+function drillPanneaux(){
   const panel=(k,html)=>`<section class="card dpanel" data-panel="${k}">${html}</section>`;
-  view.append(el(`<div class="dpanels">
+  return `
     ${panel('anat',`<div class="anat">
       <h2>Anatomie d'un foret hélicoïdal</h2>
       <div class="iso3d" id="d3"><span class="iso3d-tag">Vue isométrique · glisse pour tourner</span></div>
@@ -1692,7 +1787,6 @@ function renderDrill(view){
       <p class="hint" style="margin:0">Touche un nom, une zone du dessin ou du foret 3D pour la repérer.</p></div>`)}
     ${panel('iso',`<h2>Groupes de matières ISO</h2><p class="hint" style="margin:0">Code couleur commun aux catalogues Sandvik, Seco, Walter, Mitsubishi… pour choisir la nuance et le revêtement.</p>
       <div class="iso">${ISO_GROUPS.map(([l,c,dk,t])=>`<div class="isoc ${dk}" style="background:${c}"><b>${l}</b><span>${t}</span></div>`).join('')}</div>`)}
-    ${ccCard().replace('<section class="card" id="ccCard">','<section class="card dpanel" data-panel="cc" id="ccCard">')}
     ${panel('mat',`<h2>Matériaux des forets</h2>`+DRILL_MATS.map(([n,sub,t,m])=>`<div class="item" style="grid-template-columns:minmax(0,1fr)"><h3>${n}</h3><div class="sub">${sub}</div><p style="grid-column:1">${t}</p><div class="meta" style="grid-column:1">${m.map(x=>`<span>${x}</span>`).join('')}</div></div>`).join('')+
       `<h3 style="margin:8px 0 0;font:600 1rem var(--body)">Nuances de carbure</h3><div class="tbl"><table><thead><tr><th>Nuance</th><th>Grain / liant</th><th>Usage</th></tr></thead><tbody>${CARBIDE.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</tbody></table></div>`)}
     ${panel('coat',`<h2>Revêtements et couleurs</h2><p class="hint" style="margin:0">La couleur aide à reconnaître un revêtement, mais chaque fabricant a ses recettes : vérifier sur la boîte ou le catalogue.</p>`+
@@ -1724,22 +1818,18 @@ function renderDrill(view){
         <tr><td>Iscar</td><td>SumoCham (tête interchangeable)</td></tr>
         <tr><td>Autres</td><td>Gühring, OSG, Kennametal, Dormer Pramet</td></tr></tbody></table></div>
       <p class="note">Les gammes évoluent : vérifier la référence exacte sur le catalogue du fabricant.</p>`)}
-  </div>`));
-
-  ccBind(view);
-  const nav=view.querySelector('.subnav');
-  function showTab(k,scroll){ tab=k; store('drillTab',k);
-    nav.querySelectorAll('button').forEach(b=>{ const on=b.dataset.t===k; b.setAttribute('aria-selected',on); if(on) b.scrollIntoView({inline:'nearest',block:'nearest'}); });
-    view.querySelectorAll('[data-panel]').forEach(p=>p.hidden=p.dataset.panel!==k);
-    if(scroll && window.scrollY>0) window.scrollTo({top:0}); }
-  nav.addEventListener('click',e=>{ const b=e.target.closest('[data-t]'); if(b) showTab(b.dataset.t,true); });
-
-  const anat=view.querySelector('.anat');
+  `;
+}
+function drillBind(view){
+  let sel=store('drillPart'); if(!PARTS[sel]) sel='listel';
+  const anat=view.querySelector('.anat'); if(!anat) return;
+  const dDef=view.querySelector('#dDef');
   // la 3D est lourde à construire : on la monte juste après l'affichage de l'onglet
   let d3={set(){}};
   setTimeout(()=>{ if(!view.isConnected) return;
-    try{ d3=initDrill3D(document.getElementById('d3'),k=>choose(k)); d3.set(sel); }
-    catch(_){ const b=document.getElementById('d3'); if(b) b.hidden=true; } },0);
+    const boite=view.querySelector('#d3');
+    try{ d3=initDrill3D(boite,k=>choose(k)); d3.set(sel); }
+    catch(_){ if(boite) boite.hidden=true; } },0);
   function paint(){
     anat.querySelectorAll('[data-p]').forEach(n=>n.classList.toggle('on',n.dataset.p===sel));
     anat.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c.dataset.k===sel));
@@ -1749,7 +1839,7 @@ function renderDrill(view){
   }
   function choose(k){ if(!PARTS[k]) return; sel=k; store('drillPart',k); paint(); }
   anat.addEventListener('click',e=>{ const n=e.target.closest('[data-k],[data-p]'); if(n) choose(n.dataset.k||n.dataset.p); });
-  showTab(tab,false); paint();
+  paint();
 }
 
 // ---------- CALCUL : calculatrice, fractions exactes, historique ----------
@@ -2018,9 +2108,38 @@ const CHELP={
 // ---------- Retour tactile (vibreur) : réglable dans Menu › Apparence ----------
 const HAPT={ms:(()=>{ const v=store('haptic'); return v===''||v==null?7:Math.max(0,Math.min(60,+v||0)); })()};
 const HAPT_LEVELS=[[0,'Désactivé'],[4,'Très léger'],[7,'Léger'],[12,'Moyen'],[20,'Fort'],[35,'Très fort']];
-function haptic(kind){ const m=HAPT.ms; if(!m||!navigator.vibrate) return;
-  try{ navigator.vibrate(kind==='long'?[m*2,40,m*2,40,m*2]:kind==='ok'?[m,30,m]:m); }catch(_){} }
+// La WebView d'Android n'implémente pas navigator.vibrate (seul Chrome le fait) : dans l'APK on
+// passe par la passerelle Java window.NB, qui fait un « tic » système pour les impulsions courtes.
+function hapticPont(){ const P=window.NB; return P&&typeof P.vibrer==='function'?P:null; }
+function hapticDispo(){
+  const P=hapticPont();
+  if(P){ try{ return typeof P.peutVibrer==='function'?!!P.peutVibrer():true; }catch(e){ return true; } }
+  return !!navigator.vibrate;
+}
+function haptic(kind){
+  const m=HAPT.ms; if(!m) return;
+  const motif=kind==='long'?[m*2,40,m*2,40,m*2]:kind==='ok'?[m,30,m]:[m];
+  const P=hapticPont();
+  if(P){ try{ P.vibrer(motif.join(',')); return; }catch(_){} }
+  if(navigator.vibrate){ try{ navigator.vibrate(motif.length===1?motif[0]:motif); }catch(_){} }
+}
 function buzz(){ haptic('long'); }
+// Ce que l'appareil déclare (APK seulement) : présence d'un vibreur, version d'Android
+function hapticInfo(){ const P=hapticPont(); if(!P||typeof P.infoVibreur!=='function') return null;
+  try{ return JSON.parse(P.infoVibreur()); }catch(e){ return null; } }
+function hapticTest(){ const P=hapticPont();
+  if(P){ try{ P.vibrer('160'); return; }catch(e){} }
+  if(navigator.vibrate){ try{ navigator.vibrate(160); }catch(e){} } }
+function hapticNote(){
+  if(!hapticDispo()){ const i=hapticInfo();
+    return i?'Cet appareil ('+esc(i.modele||'Android')+') ne déclare aucun vibreur, ce qui est fréquent sur les tablettes : le retour tactile ne peut pas fonctionner ici.'
+            :'Le vibreur n\'est pas disponible ici (sur iPhone, Safari ne le propose pas).'; }
+  let t='Une petite vibration à chaque touche ; trois impulsions quand un appui long change de mode. Touche un niveau pour l\'essayer.';
+  if(hapticPont()) t+=' L\'appli commande le vibreur directement, sans dépendre du réglage « vibration au toucher » du téléphone. Si le test long reste muet lui aussi, regarde le mode économie d\'énergie et Sons et vibrations › Intensité des vibrations › Média.';
+  return t; }
+// Dans l'APK, navigator.vibrate passe aussi par la passerelle (l'outil de débogage s'en sert)
+(function(){ const P=hapticPont(); if(!P) return;
+  try{ navigator.vibrate=function(m){ try{ P.vibrer([].concat(m).join(',')); }catch(e){} return true; }; }catch(e){} })();
 function closeHelp(){ document.querySelectorAll('.hmodal').forEach(m=>m.remove()); }
 function openHelp(key){ const h=CHELP[key]; if(!h) return; closeHelp();
   const m=el(`<div class="hmodal" role="dialog" aria-modal="true" aria-labelledby="hmT"><div class="hbox"><button class="hx" aria-label="Fermer">×</button><h3 id="hmT">${esc(h[0])}</h3><p>${esc(h[1])}</p>${h[2]?`<p class="hex">${esc(h[2])}</p>`:''}</div></div>`);
@@ -2396,7 +2515,7 @@ function matDetail(fam,grp,g){
     </div></div>`);
   document.body.appendChild(m); m.querySelector('.hx').focus({preventScroll:true});
   m.addEventListener('click',e=>{ if(e.target===m||e.target.closest('.hx')) closeHelp();
-    if(e.target.closest('.mgo')){ closeHelp(); store('drillTab','iso'); show('drill'); window.scrollTo({top:0}); } });
+    if(e.target.closest('.mgo')){ closeHelp(); USI.sec='info'; store('usiSec','info'); store('infoTab','iso'); show('usi'); window.scrollTo({top:0}); } });
 }
 
 function renderMat(view){
@@ -2898,12 +3017,15 @@ function ccMatLigne(m,sel){
     '<span class="ccmt"><b>'+esc(m.n)+'</b>'+(sub?'<i>'+esc(sub)+'</i>':'')+
     '<u>kc<sub>1.1</sub> '+fmt(m.kc,0)+' N/mm² · m<sub>c</sub> '+fmt(m.mc,2)+(m.ind?' · indicatif':'')+'</u></span></span></div>';
 }
-function ccCard(){
-  const o=CC_OPS.map(function(x){ return '<button role="tab" data-op="'+x[0]+'">'+x[1]+'</button>'; }).join('');
+// force : nom d'une famille d'usinage ('tour', 'perc', 'frai', 'file'). Quand elle est imposée par
+// la section qui affiche la carte, le choix de famille disparaît : l'icône l'a déjà fait.
+function ccCard(force){
+  const o=force?'':CC_OPS.map(function(x){ return '<button role="tab" data-op="'+x[0]+'">'+x[1]+'</button>'; }).join('');
   return '<section class="card" id="ccCard"><h2>Conditions de coupe</h2>'+
   '<p class="hint" style="margin:0">Choisis l\'opération et la matière, saisis ce que tu connais : le reste se déduit. Les cases marquées <em>calculé</em> se mettent à jour toutes seules.</p>'+
-  '<div class="subnav ccop" role="tablist" aria-label="Opération">'+o+'</div>'+
+  (force?'':'<div class="subnav ccop" role="tablist" aria-label="Opération">'+o+'</div>')+
   '<div class="mfam chips ccsub" role="tablist" aria-label="Type d\'usinage"></div>'+
+  ccSchBloc()+
   '<div class="ccmat" id="ccMat" role="button" tabindex="0" aria-haspopup="dialog"></div>'+
   '<div class="ccbloc">'+
   '<div class="ccin" id="ccIn"></div>'+
@@ -2914,19 +3036,22 @@ function ccCard(){
   '<div class="ccres" id="ccRes" aria-live="polite"></div></div>'+
   '<details class="sec"><summary>Détail du calcul</summary><div class="secb"><div class="ccdet" id="ccDet"></div></div></details>'+
   '<details class="sec"><summary>Formules employées</summary><div class="secb" id="ccFx"></div></details>'+
-  '<details class="sec"><summary>Abaque des vitesses de coupe</summary><div class="secb">'+vcInner()+'</div></details>'+
+
   '<p class="note">Valeurs de dimensionnement : elles situent l\'effort, le couple et la puissance. Les données du fabricant d\'outil et la rigidité de la machine priment toujours. Sources : '+
   CC_SRC.map(function(s){ return '<a href="'+s[1]+'" target="_blank" rel="noopener">'+s[0]+'</a>'; }).join(' · ')+'.</p></section>';
 }
 
-function ccBind(root){
+function ccBind(root,force){
   const card=root.querySelector('#ccCard'); if(!card) return;
   const navOp=card.querySelector('.ccop'), navSub=card.querySelector('.ccsub'),
         bMat=card.querySelector('#ccMat'), zIn=card.querySelector('#ccIn'), zAdv=card.querySelector('#ccAdv'),
         zRes=card.querySelector('#ccRes'), zDet=card.querySelector('#ccDet'), zFx=card.querySelector('#ccFx'), zOpt=card.querySelector('#ccOpt'),
         zWarn=card.querySelector('#ccWarn');
-  let op=store('ccOp')||'tour', sub=store('ccSub')||'iso';
-  if(!CC_SUB[op+'/'+sub]){ op='tour'; sub='iso'; }
+  let op=force||store('ccOp')||'tour';
+  if(!CC_OPS.some(function(x){ return x[0]===op; })) op='tour';
+  const prem=function(o){ return CC_OPS.filter(function(x){ return x[0]===o; })[0][2][0][0]; };
+  let sub=store('ccSub_'+op)||prem(op);
+  if(!CC_SUB[op+'/'+sub]) sub=prem(op);
   let mat=CC_BY[store('ccMat')]||CC_BY.P2;
   let TOUT={}; try{ TOUT=JSON.parse(store('ccVals')||'{}')||{}; }catch(e){ TOUT={}; }
   let V={}, pilote={vit:'vc',av:'f'};
@@ -2990,13 +3115,14 @@ function ccBind(root){
   function majSub(){
     navSub.innerHTML=CC_OPS.filter(function(x){ return x[0]===op; })[0][2].map(function(s){
       return '<button class="chip'+(s[0]===sub?' on':'')+'" role="tab" data-s="'+s[0]+'" aria-selected="'+(s[0]===sub?'true':'false')+'">'+s[1]+'</button>'; }).join('');
-    navOp.querySelectorAll('[data-op]').forEach(function(b){ b.setAttribute('aria-selected',b.dataset.op===op); });
+    if(navOp) navOp.querySelectorAll('[data-op]').forEach(function(b){ b.setAttribute('aria-selected',b.dataset.op===op); });
   }
   function majChamps(){
     initV();
     const s=S();
     zIn.innerHTML=s.f.map(champ).join('');
     zAdv.innerHTML=s.a.map(champ).join('');
+    if(typeof SCH!=='undefined'&&SCH) SCH.maj(s);
     const ex=(s.id==='surf'||s.id==='cont');
     zOpt.hidden=!ex;
     if(ex) zOpt.querySelectorAll('[data-exc]').forEach(function(b){ b.setAttribute('aria-pressed',(b.dataset.exc==='1')===!!V.exc); });
@@ -3030,14 +3156,17 @@ function ccBind(root){
     zWarn.innerHTML=esc(ind+w); zWarn.hidden=!(ind||w);
     zFx.innerHTML=ccFormules(s);
     try{ store('ccVals',JSON.stringify(TOUT)); }catch(e){}
+    // le temps de coupe sert au calculateur de coûts
+    const tps=R.filter(function(r){ return /^Temps/.test(r[0]); })[0];
+    if(tps&&isFinite(tps[2])) try{ store('ccDernierTemps',JSON.stringify({min:tps[2]/60,t:s.ot.toLowerCase()+', '+s.t.toLowerCase()})); }catch(e){}
   }
 
   // --- évènements ---
-  navOp.addEventListener('click',function(e){ const b=e.target.closest('[data-op]'); if(!b||b.dataset.op===op) return;
-    op=b.dataset.op; sub=CC_OPS.filter(function(x){ return x[0]===op; })[0][2][0][0];
-    store('ccOp',op); store('ccSub',sub); majSub(); majChamps(); });
+  if(navOp) navOp.addEventListener('click',function(e){ const b=e.target.closest('[data-op]'); if(!b||b.dataset.op===op) return;
+    op=b.dataset.op; sub=store('ccSub_'+op)||prem(op); if(!CC_SUB[op+'/'+sub]) sub=prem(op);
+    store('ccOp',op); majSub(); majChamps(); });
   navSub.addEventListener('click',function(e){ const b=e.target.closest('[data-s]'); if(!b||b.dataset.s===sub) return;
-    sub=b.dataset.s; store('ccSub',sub); majSub(); majChamps(); });
+    sub=b.dataset.s; store('ccSub_'+op,sub); majSub(); majChamps(); });
   card.addEventListener('input',function(e){ const i=e.target.closest('.ccin input'); if(!i) return;
     V[i.dataset.k]=i.value; lier(i.dataset.k); refl(); calc(); });
   card.addEventListener('focusout',function(e){ const i=e.target.closest('.ccin input'); if(i) setTimeout(refl,0); });
@@ -3048,8 +3177,11 @@ function ccBind(root){
   bMat.addEventListener('click',ouvrirMat);
   bMat.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); ouvrirMat(); } });
 
+  const SCH=ccSchema(card,function(k){
+    const c=CC_F[k]; if(!c) return '';
+    const v=V[k]; return v==null||v===''?'':String(v);
+  });
   majSub(); majMat(); majChamps();
-  vcBind(card);
 }
 
 // --- sélecteur de matière : groupes ISO ou base Matières de la Caisse à Outils ---
@@ -3173,6 +3305,471 @@ function ccFormules(s){
   h+='<p class="note" style="margin:8px 0 0">Le facteur d\'usure majore l\'effort, le couple et la puissance du pourcentage saisi. η est le rendement de la machine (0,75 à 0,9 en général).</p>';
   return h;
 }
+
+// ---------- Schémas animés et définitions des opérations ----------
+// Un dessin par opération : la pièce, l'outil, les mouvements et les cotes. Toucher une cote
+// ou une pastille met la grandeur en avant sur le dessin et donne sa définition et sa valeur.
+
+// --- primitives de dessin ---
+function sFle(x1,y1,x2,y2,cls){
+  const a=Math.atan2(y2-y1,x2-x1), L=6.5, w=0.42, c=cls||'ar';
+  const px=function(g){ return [(x2-L*Math.cos(a+g)).toFixed(1),(y2-L*Math.sin(a+g)).toFixed(1)]; };
+  const p1=px(w), p2=px(-w);
+  return '<path class="'+c+'" d="M'+x1+' '+y1+'L'+x2+' '+y2+'"/>'+
+    '<path class="'+c+'" d="M'+p1[0]+' '+p1[1]+'L'+x2+' '+y2+'L'+p2[0]+' '+p2[1]+'"/>';
+}
+// cote à double flèche + étiquette ; s = clé de la grandeur mise en avant
+function sCote(x1,y1,x2,y2,t,s,tx,ty,anc){
+  return '<g class="ct"'+(s?' data-s="'+s+'"':'')+'>'+sFle(x2,y2,x1,y1,'cote')+sFle(x1,y1,x2,y2,'cote')+
+    '<text x="'+tx+'" y="'+ty+'"'+(anc?' text-anchor="'+anc+'"':'')+'>'+t+'</text></g>';
+}
+// étiquette seule posée sur un mouvement
+function sEtiq(x,y,t,s,anc){
+  return '<text class="ct"'+(s?' data-s="'+s+'"':'')+' x="'+x+'" y="'+y+'"'+(anc?' text-anchor="'+anc+'"':'')+'>'+t+'</text>';
+}
+// indicateur de rotation : un arc qui tourne
+function sRot(cx,cy,r,t,s){
+  const q=function(x1,y1,x2,y2){ return 'A'+r+' '+r+' 0 0 1 '+x2+' '+y2; };
+  const d='M'+cx+' '+(cy+r)+q(0,0,cx-r,cy)+q(0,0,cx,cy-r)+q(0,0,cx+r,cy);
+  return '<g class="ct"'+(s?' data-s="'+s+'"':'')+'><g class="spin" style="transform-origin:'+cx+'px '+cy+'px">'+
+    '<path class="ar" d="'+d+'"/>'+sFle(cx+r,cy-9,cx+r,cy+2,'ar')+'</g>'+
+    (t?'<text x="'+cx+'" y="'+(cy+r+14)+'" text-anchor="middle">'+t+'</text>':'')+'</g>';
+}
+// portion d'arête engagée dans la matière (x < xe), tracée segment par segment
+function sArcEng(cx,cy,R,xe){
+  const c=Math.max(-1,Math.min(1,(xe-cx)/R)), a0=Math.acos(c), N=26;
+  let d='';
+  for(let i=0;i<=N;i++){ const t=a0+(2*Math.PI-2*a0)*i/N;
+    d+=(i?'L':'M')+(cx+R*Math.cos(t)).toFixed(1)+' '+(cy+R*Math.sin(t)).toFixed(1); }
+  return d;
+}
+const sHach='<pattern id="cchach" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0V7" stroke="currentColor" stroke-width="1.1" opacity=".45"/></pattern>';
+function sBride(x,y,w,h){ return '<rect class="bride" x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="url(#cchach)"/>'; }
+
+// --- les douze dessins ---
+const CC_SCH={};
+
+CC_SCH.iso=function(){ return ''+
+  sBride(8,58,24,84)+
+  '<path class="pie" data-s="dc" d="M32 76 H150 V64 H282 V136 H150 V124 H32 Z"/>'+
+  '<path class="ax" d="M18 100 H300"/>'+
+  '<g class="av"><path class="out" d="M172 118 H248 V150 H172 Z"/>'+
+    '<path class="out" data-s="kap" d="M150 124 L141 143 H172 V124 Z"/></g>'+
+  '<path class="cop" d="M150 128 q-10 10 -4 19 q7 9 16 4"/>'+
+  sRot(60,100,19,'','n')+sEtiq(60,152,'n','n','middle')+
+  sFle(130,70,104,70)+sEtiq(117,62,'vc','vc','middle')+
+  '<g class="av">'+sFle(214,162,178,162)+sEtiq(196,174,'f','f','middle')+'</g>'+
+  sCote(300,64,300,136,'','dc',288,58,'middle')+sEtiq(288,58,'Dc','dc','middle')+
+  sCote(266,64,266,76,'','ap',266,56,'middle')+sEtiq(266,56,'ap','ap','middle')+
+  '<path class="cote" data-s="kap" d="M158 124 a16 16 0 0 0 6 11" fill="none"/>'+sEtiq(178,116,'κ','kap');
+};
+
+CC_SCH.gorge=function(){ return ''+
+  sBride(8,58,24,84)+
+  '<path class="pie" data-s="dc" d="M32 64 H178 V90 H196 V64 H282 V136 H32 Z"/>'+
+  '<path class="ax" d="M18 100 H300"/>'+
+  '<g class="avy"><path class="out" data-s="lg" d="M178 34 H196 V88 H178 Z"/>'+
+    '<path class="out" d="M170 18 H204 V36 H170 Z"/></g>'+
+  '<path class="cop" d="M174 86 q-12 -6 -10 -16"/><path class="cop" d="M200 86 q12 -6 10 -16"/>'+
+  sRot(68,100,22,'n','n')+
+  '<g class="avy">'+sFle(222,44,222,76)+sEtiq(228,64,'f','f')+'</g>'+
+  sCote(178,26,196,26,'s','lg',187,20,'middle')+
+  sCote(294,64,294,136,'Dc','dc',290,104,'end')+
+  sCote(252,64,252,90,'lm','lm',248,80,'end');
+};
+
+function schPercage(asym){
+  const pointe=asym
+    ? '<path class="out" d="M140 24 H180 V106 H140 Z"/><path class="out" data-s="dc" d="M140 106 H180 V116 H168 V126 H152 V116 H140 Z"/>'+
+      '<rect class="plaq" x="152" y="106" width="16" height="20"/><rect class="plaq" x="168" y="100" width="12" height="16"/>'
+    : '<path class="out" data-s="dc" d="M140 24 H180 V112 L160 133 L140 112 Z"/>'+
+      '<path class="goujure" d="M146 34 q10 14 0 28 q-10 14 0 28 q10 14 0 22"/><path class="goujure" d="M174 34 q-10 14 0 28 q10 14 0 28 q-10 14 0 22"/>'+
+      '<path class="cote" data-s="pte" d="M145 118 A22 22 0 0 1 175 118" fill="none"/>'+
+      '<path class="cote" data-s="pte" d="M140 112 L160 133 L180 112" fill="none" opacity=".6"/>';
+  return ''+
+  '<path class="pie" d="M30 110 H140 V150 H30 Z M180 110 H290 V150 H180 Z"/>'+
+  sBride(30,150,260,12)+
+  '<path class="pie" d="M140 110 H180 V'+(asym?'128':'135')+' H140 Z" opacity=".35"/>'+
+  '<g class="avy">'+pointe+'</g>'+
+  '<path class="cop" d="M136 108 q-14 -8 -10 -22 q4 -13 18 -10"/><path class="cop" d="M184 108 q14 -8 10 -22 q-4 -13 -18 -10"/>'+
+  sRot(66,50,20,'','n')+sEtiq(66,86,'n','n','middle')+
+  sCote(140,20,180,20,'Dc','dc',160,14,'middle')+
+  '<g class="avy">'+sFle(214,52,214,84)+sEtiq(220,72,'f · vf','f')+'</g>'+
+  sCote(296,110,296,150,'lm','lp',292,134,'end')+
+  (asym?sEtiq(160,176,'une arête coupe à chaque rayon','','middle')
+       :sEtiq(160,176,'angle de pointe : moitié = κ','pte','middle'));
+}
+CC_SCH.sym=function(){ return schPercage(false); };
+CC_SCH.asym=function(){ return schPercage(true); };
+
+CC_SCH.ale=function(){ return ''+
+  '<path class="pie" d="M30 104 H136 V152 H30 Z M204 104 H290 V152 H204 Z"/>'+
+  '<path class="pie" d="M136 104 H150 V152 H136 Z M190 104 H204 V152 H190 Z" opacity=".45"/>'+
+  sBride(30,152,260,12)+
+  '<g class="avy"><path class="out" d="M152 20 H188 V96 H152 Z"/>'+
+    '<path class="out" data-s="dc" d="M136 96 H204 V116 H136 Z"/></g>'+
+  '<path class="ax" d="M170 22 V156"/>'+
+  sRot(170,42,24,'n','n')+
+  sCote(136,18,204,18,'Dc','dc',170,13,'middle')+
+  sCote(150,146,190,146,'d','d0',170,160,'middle')+
+  sCote(136,128,150,128,'ap','ap',132,126,'end')+
+  '<g class="avy">'+sFle(228,48,228,80)+sEtiq(234,68,'f · vf','f')+'</g>';
+};
+
+// fraisage : vue de dessus à gauche, épaisseur de passe sur la bande de droite
+function schFraisage(mode){
+  const R=36, cx=108, cy=92;
+  // e : largeur de matière engagée par la fraise, mesurée depuis son bord
+  const e=mode==='rain'?2*R:(mode==='cont'?12:52);
+  const xe=cx-R+e;                                     // bord de la matière
+  const piece=mode==='rain'
+    ? '<path class="pie" d="M16 46 H200 V138 H16 Z"/><path class="pie" d="M16 '+(cy-R)+' H'+cx+' V'+(cy+R)+' H16 Z" opacity=".3"/>'
+    : mode==='cont'
+      ? '<path class="pie" d="M16 46 H'+xe+' V138 H16 Z"/>'
+      : '<path class="pie" d="M16 '+(cy-26)+' H'+xe+' V'+(cy+26)+' H16 Z"/>';
+  const arc='<path class="arc" data-s="ae" d="'+sArcEng(cx,cy,R,mode==='rain'?cx:xe)+'"/>';
+  const cote=mode==='rain'?sCote(16,152,cx,152,'ae = Dc','ae',(16+cx)/2,166,'middle')
+    :mode==='cont'?sCote(cx-R,152,xe,152,'ae','ae',xe+5,166,'start')
+    :sCote(16,152,xe,152,'ae','ae',(16+xe)/2,166,'middle');
+  return piece+
+  '<g class="fraise"><circle class="out" data-s="dc" cx="'+cx+'" cy="'+cy+'" r="'+R+'"/>'+
+    '<g class="spin" style="transform-origin:'+cx+'px '+cy+'px">'+
+    '<path class="dent" d="M'+cx+' '+(cy-R)+' l7 10"/><path class="dent" d="M'+(cx+R)+' '+cy+' l-10 7"/>'+
+    '<path class="dent" d="M'+cx+' '+(cy+R)+' l-7 -10"/><path class="dent" d="M'+(cx-R)+' '+cy+' l10 -7"/></g>'+
+    '<circle class="moy" cx="'+cx+'" cy="'+cy+'" r="3"/></g>'+
+  arc+
+  sRot(cx,cy,R+10,'','n')+sEtiq(cx+R+14,cy-30,'n','n')+
+  '<g class="av">'+sFle(186,26,146,26)+sEtiq(166,19,'vf','vf','middle')+'</g>'+
+  sEtiq(cx+R+14,cy+4,'fz','fz')+
+  cote+
+  sCote(cx-R,40,cx+R,40,'Dc','dc',cx,34,'middle')+
+  '<path class="ax" d="M232 44 V154"/>'+
+  '<path class="out" d="M250 54 H306 V84 H250 Z" opacity=".5"/>'+
+  '<path class="pie" d="M250 84 H306 V96 H250 Z" opacity=".35"/>'+
+  '<path class="pie" d="M250 96 H306 V144 H250 Z"/>'+
+  sCote(244,84,244,96,'','ap',240,95,'end')+sEtiq(240,95,'ap','ap','end')+
+  sEtiq(316,160,'vue de côté','','end');
+}
+CC_SCH.surf=function(){ return schFraisage('surf'); };
+CC_SCH.cont=function(){ return schFraisage('cont'); };
+CC_SCH.rain=function(){ return schFraisage('rain'); };
+
+function schTaraud(form){
+  const filets=function(x,sens){ let d='M'+x+' 104';
+    for(let i=0;i<5;i++){ const y=104+i*11; d+=' L'+(x+sens*7)+' '+(y+5.5)+' L'+x+' '+(y+11); }
+    return '<path class="filet" d="'+d+'"/>'; };
+  return ''+
+  '<path class="pie" d="M26 100 H140 V164 H26 Z M180 100 H294 V164 H180 Z"/>'+
+  filets(140,1)+filets(180,-1)+
+  '<g class="avy"><path class="out" d="M146 16 H174 V96 H146 Z"/>'+
+    '<path class="out" data-s="lf" d="M146 96 H174 L166 122 H154 Z"/>'+
+    (form?'<circle class="lobe" cx="150" cy="104" r="4"/><circle class="lobe" cx="170" cy="104" r="4"/><circle class="lobe" cx="160" cy="116" r="4"/>'
+        :'<path class="goujure" data-s="zg" d="M152 24 V112"/><path class="goujure" data-s="zg" d="M168 24 V112"/>')+
+  '</g>'+
+  (form?'':'<path class="cop" d="M138 98 q-14 -6 -12 -18"/><path class="cop" d="M182 98 q14 -6 12 -18"/>')+
+  sRot(160,42,22,'n','n')+
+  sCote(146,16,174,16,'DN','dn',160,11,'middle')+
+  sCote(126,104,126,115,'p','pas',122,114,'end')+
+  sCote(300,100,300,156,'Lc','lc',296,132,'end')+
+  sCote(206,96,206,122,'Lf','lf',212,114,'start')+
+  '<g class="avy">'+sFle(238,46,238,76)+sEtiq(244,66,'vf = n × p','vf')+'</g>'+
+  sEtiq(160,178,form?'par déformation : pas de copeau':'par coupe : copeau évacué par les goujures','','middle');
+}
+CC_SCH.tar=function(){ return schTaraud(false); };
+CC_SCH.form=function(){ return schTaraud(true); };
+
+CC_SCH.fdf=function(){
+  const cx=120, cy=96, RD=62, rf=22, ro=RD-rf;
+  return ''+
+  '<path class="pie" d="M16 20 H224 V172 H16 Z"/>'+
+  '<circle class="trou" cx="'+cx+'" cy="'+cy+'" r="'+RD+'"/>'+
+  '<circle class="orbp" data-s="np" cx="'+cx+'" cy="'+cy+'" r="'+ro+'"/>'+
+  '<g class="orb" style="transform-origin:'+cx+'px '+cy+'px">'+
+    '<circle class="out" data-s="df" cx="'+(cx+ro)+'" cy="'+cy+'" r="'+rf+'"/>'+
+    '<g class="spin" style="transform-origin:'+(cx+ro)+'px '+cy+'px">'+
+      '<path class="dent" d="M'+(cx+ro)+' '+(cy-rf)+' l5 7"/><path class="dent" d="M'+(cx+ro+rf)+' '+cy+' l-7 5"/>'+
+      '<path class="dent" d="M'+(cx+ro)+' '+(cy+rf)+' l-5 -7"/></g></g>'+
+  sFle(cx+8,cy-ro-8,cx+32,cy-ro-2)+sEtiq(cx+38,cy-ro-6,'vf','vf')+
+  sCote(cx-RD,172-10,cx+RD,172-10,'DN','dn',cx,168,'middle')+
+  sCote(cx+ro-rf,cy,cx+ro+rf,cy,'Dc','df',cx+ro,cy-6,'middle')+
+  // coupe : profondeur de filet et nombre de passes
+  '<path class="ax" d="M244 24 V168"/>'+
+  '<path class="pie" d="M262 30 H308 V162 H262 Z"/>'+
+  '<path class="filet" d="M262 46 L274 54 L262 62 L274 70 L262 78 L274 86 L262 94 L274 102 L262 110 L274 118 L262 126"/>'+
+  sCote(258,46,258,62,'p','pas',254,60,'end')+
+  sEtiq(284,174,'le filet','','middle');
+};
+
+// --- définitions des grandeurs ---
+const CC_EXP={
+ dc:'Diamètre sur lequel la vitesse de coupe est prise : diamètre de la pièce en tournage, diamètre de l\'outil en perçage et en fraisage.',
+ dn:'Diamètre nominal du filetage : le 10 de M10.',
+ d0:'Diamètre du trou avant la passe. C\'est lui qui fixe la profondeur enlevée et le débit.',
+ df:'Diamètre de la fraise à fileter, toujours plus petit que le trou à fileter puisqu\'elle tourne à l\'intérieur.',
+ vc:'Vitesse à laquelle l\'arête passe sur la matière. Donnée par le fabricant d\'outil selon la matière usinée : c\'est elle qui fixe la rotation.',
+ n:'Tours par minute de la broche. Se déduit de la vitesse de coupe et du diamètre.',
+ ap:'Épaisseur de matière enlevée, mesurée dans l\'axe de pénétration de l\'outil.',
+ ae:'Largeur de matière balayée perpendiculairement à l\'avance. En fraisage, son rapport au diamètre décide de l\'épaisseur du copeau et de l\'angle d\'engagement.',
+ lg:'Largeur de l\'outil à gorge. Elle donne la largeur de la rainure et, avec l\'avance, la section du copeau.',
+ z:'Nombre d\'arêtes qui coupent à chaque tour.',
+ zg:'Nombre de goujures du taraud : elles évacuent le copeau et répartissent l\'effort.',
+ f:'Distance parcourue par l\'outil pendant un tour de broche.',
+ fz:'Part d\'avance prise par chaque dent. C\'est la vraie grandeur de réglage en fraisage : elle commande l\'épaisseur du copeau.',
+ vf:'Vitesse de déplacement de l\'outil, celle que lit la machine.',
+ lm:'Longueur à parcourir : elle fixe le temps de coupe.',
+ lp:'Profondeur du trou à percer, mesurée depuis la surface.',
+ lc:'Longueur de filet à réaliser.',
+ lf:'Longueur chanfreinée en bout de taraud. Les premiers filets entament progressivement : plus elle est longue, plus le copeau est mince.',
+ pas:'Distance entre deux filets. Le taraud avance d\'un pas par tour : l\'avance ne se règle pas, elle découle du pas.',
+ np:'Nombre de passes radiales pour atteindre la profondeur de filet.',
+ kap:'Angle entre l\'arête et la surface usinée. Il étale le copeau : plus il est petit, plus le copeau est mince et large, et plus l\'effort se répartit.',
+ pte:'Angle total de la pointe du foret. Sa moitié joue le rôle d\'angle d\'attaque et fixe l\'épaisseur du copeau.',
+ gam:'Inclinaison de la face de coupe. Positif, l\'outil coupe plus doucement et l\'effort baisse ; négatif, l\'arête est plus solide.',
+ eta:'Part de la puissance du moteur réellement disponible à l\'outil : 75 à 90 % selon la machine et la transmission.',
+ usu:'Majoration appliquée à l\'effort, au couple et à la puissance pour tenir compte de l\'usure de l\'arête.',
+ r:'Rayon de la pointe de la plaquette. Il lisse la surface et fixe la rugosité théorique, mais augmente l\'effort radial.',
+ u:'Course supplémentaire en entrée et en sortie de pièce, qui allonge le temps sans enlever de matière.'};
+
+// --- ce qu'est chaque opération ---
+const CC_DOC={
+ iso:['La pièce tourne, l\'outil avance.','L\'outil est fixe sur le chariot et se déplace le long de la pièce qui tourne : c\'est le chariotage. Déplacé vers l\'axe, il dresse la face.',
+   'La profondeur de passe ap et l\'avance f donnent la section du copeau. L\'angle d\'attaque κ étale ce copeau : à 45° il est plus mince et plus large qu\'à 90°, l\'arête chauffe moins mais l\'effort pousse davantage la pièce de côté.',
+   'La rugosité dépend surtout de l\'avance et du rayon de bec : diviser l\'avance par deux divise la rugosité théorique par quatre.'],
+ gorge:['L\'outil plonge dans la pièce qui tourne.','L\'outil, étroit, descend radialement : il creuse une gorge, ou va jusqu\'à l\'axe pour tronçonner.',
+   'La largeur de l\'outil fait la largeur de la gorge ; elle ne se règle pas. Toute la largeur coupe en même temps, donc l\'effort est élevé et la rigidité du porte-outil compte autant que les conditions de coupe.',
+   'L\'avance se réduit en approchant de l\'axe : la vitesse de coupe y tombe à zéro.'],
+ sym:['Deux arêtes symétriques, qui se compensent.','Le foret tourne et descend. Ses deux arêtes coupent chacune la moitié de l\'avance : pour f = 0,2 mm/tr, chaque arête prend 0,1 mm.',
+   'Les efforts radiaux des deux arêtes s\'annulent : le foret se guide tout seul. En revanche l\'âme, au centre, ne coupe pas vraiment — elle écrase la matière. C\'est elle qui fait la plus grande part de l\'effort d\'avance.',
+   'L\'angle de pointe fixe l\'épaisseur du copeau : plus la pointe est plate, plus le copeau est mince et large.'],
+ asym:['Une seule arête coupe à chaque rayon.','Sur un foret à plaquettes, les plaquettes se recouvrent radialement : à un rayon donné, une seule arête passe par tour. L\'épaisseur du copeau vaut donc l\'avance par tour entière, pas la moitié.',
+   'Les efforts radiaux ne se compensent pas : le foret a besoin d\'un trou bien guidé ou d\'une pièce bien bridée, et il n\'aime pas les surfaces inclinées à l\'attaque.',
+   'En contrepartie, la plaquette se change et les vitesses de coupe sont bien plus élevées qu\'en HSS.'],
+ ale:['On reprend un trou déjà percé.','L\'outil enlève la couronne entre l\'avant-trou et le diamètre fini : la profondeur de passe vaut la moitié de la différence des diamètres.',
+   'Comme il n\'y a plus d\'âme au centre, l\'effort d\'avance est faible et la précision bien meilleure qu\'au perçage : c\'est l\'opération qui rattrape la position et la rectitude du trou.',
+   'Attention à l\'évacuation du copeau dans un trou profond : c\'est elle qui limite l\'avance, pas la puissance.'],
+ surf:['La fraise balaie une face.','Les dents entrent et sortent de la matière à chaque tour : le copeau n\'a pas une épaisseur constante, il commence mince, passe par un maximum, et finit mince.',
+   'C\'est pour cela qu\'on raisonne sur l\'épaisseur moyenne hm, qui dépend de l\'avance par dent, de l\'angle d\'attaque et surtout du rapport ae/Dc. Engager la fraise sur moins d\'un tiers de son diamètre amincit beaucoup le copeau : il faut alors augmenter l\'avance par dent pour ne pas frotter au lieu de couper.',
+   'Un engagement entre 60 et 80 % du diamètre, légèrement décentré, donne l\'entrée la plus douce.'],
+ cont:['La fraise longe un flanc.','L\'engagement radial est faible et la profondeur axiale grande : la fraise travaille sur sa longueur et fléchit. La précision dépend davantage de cette flexion que des conditions de coupe.',
+   'Le copeau est très mince ; au-dessous de 10 % du diamètre engagé, l\'avance par dent doit être nettement augmentée pour garder une épaisseur de copeau utile.',
+   'En avalant, la dent attaque épais et finit mince : meilleur état de surface et moins d\'usure, à condition que la machine n\'ait pas de jeu dans ses vis.'],
+ rain:['La fraise est engagée sur tout son diamètre.','Dans une rainure, l\'engagement radial vaut le diamètre : la dent coupe sur un demi-tour et le copeau atteint 0,64 fois l\'avance par dent.',
+   'L\'évacuation du copeau devient le vrai problème : il n\'a qu\'un chemin pour sortir. Au-delà d\'une profondeur d\'un diamètre, il vaut mieux descendre en plusieurs passes ou en hélice.',
+   'Les efforts se compensent mal et la fraise vibre facilement : réduire la longueur en porte-à-faux fait plus que réduire l\'avance.'],
+ tar:['Le taraud coupe le filet, un pas par tour.','L\'avance ne se règle pas : le taraud avance d\'un pas à chaque tour. La machine doit synchroniser exactement rotation et avance, sinon le filet est abîmé.',
+   'Le copeau est formé par le chanfrein d\'entrée, sur quelques filets seulement. Plus ce chanfrein est long, plus le copeau est mince et le couple faible — mais plus il faut de place au fond d\'un trou borgne.',
+   'Le couple dépend beaucoup de l\'outil, du revêtement et de la lubrification : la valeur calculée ici n\'est qu\'un ordre de grandeur. Le diamètre de l\'avant-trou, lui, est décisif.'],
+ form:['Le filet est formé, pas coupé.','Le taraud à déformation ne coupe rien : il repousse la matière, qui flue pour prendre la forme du filet. Il n\'y a donc aucun copeau à évacuer, ce qui est précieux dans les trous borgnes et les matières collantes.',
+   'Le filet obtenu est plus résistant, car les fibres de la matière suivent sa forme au lieu d\'être tranchées. En revanche il faut une matière assez ductile : moins de 800 N/mm² environ, et un allongement suffisant.',
+   'L\'avant-trou doit être plus gros qu\'en taraudage par coupe, puisque la matière doit venir remplir le filet. Un avant-trou trop petit casse le taraud.'],
+ fdf:['Une petite fraise décrit une hélice dans le trou.','La fraise tourne sur elle-même tout en tournant dans le trou : en un tour d\'orbite elle avance d\'un pas, et le filet est fait.',
+   'L\'avance programmée au centre de l\'outil n\'est pas celle de l\'arête : pour un filet intérieur, l\'arête va plus vite que le centre. C\'est pourquoi il faut corriger l\'avance dans le rapport (DN − Dc) / DN, sans quoi le filet est trop chargé.',
+   'Avantages : un seul outil pour tous les pas d\'un même profil, pas de copeau long, et un outil cassé se retire du trou. Le filet peut aussi être réalisé au plus juste du calibre.']};
+
+// --- bloc « Comprendre l'opération » ---
+function ccSchBloc(){
+  return '<details class="sec ccsch" id="ccSchS"><summary>Comprendre l\'opération</summary><div class="secb">'+
+    '<div class="ccschw"><svg class="ccs" id="ccSvg" viewBox="0 0 320 186" role="img" aria-label="Schéma de l\'opération"></svg>'+
+    '<button type="button" class="ccpause" id="ccPause">Figer</button></div>'+
+    '<p class="hint" style="margin:0">Touche une cote du dessin ou une pastille pour savoir à quoi elle correspond.</p>'+
+    '<div class="chips ccsyms mfam" id="ccSyms"></div>'+
+    '<div class="def" id="ccSdef" aria-live="polite"></div>'+
+    '<details class="ccplus" id="ccPlus"><summary>En savoir plus sur cette opération</summary><div class="ccdoc" id="ccDoc"></div></details></div></details>';
+}
+// lire(k) renvoie la valeur affichée pour la grandeur k, ou une chaîne vide
+function ccSchema(card,lire){
+  const svg=card.querySelector('#ccSvg'), zSyms=card.querySelector('#ccSyms'),
+        zDef=card.querySelector('#ccSdef'), zDoc=card.querySelector('#ccDoc'),
+        bP=card.querySelector('#ccPause');
+  if(!svg) return {maj:function(){}};
+  // le schéma est déplié d'office ; si on le replie, on s'en souvient
+  const pli=card.querySelector('#ccSchS');
+  const plus=card.querySelector('#ccPlus'); if(plus) plus.open=innerWidth>=960;
+  if(pli){ pli.open=store('ccSchO')!=='0';
+    pli.addEventListener('toggle',function(){ store('ccSchO',pli.open?'1':'0'); }); }
+  let S=null, cle='', arret=store('ccFige')==='1';
+  function fige(){ svg.classList.toggle('fige',arret); bP.textContent=arret?'Animer':'Figer';
+    bP.setAttribute('aria-pressed',arret?'true':'false'); }
+  bP.addEventListener('click',function(){ arret=!arret; store('ccFige',arret?'1':''); fige(); });
+  function marque(){
+    svg.querySelectorAll('[data-s]').forEach(function(n){ n.classList.toggle('hi',n.dataset.s===cle); });
+    zSyms.querySelectorAll('[data-sy]').forEach(function(b){ b.setAttribute('aria-pressed',b.dataset.sy===cle); });
+  }
+  function montre(k){
+    cle=cle===k?'':k; marque();
+    if(!cle){ zDef.innerHTML=''; zDef.hidden=true; return; }
+    const c=CC_F[k]||['','','',''], v=lire(k);
+    zDef.hidden=false;
+    zDef.innerHTML='<strong>'+esc(c[0])+(c[1]?' · '+esc(c[1]):'')+'</strong>'+
+      (v?'<em>'+esc(v)+(c[2]?' '+esc(c[2]):'')+'</em>':'')+
+      '<p>'+esc(CC_EXP[k]||'')+'</p>';
+  }
+  svg.addEventListener('click',function(e){ const n=e.target.closest('[data-s]'); if(n&&n.dataset.s) montre(n.dataset.s); });
+  zSyms.addEventListener('click',function(e){ const b=e.target.closest('[data-sy]'); if(b) montre(b.dataset.sy); });
+  fige();
+  return {maj:function(s){
+    S=s; cle=''; zDef.innerHTML=''; zDef.hidden=true;
+    const f=CC_SCH[s.id];
+    svg.innerHTML='<defs>'+sHach+'</defs>'+(f?f():'');
+    svg.parentElement.hidden=!f;
+    const cles=s.f.concat(s.a).filter(function(k){ return CC_EXP[k]; });
+    zSyms.innerHTML=cles.map(function(k){ const c=CC_F[k];
+      return '<button type="button" class="chip ccsy" data-sy="'+k+'" aria-pressed="false">'+
+        (c[1]?'<b>'+esc(c[1])+'</b> ':'')+esc(c[0])+'</button>'; }).join('');
+    const d=CC_DOC[s.id];
+    zDoc.innerHTML=d?'<h3>'+esc(d[0])+'</h3>'+d.slice(1).map(function(t){ return '<p>'+esc(t)+'</p>'; }).join(''):'';
+    marque();
+  }};
+}
+
+// ---------- USINAGE : perçage, taraudage, fraisage, tournage, information outils, coûts ----------
+// Regroupe les anciens onglets « Forets » et « Taraudage ». On arrive sur une grille d'icônes ;
+// chaque icône ouvre une section, la flèche de retour ramène à la grille.
+const USI={sec:''};
+const USI_IC={
+ perc:'<svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2h6v5h-6z"/><path d="M12 7v13l3 5 3-5V7"/><path d="M12 11l6-1.5M12 15l6-1.5M12 19l6-1.5" stroke-width="1.3"/><path d="M3 27h24" stroke-width="2.4"/></svg>',
+ tar:'<svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="11" y="2" width="8" height="5" rx="1"/><path d="M12 7v16l3 4 3-4V7"/><path d="M12 11h6M12 14.5h6M12 18h6M12 21.5h6" stroke-width="1.3"/></svg>',
+ frai:'<svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 2h8v6h-8z"/><path d="M11 8h8v15l-4 4-4-4z"/><path d="M13 9.5l4 3M13 14l4 3M13 18.5l4 3" stroke-width="1.3"/></svg>',
+ tour:'<svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M2 9h18v8H2z"/><path d="M20 10.5h6M20 15.5h6" stroke-width="1.3"/><path d="M11 17l4 7h-8z" fill="currentColor" stroke="none"/><path d="M4 6.5a7 3 0 0 1 12 0" stroke-width="1.5" stroke-linecap="round"/><path d="M15.2 4.6l1.2 2.2-2.4.2z" fill="currentColor" stroke="none"/></svg>',
+ info:'<svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><circle cx="15" cy="15" r="12"/><path d="M15 13v8" stroke-linecap="round"/><circle cx="15" cy="9.2" r="1.4" fill="currentColor" stroke="none"/></svg>',
+ cout:'<svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="2" y="7" width="26" height="16" rx="2"/><path d="M19 11.5a4.5 4.5 0 1 0 0 7" stroke-linecap="round"/><path d="M13 13.5h5M13 16.5h5" stroke-width="1.5" stroke-linecap="round"/></svg>'};
+const USI_SECS=[
+ ['perc','Perçage','Conditions de coupe : foret plein, foret à plaquettes, alésage'],
+ ['tar','Taraudage','Diamètres de perçage avant taraudage et conditions de coupe'],
+ ['frai','Fraisage','Surfaçage, contournage, rainurage'],
+ ['tour','Tournage','Chariotage, dressage, rainurage, tronçonnage'],
+ ['info','Information outils','Anatomie, matériaux, revêtements, angles, normes, abaque des vitesses'],
+ ['cout','Coûts','Coût d\'usinage à la pièce et au lot']];
+const USI_OF={perc:'perc',frai:'frai',tour:'tour',tar:'file'};
+
+function usiGrille(){
+  return '<section class="card usicard"><h2>Usinage</h2>'+
+  '<p class="hint" style="margin:0">Choisis l\'opération. Chaque section calcule ses conditions de coupe et explique l\'usinage avec un schéma animé.</p>'+
+  '<div class="usig">'+USI_SECS.map(function(s){
+    return '<button class="usit" data-sec="'+s[0]+'"><span class="usii">'+USI_IC[s[0]]+'</span>'+
+      '<b>'+esc(s[1])+'</b><i>'+esc(s[2])+'</i></button>'; }).join('')+'</div></section>';
+}
+function usiEntete(sec){
+  const s=USI_SECS.filter(function(x){ return x[0]===sec; })[0];
+  return '<div class="usihead"><button class="usiback" aria-label="Revenir aux opérations d\'usinage">‹ Usinage</button>'+
+    '<span class="usii sm">'+USI_IC[sec]+'</span><b>'+esc(s[1])+'</b></div>';
+}
+function renderUsi(view){
+  const sec=USI.sec;
+  view.dataset.sec=sec||'';
+  if(!sec||!USI_OF[sec]&&sec!=='info'&&sec!=='cout'){ view.append(el(usiGrille()));
+    view.addEventListener('click',function(e){ const b=e.target.closest('[data-sec]'); if(!b) return;
+      USI.sec=b.dataset.sec; store('usiSec',USI.sec); show('usi'); window.scrollTo({top:0}); });
+    return; }
+  view.append(el(usiEntete(sec)));
+  view.querySelector('.usiback').addEventListener('click',function(){ USI.sec=''; store('usiSec',''); show('usi'); window.scrollTo({top:0}); });
+  if(sec==='info'){ usiInfo(view); return; }
+  if(sec==='cout'){ view.append(el(coutCard())); coutBind(view); return; }
+  if(sec==='tar'){ renderTap(view); }
+  const f=USI_OF[sec];
+  view.append(el(ccCard(f).replace('<section class="card" id="ccCard">','<section class="card" id="ccCard">')));
+  ccBind(view,f);
+}
+
+// --- Information outils : les rubriques documentaires et l'abaque des vitesses ---
+const INFO_TABS=[['anat','Anatomie'],['mat','Matériaux'],['coat','Revêtements'],['ang','Angles'],['norm','Normes'],['iso','Matières ISO'],['vc','Vitesses de coupe'],['fab','Fabricants']];
+function usiInfo(view){
+  let tab=store('infoTab'); if(!INFO_TABS.some(function(t){ return t[0]===tab; })) tab='anat';
+  view.append(el('<div class="subnav" role="tablist" aria-label="Information outils">'+
+    INFO_TABS.map(function(t){ return '<button role="tab" data-t="'+t[0]+'">'+t[1]+'</button>'; }).join('')+'</div>'));
+  view.append(el('<div class="dpanels">'+drillPanneaux()+
+    '<section class="card dpanel" data-panel="vc"><h2>Vitesses de coupe</h2>'+vcInner()+'</section></div>'));
+  const nav=view.querySelector('.subnav');
+  function sel(){
+    nav.querySelectorAll('[data-t]').forEach(function(b){ b.setAttribute('aria-selected',b.dataset.t===tab); });
+    view.querySelectorAll('.dpanel').forEach(function(p){ p.hidden=p.dataset.panel!==tab; });
+  }
+  nav.addEventListener('click',function(e){ const b=e.target.closest('[data-t]'); if(!b) return;
+    tab=b.dataset.t; store('infoTab',tab); sel(); });
+  sel();
+  drillBind(view);
+  vcBind(view);
+}
+
+// --- Coût d'usinage à la pièce et au lot ---
+const COUT_F={
+ tu:['Temps de coupe par pièce','tc','min',''],
+ tm:['Manutention, chargement','tm','min','0,5'],
+ tx:['Taux horaire machine + opérateur','','€/h','65'],
+ tr:['Temps de mise en train','','min','30'],
+ lot:['Taille du lot','','pièces','50'],
+ po:['Prix de l\'outil ou de la plaquette','','€','25'],
+ na:['Arêtes par plaquette','','','4'],
+ dv:['Durée de vie d\'une arête','T','min','15'],
+ br:['Prix du brut par pièce','','€','0']};
+const COUT_ORD=['tu','tm','tx','tr','lot','po','na','dv','br'];
+function coutCard(){
+  return '<section class="card" id="coutCard"><h2>Coût d\'usinage</h2>'+
+  '<p class="hint" style="margin:0">Ce que revient une pièce : le temps passé sur la machine, l\'outil consommé et la mise en train répartie sur le lot.</p>'+
+  '<p class="ccwarn" id="coutRep" hidden></p>'+
+  '<div class="ccbloc"><div class="ccin" id="coutIn"></div>'+
+  '<div class="ccres" id="coutRes" aria-live="polite"></div></div>'+
+  '<details class="sec"><summary>Détail du calcul</summary><div class="secb"><div class="ccdet" id="coutDet"></div></div></details>'+
+  '<details class="sec"><summary>Formules employées</summary><div class="secb">'+
+    '<div class="ccfx"><span>Temps de cycle</span><code>t = temps de coupe + manutention</code></div>'+
+    '<div class="ccfx"><span>Coût machine par pièce</span><code>Cm = t / 60 × taux horaire</code></div>'+
+    '<div class="ccfx"><span>Pièces par arête</span><code>N = durée de vie T / temps de coupe</code></div>'+
+    '<div class="ccfx"><span>Coût outil par pièce</span><code>Co = (prix outil / arêtes) / N</code></div>'+
+    '<div class="ccfx"><span>Mise en train par pièce</span><code>Cr = (temps de mise / 60 × taux) / taille du lot</code></div>'+
+    '<div class="ccfx"><span>Coût de revient</span><code>C = Cm + Co + Cr + brut</code></div>'+
+    '<p class="note" style="margin:8px 0 0">Le taux horaire doit couvrir la machine, l\'opérateur et les frais généraux de l\'atelier. Les coûts indirects (programmation, contrôle, rebut) ne sont pas comptés ici.</p>'+
+  '</div></details>'+
+  '<p class="note">Ordres de grandeur pour comparer deux façons de faire, pas un prix de vente : la marge, le transport et le traitement de surface restent à ajouter.</p></section>';
+}
+function coutBind(root){
+  const card=root.querySelector('#coutCard'); if(!card) return;
+  const zIn=card.querySelector('#coutIn'), zRes=card.querySelector('#coutRes'),
+        zDet=card.querySelector('#coutDet'), zRep=card.querySelector('#coutRep');
+  let V={}; try{ V=JSON.parse(store('coutVals')||'{}')||{}; }catch(e){ V={}; }
+  COUT_ORD.forEach(function(k){ if(V[k]==null||V[k]==='') { const d=COUT_F[k][3]; if(d!=='') V[k]=d; } });
+  // le temps de coupe vient de Conditions de coupe quand on y est passé
+  let repris='';
+  try{ const r=JSON.parse(store('ccDernierTemps')||'null');
+    if(r&&isFinite(r.min)&&r.min>0){ repris=r.t;
+      if(V.tu==null||V.tu===''||V.tu==='0') V.tu=String(+r.min.toFixed(4)).replace('.',','); } }catch(e){}
+  if(repris){ zRep.textContent='Temps de coupe repris de Conditions de coupe ('+repris+'). Tu peux le corriger à la main.'; zRep.hidden=false; }
+
+  zIn.innerHTML=COUT_ORD.map(function(k){
+    const c=COUT_F[k];
+    return '<label class="ccf" for="cout_'+k+'"><span class="ccl">'+esc(c[0])+'</span>'+
+      '<input id="cout_'+k+'" data-k="'+k+'" inputmode="decimal" autocomplete="off" value="'+esc(V[k]==null?'':V[k])+'">'+
+      '<span class="ccu">'+(c[1]?'<b>'+esc(c[1])+'</b>':'')+(c[2]?'<i>'+esc(c[2])+'</i>':'')+'<em>calculé</em></span></label>'; }).join('');
+
+  function ligne(r){
+    const v=isFinite(r[2])?fmt(r[2],r[4]):'—';
+    return '<div class="ccr"><span class="ccrl">'+esc(r[0])+(r[1]?' <b>'+esc(r[1])+'</b>':'')+'</span>'+
+      '<strong>'+v+' <i>'+esc(r[3])+'</i></strong></div>';
+  }
+  function calc(){
+    const g=function(k){ const x=parse(V[k]); return isFinite(x)?x:NaN; };
+    const tu=g('tu'), tm=g('tm')||0, tx=g('tx'), tr=g('tr')||0, lot=g('lot'), po=g('po'), na=g('na')||1, dv=g('dv'), br=g('br')||0;
+    const t=tu+tm, cm=t/60*tx;
+    const N=dv>0&&tu>0?dv/tu:NaN, co=isFinite(N)&&N>0?(po/na)/N:NaN;
+    const cr=lot>0?(tr/60*tx)/lot:NaN;
+    const c=cm+(isFinite(co)?co:0)+(isFinite(cr)?cr:0)+br;
+    const R=[['Coût de revient','par pièce',c,'€',2,1],
+      ['Coût du lot','',isFinite(c)&&lot>0?c*lot:NaN,'€',2,1],
+      ['Coût machine','Cm',cm,'€',2,1],
+      ['Coût outil','Co',co,'€',3,1],
+      ['Mise en train','Cr',cr,'€',3,0],
+      ['Pièces par arête','N',N,'pièces',0,0],
+      ['Temps de cycle','t',t,'min',2,0],
+      ['Temps total du lot','',lot>0?(tr+lot*t)/60:NaN,'h',2,0],
+      ['Part de l\'outil','',isFinite(c)&&c>0&&isFinite(co)?co/c*100:NaN,'%',1,0]];
+    zRes.innerHTML=R.filter(function(r){ return r[5]; }).map(ligne).join('');
+    zDet.innerHTML=R.map(ligne).join('');
+    try{ store('coutVals',JSON.stringify(V)); }catch(e){}
+  }
+  card.addEventListener('input',function(e){ const i=e.target.closest('#coutIn input'); if(!i) return;
+    V[i.dataset.k]=i.value; calc(); });
+  calc();
+}
+
 
 
 
@@ -3911,21 +4508,22 @@ let IDX=null;
 function buildIdx(){
   const L=[], go=(tab,pre)=>()=>{ if(pre) pre(); show(tab); window.scrollTo({top:0}); };
   const add=(t,s,tool,k,fn)=>L.push({t,s,tool,fn,h:nrm(t),x:nrm(`${t} ${s} ${k}`).split(/\s+/)});
-  const dt=tab=>go('drill',()=>store('drillTab',tab));
+  const us=(sec,pre)=>go('usi',()=>{ USI.sec=sec; store('usiSec',sec); if(pre) pre(); });
+  const dt=tab=>us('info',()=>store('infoTab',tab));
   add('Calcul','Calculatrice, fractions, puissances, racines','calc','calculatrice calcul fraction addition soustraction multiplication division racine carre puissance sinus cosinus tangente log ln historique',go('calc'));
   add('TVA','Calcul HT, TVA, TTC · taux 20 %, 10 %, 5,5 %, 2,1 %','pct','tva taxe ht ttc hors taxe toutes taxes taux normal reduit intermediaire',go('pct',()=>store('pctTab','tva')));
   add('Pourcentage','Départ, %, différence, valeur finale','pct','pourcent % remise reduction rabais solde augmentation hausse baisse diminution majoration marge variation evolution taux',go('pct',()=>store('pctTab','pct')));
-  add('Taraudage','Filetage métrique ISO à pas gros','tap','taraud filetage filet pas metrique iso percage avant taraudage vis ecrou',go('tap'));
+  add('Taraudage','Filetage métrique ISO à pas gros','usi','taraud filetage filet pas metrique iso percage avant taraudage vis ecrou usinage',us('tar'));
   add('Trigonométrie','Triangle rectangle : côtés et angles','trigo','trigo triangle rectangle sinus cosinus tangente sin cos tan hypotenuse pythagore angle cote adjacent oppose perimetre aire',go('trigo'));
-  add('Forets','Anatomie, matériaux, revêtements','drill','foret meche percage helicoidal anatomie',go('drill',()=>store('drillTab','anat')));
-  METRIC.forEach(([D,P])=>add('Taraud M'+fmt(D,2),`pas ${fmt(P,3)} · foret Ø ${fmt(tapDrill(D,P),3)} mm`,'tap','taraud filetage percage',go('tap',()=>store('tapSel',D))));
-  PART_ORDER.forEach(k=>{ const [fr,en]=PARTS[k]; add(fr,'Anatomie du foret · '+en,'drill','foret',go('drill',()=>{ store('drillTab','anat'); store('drillPart',k); })); });
-  ISO_GROUPS.forEach(([l,,,t])=>add('Groupe ISO '+l,t,'drill','iso matiere groupe',dt('iso')));
-  DRILL_MATS.forEach(([n,sub])=>add(n,sub,'drill','materiau foret',dt('mat')));
-  COATS.forEach(([n,,col,use])=>add(n,col,'drill','revetement couleur '+use,dt('coat')));
-  add('Nuances de carbure','Micrograin, cobalt, K10 à K40','drill','carbure nuance grain micrograin cobalt k10 k30 k40',dt('mat'));
-  add("Angles de pointe et d'hélice",'118°, 130°, 140°, types N, H, W, DIN 1412','drill','angle pointe helice affutage din 1412 amincissement 118 130 135 140',dt('ang'));
-  add('Normes de forets','DIN 338, 340, 1897, 1869, 6537, 6535','drill','norme din 338 340 1897 1869 345 6537 6535 queue weldon cone morse serie courte longue',dt('norm'));
+  add('Forets','Anatomie, matériaux, revêtements','usi','foret meche percage helicoidal anatomie usinage outil',us('info',()=>store('infoTab','anat')));
+  METRIC.forEach(([D,P])=>add('Taraud M'+fmt(D,2),`pas ${fmt(P,3)} · foret Ø ${fmt(tapDrill(D,P),3)} mm`,'usi','taraud filetage percage usinage',us('tar',()=>store('tapSel',D))));
+  PART_ORDER.forEach(k=>{ const [fr,en]=PARTS[k]; add(fr,'Anatomie du foret · '+en,'usi','foret',us('info',()=>{ store('infoTab','anat'); store('drillPart',k); })); });
+  ISO_GROUPS.forEach(([l,,,t])=>add('Groupe ISO '+l,t,'usi','iso matiere groupe',dt('iso')));
+  DRILL_MATS.forEach(([n,sub])=>add(n,sub,'usi','materiau foret',dt('mat')));
+  COATS.forEach(([n,,col,use])=>add(n,col,'usi','revetement couleur '+use,dt('coat')));
+  add('Nuances de carbure','Micrograin, cobalt, K10 à K40','usi','carbure nuance grain micrograin cobalt k10 k30 k40',dt('mat'));
+  add("Angles de pointe et d'hélice",'118°, 130°, 140°, types N, H, W, DIN 1412','usi','angle pointe helice affutage din 1412 amincissement 118 130 135 140',dt('ang'));
+  add('Normes de forets','DIN 338, 340, 1897, 1869, 6537, 6535','usi','norme din 338 340 1897 1869 345 6537 6535 queue weldon cone morse serie courte longue',dt('norm'));
   add('Certificats matière','CCPU 3.1, 2.2 · formes et états de livraison','mat','certificat ccpu 3.1 2.2 en 10204 forme etat livraison norme laminé etiré recuit',go('mat',()=>store('matTab','cert')));
   add('Pièces forgées','Forge libre, matriçage, fibrage, EN 10250, EN 10228','mat','forge forgé forgeage matricage estampage fibrage corroyage en 10250 10222 10228 10243 ultrasons magnetoscopie ressuage',go('mat',()=>{ store('matTab','cert'); store('matForge','1'); }));
   add('Matières','Base de nuances : aciers, inox, alu, cuivre, nickel, fontes, titane, plastiques','mat','matiere nuance materiau acier inox aluminium alu cuivre laiton bronze nickel fonte titane plastique',go('mat',()=>{ store('matTab','base'); store('matFam','all'); }));
@@ -3933,7 +4531,7 @@ function buildIdx(){
     fm.groups.forEach((gr,gi)=>gr.g.forEach((g,i)=>{ const {main,alt}=splitG(g); const L2=main.replace(/[\s\-]/g,'')+' '+alt.replace(/[\s\-]/g,'');
       add(main+(alt?' ('+alt+')':''),fm.f+' · '+gr.n+(gr.iso?' · ISO '+gr.iso:''),'mat','nuance '+L2+' '+({'AISI 304':'18/8 18/10 1.4301 x5crni18-10','AISI 304L':'1.4307','AISI 316L':'1.4404','AISI 316':'1.4401'}[main]||''),go('mat',()=>{ store('matFam',fm.id); store('matPick',fi+'.'+gi+'.'+i); })); })); });
   MAT_PROC.forEach(x=>add(x.t,'Matières · Traitements et chimie','mat','traitement chimie surface '+x.kv.map(k=>k[0]).join(' ')+(x.id==='anod'?' oas anodiser oxydation anodique colmatage':x.id==='depol'?' depolissage matage gravure marquage electrolyse acide javel':x.id==='nitru'?' nitruration nitrocarburation nitrure azote couche blanche combinaison diffusion profondeur 0,4 mm dureté hv nitral tenifer melonite tufftride nitreg nitrotec plasma ionique bain de sels gazeuse post-oxydation iso 18203 nht':' eau regale dissolution or acide nitrique chlorhydrique'),go('mat',()=>store('matProc',x.id))));
-  add('Vitesses de coupe','Forets · perçage, tournage, fraisage, taraudage · HSS et carbure','drill','vitesse coupe vc rotation tr/min tours minute avance hss carbure percage tournage fraisage matiere',dt('vc'));
+  add('Vitesses de coupe','Forets · perçage, tournage, fraisage, taraudage · HSS et carbure','usi','vitesse coupe vc rotation tr/min tours minute avance hss carbure percage tournage fraisage matiere',dt('vc'));
   add('Profilés','IPE, IPN, HEA, HEB, UPN, cornières, plats, tubes','prof','profile profil poutrelle poutre mecano soudure mecanosoudure acier masse kg/m',go('prof'));
   PROF.forEach(pf=>{ add(pf.n,'Profilés · '+pf.d,'prof','profile '+pf.norm,go('prof',()=>store('profFam',pf.id)));
     (pf.rows||[]).forEach((r,i)=>{ const nm=profName(pf,r); add(nm,pf.n+' · '+fmt(profKg(pf,r),2)+' kg/m','prof',nm.replace(/×/g,'x')+' '+nm.replace(/[×\s]/g,'')+(pf.t==='RHS'||pf.t==='CHS'?' tube':'')+(pf.id==='corn'?' corniere':''),go('prof',()=>{ store('profFam',pf.id); store('profPick',String(i)); })); }); });
@@ -3943,7 +4541,7 @@ function buildIdx(){
   CONT.forEach(c=>add('Conteneur '+c.n,`${c.code} · ${c.vol!=='—'?c.vol+' m³ · ':''}${c.pay?fmt(c.pay,0)+' kg utiles':''}`,'cont','conteneur container '+c.id+' '+c.code+' '+c.n.replace(/'/g,' pieds '),go('cont',()=>{ store('contTab','types'); store('contSel',c.id); })));
   add('Code conteneur ISO 6346','Lire et vérifier un numéro de conteneur','cont','iso 6346 code numero conteneur controle bic 22g1 42g1 45g1',go('cont',()=>store('contTab','iso')));
   add('Accessoires de conteneur','Pièces de coin, twist-locks, anneaux d\'arrimage, scellés…','cont','crochet piece de coin twist lock twistlock arrimage anneau levage spreader scelle cadenas',go('cont',()=>store('contTab','acc')));
-  add("Fabricants d'outils coupants",'Sandvik, Walter, Seco, Mitsubishi, Nachi, Iscar…','drill','fabricant marque sandvik coromant walter titex seco mitsubishi nachi iscar guhring osg kennametal dormer pramet',dt('fab'));
+  add("Fabricants d'outils coupants",'Sandvik, Walter, Seco, Mitsubishi, Nachi, Iscar…','usi','fabricant marque sandvik coromant walter titex seco mitsubishi nachi iscar guhring osg kennametal dormer pramet',dt('fab'));
   return L;
 }
 function searchIdx(q){
@@ -4059,6 +4657,35 @@ function kpToggle(n){ CLIP.skipUntil=Date.now()+450; clipHide(); if(KP.el&&!KP.e
   document.addEventListener('focusin',e=>{ if(KP.el&&!KP.el.hidden&&kpIsNum(e.target)&&e.target!==KP.inp) kpOpen(e.target); });
 })();
 
+// ---------- Démarrage : outil d'ouverture et reprise ----------
+// À l'ouverture on retombe sur l'outil de base. Mais si on revient vite (moins que le délai réglé),
+// on reprend là où on s'était arrêté : rouvrir l'appli deux minutes plus tard ne fait pas tout perdre.
+const START={
+  tool:(function(){ const v=store('startTool'); return v||'calc'; })(),
+  min:(function(){ const v=store('startMin'); return v==null||v===''?10:+v; })()
+};
+const START_MIN=[[0,'Jamais'],[2,'2 min'],[5,'5 min'],[10,'10 min'],[30,'30 min'],[60,'1 h'],[-1,'Toujours']];
+function startVu(){ try{ store('vuA',String(Date.now())); }catch(e){} }
+function startOutil(){
+  const t0=+(store('vuA')||0), ecart=t0?(Date.now()-t0)/60000:1e9, d=START.min;
+  const reprendre=d===-1||(d>0&&ecart<=d);
+  let id=reprendre?(store('tab')||START.tool):START.tool;
+  if(!TOOLS.some(function(t){ return t.id===id; })) id=START.tool;
+  if(id==='usi') USI.sec=reprendre?(store('usiSec')||''):'';
+  return id;
+}
+// L'appli est restée ouverte en arrière-plan : au retour, même règle qu'à l'ouverture.
+let startAbs=0;
+function startPause(){ startAbs=Date.now(); startVu(); }
+function startReprise(){
+  const t0=startAbs||+(store('vuA')||0); startAbs=0;
+  const ecart=t0?(Date.now()-t0)/60000:0, d=START.min;
+  startVu();
+  if(d===-1||!t0||ecart<=Math.max(d,0.5)) return;
+  if(view.dataset.tool===START.tool&&!(START.tool==='usi'&&USI.sec)) return;
+  if(typeof menuClose==='function') menuClose(); if(typeof closeHelp==='function') closeHelp();
+  USI.sec=''; show(START.tool); window.scrollTo(0,0);
+}
 const MENU={view:'main'};
 // ---------- Débogage : outil commun (dépôt utillage-hub/outil-debogage), chargé en fin de page ----------
 const VERSION=(document.querySelector('.ver')||{}).textContent||'';
@@ -4080,6 +4707,7 @@ function menuRender(keep){
       <button type="button" class="mitem" data-act="look"><span><b>Apparence</b><small>Couleur, en-tête, police, coins, clair ou sombre · pour coller à la charte de l'application hôte</small></span><i>›</i></button>
       <div class="aswitch"><span><b>Écran toujours allumé</b><small>${AWAKE.ok===false&&AWAKE.on?'Non disponible sur cet appareil ou ce navigateur.':'L\'écran ne s\'éteint pas tant que la caisse est affichée. En la quittant, l\'appareil se verrouille comme d\'habitude (code demandé).'}</small></span><button type="button" class="tgl${AWAKE.on?' on':''}" data-act="awake" role="switch" aria-checked="${AWAKE.on}" aria-label="Écran toujours allumé"><i></i></button></div>
       <button type="button" class="mitem" data-act="kp"><span><b>Clavier à l'écran</b><small>Double-tap sur une case pour l'ouvrir · ${KP.dock?'ancré en bas':'flottant'}</small></span><i>${KP.dock?'Flottant':'En bas'}</i></button>
+      <button type="button" class="mitem" data-act="start"><span><b>À l'ouverture</b><small>Outil affiché au démarrage : ${esc((TOOLS.filter(t=>t.id===START.tool)[0]||TOOLS[0]).label)} · ${START.min===-1?'reprend toujours où on en était':START.min===0?'toujours cet outil':'reprise pendant '+START.min+' min'}</small></span><i>›</i></button>
       <button type="button" class="mitem" data-act="order"><span><b>Ordre des onglets</b><small>Appui long sur un onglet puis glisser pour le déplacer</small></span><i>Réinitialiser</i></button>
       <p class="mver">Caisse à Outils ${esc(VERSION)}</p>`;
   } else if(MENU.view==='look'){
@@ -4096,7 +4724,8 @@ function menuRender(keep){
       <h4 class="mh4">Retour tactile (calculatrice et clavier)</h4>
       <div class="chips">${HAPT_LEVELS.map(([v,l])=>`<button type="button" class="chip" data-hp="${v}" aria-pressed="${HAPT.ms===v}">${l}${v?` · ${v} ms`:''}</button>`).join('')}</div>
       <div class="hprow"><label for="hpMs">Durée personnalisée</label><input type="range" id="hpMs" min="0" max="60" step="1" value="${HAPT.ms}" aria-label="Durée de la vibration en millisecondes"><b id="hpVal">${HAPT.ms} ms</b></div>
-      <p class="mnote2">${navigator.vibrate?'Une petite vibration à chaque touche ; trois impulsions quand un appui long change de mode. Touche un niveau pour l\'essayer.':'Le vibreur n\'est pas disponible dans ce navigateur (sur iPhone, Safari ne le propose pas).'}</p>
+      <p class="mnote2">${hapticNote()}</p>
+      ${hapticDispo()?'<div class="dbgrow"><button type="button" class="btn" data-act="hpTest">Test long du vibreur</button></div>':''}
       <h4 class="mh4">Nom affiché</h4><input type="text" id="thTitle" value="${esc(THEME.title)}" maxlength="40" aria-label="Nom affiché dans l'en-tête">
       <h4 class="mh4">Intégration</h4>
       <p class="mnote2">Pour intégrer la caisse dans une autre application avec ces couleurs, copie le lien de réglage ou le code JSON.</p>
@@ -4106,6 +4735,14 @@ function menuRender(keep){
     const hp=body.querySelector('#hpMs'), hv=body.querySelector('#hpVal'); hp.addEventListener('input',()=>{ HAPT.ms=+hp.value; hv.textContent=HAPT.ms+' ms'; body.querySelectorAll('[data-hp]').forEach(c=>c.setAttribute('aria-pressed',+c.dataset.hp===HAPT.ms)); });
     hp.addEventListener('change',()=>{ store('haptic',String(HAPT.ms)); haptic('key'); });
     const tt=body.querySelector('#thTitle'); tt.addEventListener('change',()=>themeSet({title:tt.value.trim()||THEME_DEF.title},true));
+  } else if(MENU.view==='start'){
+    title.textContent="À l'ouverture";
+    body.innerHTML=`<p class="mnote2">Quand tu ouvres la Caisse à Outils, elle affiche l'outil de base. Si tu reviens avant la fin du délai de reprise, elle te remet exactement là où tu étais.</p>
+      <h4 class="mh4">Outil de base</h4>
+      <div class="chips">${TOOLS.map(t=>`<button type="button" class="chip" data-st="${t.id}" aria-pressed="${START.tool===t.id}">${esc(t.label)}</button>`).join('')}</div>
+      <h4 class="mh4">Reprendre où j'en étais pendant</h4>
+      <div class="chips">${START_MIN.map(([v,l])=>`<button type="button" class="chip" data-sm="${v}" aria-pressed="${START.min===v}">${l}</button>`).join('')}</div>
+      <p class="mnote2">${START.min===-1?'La caisse rouvre toujours sur le dernier outil utilisé : l\'outil de base ne sert que la première fois.':START.min===0?'La caisse rouvre toujours sur l\'outil de base, même après quelques secondes.':`Moins de ${START.min} minutes d'absence : tu retrouves ton outil et ta sous-rubrique. Au-delà : retour à ${esc((TOOLS.filter(t=>t.id===START.tool)[0]||TOOLS[0]).label)}.`}</p>`;
   } else if(MENU.view==='debug'){
     title.textContent='Débogage';
     const on=D&&D.estAffichee();
@@ -4131,8 +4768,10 @@ function menuRender(keep){
     const a=e.target.closest('[data-act]'); if(a){ const k=a.dataset.act;
       if(k==='debug'){ MENU.view='debug'; menuRender(); }
       else if(k==='look'){ MENU.view='look'; menuRender(); }
+      else if(k==='start'){ MENU.view='start'; menuRender(); }
       else if(k==='awake'){ AWAKE.on=!AWAKE.on; store('awake',AWAKE.on?'1':'0'); await awakeApply(); menuRender(true); toast(AWAKE.on?(AWAKE.ok===false?'Écran toujours allumé : non disponible ici.':'L\'écran reste allumé tant que la caisse est affichée.'):'L\'écran s\'éteindra normalement.'); }
       else if(k==='thReset'){ store('theme',''); Object.assign(THEME,THEME_DEF); themeApply(); menuRender(true); toast('Charte d\'origine rétablie.'); }
+      else if(k==='hpTest'){ hapticTest(); }
       else if(k==='thLink'||k==='thJson'){ const q=new URLSearchParams(); Object.entries(THEME).forEach(([a,b])=>{ if(String(b)!==String(THEME_DEF[a])) q.set(a,a==='accent'?String(b).replace('#',''):b); });
         clipCopy(k==='thLink'?location.href.split(/[?#]/)[0]+(q.toString()?'?'+q:''):JSON.stringify({type:'caisse-outils:theme',theme:THEME},null,1)); }
       else if(k==='kp'){ KP.dock=!KP.dock; store('kpDock',KP.dock?'1':'0'); if(KP.el) kpPlace(); menuRender(true); toast(KP.dock?'Clavier ancré en bas de l\'écran.':'Clavier flottant : glisse-le par sa barre.'); }
@@ -4144,6 +4783,8 @@ function menuRender(keep){
       return; }
     const th=e.target.closest('[data-th]'); if(th){ themeSet({[th.dataset.th]:th.dataset.v},true); }
     const hp=e.target.closest('[data-hp]'); if(hp){ HAPT.ms=+hp.dataset.hp; store('haptic',String(HAPT.ms)); haptic('key'); menuRender(true); }
+    const so=e.target.closest('[data-st]'); if(so){ START.tool=so.dataset.st; store('startTool',START.tool); menuRender(true); }
+    const sm=e.target.closest('[data-sm]'); if(sm){ START.min=+sm.dataset.sm; store('startMin',String(START.min)); menuRender(true); }
   });
 })();
 
@@ -4199,7 +4840,7 @@ function themeSet(o,save){ Object.keys(o||{}).forEach(k=>{ if(k in THEME_DEF&&o[
   addEventListener('message',e=>{ const d=e.data; if(!d||typeof d!=='object') return;
     if(d.type==='caisse-outils:theme') themeSet(d.theme,false);
     if(d.type==='caisse-outils:show'&&d.tool) show(d.tool); });
-  window.CaisseOutils={version:VERSION,setTheme:o=>themeSet(o,false),getTheme:()=>({...THEME}),show:id=>show(id),tools:TOOLS.map(t=>t.id),
+  window.CaisseOutils={version:VERSION,pause:()=>startPause(),reprise:()=>startReprise(),setTheme:o=>themeSet(o,false),getTheme:()=>({...THEME}),show:id=>show(id),tools:TOOLS.map(t=>t.id),
     // bouton Retour d'Android : ferme ce qui est ouvert (barre copier, fiche, menu, clavier, plein écran) ; renvoie false s'il n'y a rien à fermer
     retour:()=>{ if(CLIP.bar){ clipHide(); return true; } if(document.querySelector('.hmodal')){ closeHelp(); return true; }
       const m=document.getElementById('menu'); if(m&&!m.hidden){ if(MENU.view!=='main'){ MENU.view='main'; menuRender(); } else menuClose(); return true; }
@@ -4312,7 +4953,13 @@ if(document.fonts&&document.fonts.ready) document.fonts.ready.then(measure);
 measure(); onScroll();
 
 initSearch();
-show(store('tab')||'calc');
+show(startOutil());
+// on note l'heure de la dernière visite : c'est elle qui décide de la reprise au prochain lancement
+startVu();
+addEventListener('pagehide',startVu);
+addEventListener('beforeunload',startVu);
+document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='hidden') startPause(); else startReprise(); });
+setInterval(function(){ if(document.visibilityState!=='hidden') startVu(); },30000);
 window.__CO_OK=true;   // vu par le démarrage sûr : l'application a bien démarré
 </script>
 <script>
