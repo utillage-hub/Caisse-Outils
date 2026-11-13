@@ -1,5 +1,15 @@
 # Historique
 
+## v1.14
+- En-tête : le titre repartait sur le côté (une valeur de secours CSS avait écrasé la marge droite de la barre).
+- La remise à zéro CSS du gabarit est désormais dans la source : sans elle, les versions autonomes (APK, site) héritaient des marges du navigateur et tout était décalé.
+- Calculatrice : elle tient dans l'écran sans défilement ; en paysage, récapitulatif d'un côté et ligne de calcul en haut, côté réglable par le bouton ⇄ ou un appui long sur le clavier ; quand la place manque, les réglages a/b et deg n'affichent que le mode actif et basculent au toucher.
+- Vues 3D : matériau simple et précision réduite sur les appareils anciens (elles sortaient toutes noires), repli 2D automatique si rien n'est dessiné, et construction différée pour que l'onglet s'ouvre tout de suite.
+- Onglets : l'appui long pour les déplacer fonctionne enfin au doigt (événements tactiles dédiés).
+- Vitesses de coupe : passées de Matières à Forets.
+- Classification périodique : le tableau remplit l'écran dès l'ouverture.
+- Outil de débogage : copie adaptée aux anciens navigateurs par `outils/compat-debogage.py` (son conteneur en `inset:0` n'avait ni position ni taille).
+
 ## v1.12
 - Matières › Traitements : fiche « Nitruration et nitrocarburation » (couches, profondeurs, duretés par nuance, procédés, post-oxydation, points à préciser à la commande).
 

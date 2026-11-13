@@ -23,7 +23,7 @@ Le dossier `android/` contient la coque : une WebView qui charge `index.html` em
 
 ## Débogage
 
-Le menu › Débogage ouvre l'outil commun [`utillage-hub/outil-debogage`](https://github.com/utillage-hub/outil-debogage), dont `dist/debogage.js` est copié à la fin de `index.html`. Pour le mettre à jour, remplacer ce bloc par la nouvelle version du fichier.
+Le menu › Débogage ouvre l'outil commun [`utillage-hub/outil-debogage`](https://github.com/utillage-hub/outil-debogage), dont `dist/debogage.js` est copié à la fin de `index.html`. Pour le mettre à jour : `python3 outils/compat-debogage.py ../outil-debogage/dist/debogage.js` puis remplacer le bloc par le résultat (le script ajoute les valeurs de secours pour Chrome 78).
 
 ## Intégrer dans une application ou un site
 
