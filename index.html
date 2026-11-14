@@ -900,13 +900,13 @@ main[data-tool="calc"]{padding-bottom:12px}
   main[data-tool="usi"]>.usihead,main[data-tool="usi"]>.usicard{grid-column:1/-1}
   main[data-sec="cout"]{max-width:800px;grid-template-columns:minmax(0,1fr)}
   main[data-sec="perc"]>#ccCard,main[data-sec="frai"]>#ccCard,main[data-sec="tour"]>#ccCard{grid-column:1/-1;
-    grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto auto auto auto auto 1fr auto;column-gap:24px;align-items:start}
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto auto auto auto auto auto 1fr auto;column-gap:24px;align-items:start}
   main[data-sec="perc"]>#ccCard>*,main[data-sec="frai"]>#ccCard>*,main[data-sec="tour"]>#ccCard>*{grid-column:2}
   main[data-sec="perc"]>#ccCard>h2,main[data-sec="frai"]>#ccCard>h2,main[data-sec="tour"]>#ccCard>h2,
   main[data-sec="perc"]>#ccCard>.hint,main[data-sec="frai"]>#ccCard>.hint,main[data-sec="tour"]>#ccCard>.hint,
   main[data-sec="perc"]>#ccCard>.ccsub,main[data-sec="frai"]>#ccCard>.ccsub,main[data-sec="tour"]>#ccCard>.ccsub,
   main[data-sec="perc"]>#ccCard>.note,main[data-sec="frai"]>#ccCard>.note,main[data-sec="tour"]>#ccCard>.note{grid-column:1/-1}
-  main[data-sec="perc"]>#ccCard>.ccsch,main[data-sec="frai"]>#ccCard>.ccsch,main[data-sec="tour"]>#ccCard>.ccsch{grid-column:1;grid-row:span 4}
+  main[data-sec="perc"]>#ccCard>.ccsch,main[data-sec="frai"]>#ccCard>.ccsch,main[data-sec="tour"]>#ccCard>.ccsch{grid-column:1;grid-row:span 5}
 }
 @media (max-width:420px){.usig{grid-template-columns:1fr 1fr;gap:8px}.usit{padding:11px 11px 10px;min-height:0}
   .usit b{font-size:.95rem;margin-top:6px}.usit i{display:none}.usii{width:28px;height:28px}}
@@ -1066,7 +1066,7 @@ main[data-tool="calc"]{padding-bottom:12px}
 </script>
 
 <header>
-  <div class="bar"><div class="brand"><h1>Caisse à Outils</h1><span class="ver">v1.16</span></div>
+  <div class="bar"><div class="brand"><h1>Caisse à Outils</h1><span class="ver">v1.17</span></div>
     <div class="search" role="search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11 L14.5 14.5"/></svg><input id="q" type="text" enterkeyhint="search" placeholder="Recherche" autocomplete="off" spellcheck="false" aria-label="Recherche" role="combobox" aria-controls="sugg" aria-expanded="false" aria-autocomplete="list"></div>
     <button type="button" class="menubtn" id="menuBtn" aria-label="Ouvrir le menu"><span></span><span></span><span></span></button>
     <div class="sugg" id="sugg" role="listbox" aria-label="Suggestions" hidden></div></div>
@@ -1704,18 +1704,22 @@ function dessine3D(ren){
     return false;
   }catch(_){ return true; }
 }
-function initDrill3D(box,onPick){
+// Réglages de la forme : nombre de goujures, hélice, longueurs, âme, bout conique (foret) ou plat (fraise)
+const FORET3D={N:2,helice:30,Lb:6,Ls:3.6,ame:.17,rl:.965,zl:.07,zd:.45,plat:false,hw:5.6,cats:PART_CATS,catPart:CAT_PART};
+function initDrill3D(box,onPick,C){
+  C=C||FORET3D;
   if(!window.THREE||!GL3D().ok){ box.hidden=true; return {set(){}}; }
-  const T=THREE, R=.5, Lb=6, Ls=3.6, TR=.9, lead=Math.PI*2*R/Math.tan(30*Math.PI/180), tanP=Math.tan(59*Math.PI/180);
+  const T=THREE, R=.5, Lb=C.Lb, Ls=C.Ls, TR=.9, lead=Math.PI*2*R/Math.tan(C.helice*Math.PI/180), tanP=Math.tan(59*Math.PI/180);
+  const per=Math.PI*2/C.N, fin=r=>C.plat?Lb-(R-r)*.06:Lb+(R-r)/tanP;   // position du bout selon le rayon
   const leger=!moderne3D();   // vieux appareil : maillage divisé par quatre, l'onglet s'ouvre tout de suite
-  const J=leger?120:240, K=leger?100:200, M=leger?16:28, rw=.17*R, Rl=.965*R;
+  const J=leger?120:240, K=leger?100:200, M=leger?16:28, rw=C.ame*R, Rl=C.rl*R;
   // profil : 0 queue, 1 goujure, 2 listel, 3 dépouille, 4 pointe
   const prof=[];
   for(let j=0;j<J;j++){
-    const th=j/J*Math.PI*2, u=(th%Math.PI)/Math.PI; let r,c;
-    if(u<.07){ r=R; c=2; }
-    else if(u<.45){ r=Rl; c=3; }
-    else { const t=(u-.45)/.55, sh=t<.55?Math.pow(Math.sin(Math.PI/2*t/.55),1.1):Math.pow(Math.cos(Math.PI/2*(t-.55)/.45),.75); r=Rl-(Rl-rw)*sh; c=1; }
+    const th=j/J*Math.PI*2, u=(th%per)/per; let r,c;
+    if(u<C.zl){ r=R; c=2; }
+    else if(u<C.zd){ r=Rl; c=3; }
+    else { const t=(u-C.zd)/(1-C.zd), sh=t<.55?Math.pow(Math.sin(Math.PI/2*t/.55),1.1):Math.pow(Math.cos(Math.PI/2*(t-.55)/.45),.75); r=Rl-(Rl-rw)*sh; c=1; }
     prof.push({th,r,c});
   }
   const pos=(x,r,th)=>{ const phi=th+x/lead*Math.PI*2; return [x,r*Math.cos(phi),r*Math.sin(phi)]; };
@@ -1727,8 +1731,8 @@ function initDrill3D(box,onPick){
     g.setAttribute('color',new T.BufferAttribute(new Float32Array(rows*J*3),3)); return {g,cats};
   }
   const smooth=x=>x<=0?0:x>=1?1:x*x*(3-2*x);
-  const body=grid(K+1,(k,j)=>{ const p=prof[j], zEnd=Lb+(R-p.r)/tanP, x=zEnd*k/K, f=smooth(x/TR), r=R+(p.r-R)*f; return {p:pos(x,r,p.th),c:f<.3?3:p.c}; });
-  const tip=grid(M+1,(m,j)=>{ const p=prof[j], r=p.r*(1-m/M); return {p:pos(Lb+(R-r)/tanP,r,p.th),c:4}; });
+  const body=grid(K+1,(k,j)=>{ const p=prof[j], zEnd=fin(p.r), x=zEnd*k/K, f=smooth(x/TR), r=R+(p.r-R)*f; return {p:pos(x,r,p.th),c:f<.3?3:p.c}; });
+  const tip=grid(M+1,(m,j)=>{ const p=prof[j], r=p.r*(1-m/M); return {p:pos(fin(r),r,p.th),c:4}; });
   const shank=(()=>{ const pts=[[0,-Ls],[R-.06,-Ls],[R,-Ls+.06],[R,0]].map(([r,h])=>new T.Vector2(r,h));
     const g=new T.LatheGeometry(pts,96); g.rotateZ(-Math.PI/2); g.computeVertexNormals();
     const n=g.attributes.position.count; g.setAttribute('color',new T.BufferAttribute(new Float32Array(n*3),3)); return {g,cats:new Uint8Array(n)}; })();
@@ -1736,7 +1740,7 @@ function initDrill3D(box,onPick){
   const mat=mat3D({vertexColors:true,metalness:.35,roughness:.33,side:T.DoubleSide});
   const meshes=[body,tip,shank].map(o=>{ const m=new T.Mesh(o.g,mat); m.userData.cats=o.cats; return m; });
   const spin=new T.Group(); meshes.forEach(m=>spin.add(m));
-  spin.position.x=-(Lb+R/tanP-Ls)/2;
+  spin.position.x=-((C.plat?Lb:Lb+R/tanP)-Ls)/2;
   const turn=new T.Group(); turn.add(spin);
   const scene=new T.Scene(); scene.add(turn);
   scene.add(new T.HemisphereLight(0xffffff,0x3a3330,.75));
@@ -1747,9 +1751,9 @@ function initDrill3D(box,onPick){
   const ren=make3D(); if(!ren){ box.hidden=true; return {set(){}}; }
   box.appendChild(ren.domElement);
   function resize(){ const w=box.clientWidth, h=Math.round(w*.5); if(!w) return; ren.setSize(w,h,false); ren.domElement.style.width='100%'; ren.domElement.style.height='auto';
-    const hw=5.6, hh=hw*h/w; cam.left=-hw;cam.right=hw;cam.top=hh;cam.bottom=-hh; cam.updateProjectionMatrix(); draw(); }
+    const hw=C.hw, hh=hw*h/w; cam.left=-hw;cam.right=hw;cam.top=hh;cam.bottom=-hh; cam.updateProjectionMatrix(); draw(); }
   let sel=null;
-  function set(part){ sel=part; const on=new Set(PART_CATS[part]||[]);
+  function set(part){ sel=part; const on=new Set(C.cats[part]||[]);
     meshes.forEach(m=>{ const col=m.geometry.attributes.color, c=m.userData.cats; for(let i=0;i<c.length;i++){ const k=on.has(c[i])?HL:BASE[c[i]]; col.setXYZ(i,k.r,k.g,k.b);} col.needsUpdate=true; }); draw(); }
   function draw(){ ren.render(scene,cam); }
   // interactions : glisser = tourner, toucher = sélectionner la zone
@@ -1762,7 +1766,7 @@ function initDrill3D(box,onPick){
     if(drag.moved){ turn.rotation.y=drag.ry+dx*.012; spin.rotation.x=drag.rx+dy*.012*(e.pointerType==='mouse'?1:0); draw(); idle=performance.now(); } });
   const up=e=>{ if(drag&&!drag.moved){ const r=cv.getBoundingClientRect(), ray=new T.Raycaster();
       ray.setFromCamera({x:(e.clientX-r.left)/r.width*2-1,y:-(e.clientY-r.top)/r.height*2+1},cam);
-      const hit=ray.intersectObjects(meshes)[0]; if(hit) onPick(CAT_PART[hit.object.userData.cats[hit.face.a]]); }
+      const hit=ray.intersectObjects(meshes)[0]; if(hit) onPick(C.catPart[hit.object.userData.cats[hit.face.a]]); }
     drag=null; idle=performance.now(); };
   cv.addEventListener('pointerup',up); cv.addEventListener('pointercancel',()=>{drag=null;});
   new IntersectionObserver(([en])=>{ visible=en.isIntersecting; }).observe(box);
@@ -1773,21 +1777,142 @@ function initDrill3D(box,onPick){
   return {set};
 }
 
+
+// ----- Fraise deux tailles (fraise en bout cylindrique) : même principe que le foret -----
+const MILL_PARTS={
+  queue:['Queue','Shank',"Partie serrée dans le porte-outil. Cylindrique lisse (DIN 6535 HA) pour pince, frettage ou mandrin hydraulique ; avec méplat Weldon (HB) quand il faut empêcher la fraise de glisser en ébauche."],
+  degag:['Dégagement (col)','Neck',"Diamètre légèrement réduit entre la queue et la partie taillante. Il laisse descendre la fraise plus bas que sa longueur de coupe sans que le corps frotte contre la paroi."],
+  goujure:['Goujure','Flute',"Rainure hélicoïdale qui loge et évacue le copeau. Il y en a une par dent. Peu de dents, c'est de grandes goujures : 2 ou 3 pour l'alu et le rainurage. Beaucoup de dents, c'est une âme plus grosse et plus rigide : 4 pour les aciers, 5 et plus pour la finition et les matières dures."],
+  listel:['Listel','Margin',"Fine bande cylindrique juste derrière l'arête périphérique, au diamètre exact de la fraise. Il soutient l'arête et guide la coupe ; trop large, il frotte et chauffe."],
+  areteP:['Arête périphérique','Peripheral cutting edge',"Arête hélicoïdale sur le flanc de la fraise. C'est elle qui travaille en contournage et qui donne l'état de surface de la paroi. Sa longueur utile est la longueur de coupe."],
+  areteB:['Arête en bout','End cutting edge',"Arête située sur la face d'extrémité, une par dent. Elle coupe le fond de la poche ou de la rainure et donne l'état de surface du fond."],
+  centre:['Coupe au centre','Center cutting',"Une ou deux arêtes en bout se prolongent jusqu'à l'axe. La fraise peut alors plonger droit dans la matière comme un foret. Sans coupe au centre, on entre en rampe ou en hélice."],
+  bec:['Bec','Corner',"Jonction entre l'arête périphérique et l'arête en bout : le point le plus fragile. Vif pour un angle net, avec un petit chanfrein de protection, ou avec un rayon (fraise torique) qui tient bien mieux en ébauche et dans les matières dures."],
+  helice:["Angle d'hélice",'Helix angle',"Inclinaison des goujures par rapport à l'axe. 30° : usage général, effort axial modéré. 35 à 40° : polyvalent, coupe plus douce. 45° et plus : finition, alu, inox, mais la pièce est davantage tirée vers le haut. Une hélice variable d'une dent à l'autre casse les vibrations."],
+  lcoupe:['Longueur de coupe','Length of cut',"Hauteur de la partie taillante : la profondeur axiale maximale en contournage. Courte (1 à 1,5 × D), elle est rigide ; longue (3 × D et plus), elle fléchit et demande de réduire l'engagement radial."],
+  ltot:['Longueur totale','Overall length',"Du bout de la fraise à l'extrémité de la queue. Avec la longueur serrée dans le porte-outil, elle fixe le porte-à-faux : la flèche augmente comme le cube de la longueur sortie."],
+  dc:['Diamètre de coupe','Cutting diameter',"Diamètre du cercle décrit par les becs. C'est lui qui sert au calcul de la vitesse de rotation. La queue a souvent le même diamètre, parfois le diamètre normalisé juste au-dessus."],
+  ame:['Âme','Core',"Noyau plein au centre, entre les goujures. Plus il est gros, plus la fraise est rigide, mais moins il reste de place pour le copeau. Certaines fraises ont une âme conique, plus épaisse vers la queue."],
+  dep1:['Dépouille primaire','Primary relief',"Étroite facette inclinée juste derrière le listel (environ 6 à 12°). Elle empêche le dos de la dent de frotter sur la surface qui vient d'être coupée."],
+  dep2:['Dépouille secondaire','Secondary clearance',"Seconde facette plus inclinée (environ 15 à 25°) derrière la dépouille primaire. Elle dégage franchement le dos de la dent tout en lui laissant de la matière pour rester solide."],
+  coupe:['Angle de coupe radial','Radial rake',"Inclinaison de la face de coupe par rapport au rayon qui passe par l'arête. Positif (jusqu'à 15 à 20°) pour l'alu et les matières tendres : la dent tranche. Faible ou négatif pour les matières dures : l'arête est plus robuste."],
+  concav:['Dépouille en bout (concavité)','Dish angle',"Les arêtes en bout remontent très légèrement vers le centre (1 à 3°). Seuls les becs touchent le fond : il reste plat et le centre de la fraise ne frotte pas."],
+  pas:['Pas des dents','Tooth pitch',"Écart angulaire entre deux dents : 90° pour 4 dents régulières. Un pas inégal (par exemple 88° / 92°) évite que les dents frappent à intervalle régulier et réduit le broutement."],
+};
+const MILL_ORDER=['queue','degag','goujure','listel','areteP','areteB','centre','bec','helice','lcoupe','ltot','dc','ame','dep1','dep2','coupe','concav','pas'];
+// zones du modèle 3D : 0 queue, 1 goujure, 2 listel et arête, 3 dépouilles, 4 bout
+const MILL_CATS={queue:[0],goujure:[1],listel:[2],areteP:[2],dep1:[3],dep2:[3],areteB:[4],centre:[4],concav:[4],lcoupe:[1,2,3],ltot:[0,1,2,3,4],dc:[2],bec:[2,4]};
+const MILL_CAT_PART=['queue','goujure','listel','dep1','areteB'];
+const FRAISE3D={N:4,helice:38,Lb:3.4,Ls:4.2,ame:.5,rl:.93,zl:.06,zd:.36,plat:true,hw:5,cats:MILL_CATS,catPart:MILL_CAT_PART};
+
+function millSide(){
+  const top=32,bot=84,xq=150,xc=182,xe=330,s=44,w=22, xs=[222,270,318,366];
+  const bands=xs.map(x=>`<polygon points="${x},${top} ${x+w},${top} ${x+w-s},${bot} ${x-s},${bot}"/>`).join('');
+  const margins=xs.map(x=>`<polygon points="${x+w},${top} ${x+w+5},${top} ${x+w+5-s},${bot} ${x+w-s},${bot}"/>`).join('');
+  return `<svg viewBox="0 0 380 130" role="img" aria-label="Fraise vue de côté">
+    <defs><clipPath id="mcl"><rect x="${xc}" y="${top}" width="${xe-xc}" height="${bot-top}"/></clipPath></defs>
+    <path class="pf hitz" data-p="queue" d="M14 ${top} H${xq} V${bot} H14 L10 ${bot-4} V${top+4} Z" fill="var(--m-shank)"/>
+    <rect class="pf hitz" data-p="degag" x="${xq}" y="${top+3}" width="${xc-xq}" height="${bot-top-6}" fill="var(--m-land)"/>
+    <g clip-path="url(#mcl)">
+      <rect class="pf hitz" data-p="dep1" x="${xc}" y="${top}" width="${xe-xc}" height="${bot-top}" fill="var(--m-land)"/>
+      <g class="pf hitz" data-p="goujure" fill="var(--m-flute)">${bands}</g>
+      <g class="pf pm hitz" data-p="listel" fill="var(--m-margin)">${margins}</g>
+    </g>
+    <path d="M10 ${top+4} L14 ${top} H${xq} V${top+3} H${xc} V${top} H${xe} V${bot} H${xc} V${bot-3} H${xq} V${bot} H14 L10 ${bot-4} Z M${xq} ${top+3} V${bot-3}" fill="none" stroke="var(--m-edge)" stroke-width="1.2"/>
+    <path class="ps hitz" data-p="areteP" d="M${xc} ${top} H${xe} M${xc} ${bot} H${xe}" fill="none" stroke="var(--m-edge)" stroke-width="2.6"/>
+    <path class="ps hitz" data-p="areteB" d="M${xe} ${top} V${bot}" fill="none" stroke="var(--m-edge)" stroke-width="2.6"/>
+    <path class="pl hitz" data-p="concav" d="M${xe} ${top} L${xe-7} 58 L${xe} ${bot}" stroke-dasharray="2 2"/>
+    <circle class="pf pm hitz" data-p="bec" cx="${xe}" cy="${top}" r="3.5" fill="var(--m-edge)"/>
+    <circle class="pf pm hitz" data-p="bec" cx="${xe}" cy="${bot}" r="3.5" fill="var(--m-edge)"/>
+    <g class="pl" data-p="helice"><path d="M196 84 L262 84" stroke-dasharray="3 2"/><path d="M228 84 A24 24 0 0 0 222 67"/></g>
+    <text class="pt" data-p="helice" x="230" y="97">λ ≈ 38°</text>
+    <g class="pl" data-p="lcoupe"><path d="M${xc} 18 H${xe} M${xc} 14 V22 M${xe} 14 V22"/></g>
+    <text class="pt" data-p="lcoupe" x="${(xc+xe)/2}" y="11" text-anchor="middle">longueur de coupe</text>
+    <g class="pl" data-p="ltot"><path d="M10 110 H${xe} M10 106 V114 M${xe} 106 V114"/></g>
+    <text class="pt" data-p="ltot" x="170" y="124" text-anchor="middle">longueur totale</text>
+    <g class="pl" data-p="dc"><path d="M347 ${top} V${bot} M343 ${top} H351 M343 ${bot} H351"/></g>
+    <text class="pt" data-p="dc" x="354" y="61">Dc</text>
+    <text class="pt" x="78" y="62" text-anchor="middle" data-p="queue">queue</text>
+    <text class="pt" x="${(xq+xc)/2}" y="28" text-anchor="middle" data-p="degag">col</text>
+  </svg>`;
+}
+function millEnd(){
+  const P=(r,a)=>{ const t=a*Math.PI/180; return (r*Math.cos(t)).toFixed(1)+' '+(r*Math.sin(t)).toFixed(1); };
+  const XY=(r,a)=>{ const t=a*Math.PI/180; return [(r*Math.cos(t)).toFixed(1),(r*Math.sin(t)).toFixed(1)]; };
+  let dents='',lis='',d1='',d2='',ab='',becs='',ctr='';
+  for(let i=0;i<4;i++){ const a=i*90-20;
+    dents+=`<path d="M${P(30,a+10)} L${P(70,a)} A70 70 0 0 0 ${P(70,a-7)} L${P(64,a-24)} L${P(54,a-52)} Q${P(36,a-60)} ${P(30,a-80)} Z"/>`;
+    lis+=`M${P(70,a)} A70 70 0 0 0 ${P(70,a-7)} `;
+    d1+=`M${P(70,a-7)} L${P(64,a-24)} `; d2+=`M${P(64,a-24)} L${P(54,a-52)} `;
+    ab+=`M${P(70,a)} L${P(30,a+10)} `;
+    if(i%2===0) ctr+=`M${P(30,a+10)} L${P(3,a+100)} `;
+    const b=XY(70,a); becs+=`<circle class="pf pm hitz" data-p="bec" cx="${b[0]}" cy="${b[1]}" r="3.5" fill="var(--m-edge)"/>`;
+  }
+  return `<svg viewBox="-80 -80 160 160" role="img" aria-label="Fraise vue de bout">
+    <circle class="pf hitz" data-p="goujure" r="70" fill="var(--m-flute)"/>
+    <circle class="pf hitz" data-p="ame" r="31" fill="var(--m-land)"/>
+    <g class="pf hitz" data-p="concav" fill="var(--m-land)">${dents}</g>
+    <circle class="pl hitz" data-p="ame" r="31" stroke-dasharray="2.5 2"/>
+    <path class="ps hitz" data-p="listel" d="${lis}" fill="none" stroke="var(--m-margin)" stroke-width="5"/>
+    <path class="ps hitz" data-p="dep1" d="${d1}" fill="none" stroke="var(--m-edge)" stroke-width="2.4" stroke-linecap="round"/>
+    <path class="ps hitz" data-p="dep2" d="${d2}" fill="none" stroke="var(--m-edge)" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="5 3"/>
+    <path class="ps hitz" data-p="areteB" d="${ab}" fill="none" stroke="var(--m-edge)" stroke-width="2.4" stroke-linecap="round"/>
+    <path class="ps hitz" data-p="centre" d="${ctr}" fill="none" stroke="var(--m-edge)" stroke-width="2.6" stroke-linecap="round"/>
+    <path class="pl" data-p="coupe" d="M0 0 L${P(78,70)}" stroke-dasharray="3 2"/>
+    <path class="pl hitz" data-p="pas" d="M${P(76,-20)} A76 76 0 0 1 ${P(76,70)} M${P(72,-20)} L${P(79,-20)} M${P(72,70)} L${P(79,70)}"/>
+    ${becs}
+    <circle class="pl hitz" data-p="dc" r="70" stroke-dasharray="1.5 3"/>
+  </svg>`;
+}
+
+// Fiche d'anatomie : même présentation pour le foret et la fraise
+const ANAT={
+  foret:{id:'foret',titre:"Anatomie d'un foret hélicoïdal",parts:PARTS,ordre:PART_ORDER,cote:drillSide,bout:drillEnd,capBout:'Vue de bout (pointe)',
+    aide:'Touche un nom, une zone du dessin ou du foret 3D pour la repérer.',cle:'drillPart',defaut:'listel',c3:()=>FORET3D},
+  fraise:{id:'fraise',titre:"Anatomie d'une fraise deux tailles",parts:MILL_PARTS,ordre:MILL_ORDER,cote:millSide,bout:millEnd,capBout:'Vue de bout',
+    aide:'Touche un nom, une zone du dessin ou de la fraise 3D pour la repérer. Fraise cylindrique à 4 dents, la plus courante en atelier.',cle:'millPart',defaut:'areteP',c3:()=>FRAISE3D}};
+function anatPanneau(o){
+  return `<div class="anat" data-anat="${o.id}">
+      <h2>${o.titre}</h2>
+      <div class="iso3d" data-r="d3"><span class="iso3d-tag">Vue isométrique · glisse pour tourner</span></div>
+      <div class="def" data-r="def" aria-live="polite"></div>
+      <div class="chips" data-r="chips">${o.ordre.map(k=>`<button class="chip" data-k="${k}">${o.parts[k][0]}</button>`).join('')}</div>
+      <div class="views"><div>${o.cote()}<div class="vcap">Vue de côté</div></div><div>${o.bout()}<div class="vcap">${o.capBout}</div></div></div>
+      <p class="hint" style="margin:0">${o.aide}</p></div>`;
+}
+function anatBind(view,o){
+  const anat=view.querySelector('.anat[data-anat="'+o.id+'"]'); if(!anat) return {montre(){}};
+  let sel=store(o.cle); if(!o.parts[sel]) sel=o.defaut;
+  const dDef=anat.querySelector('[data-r="def"]'), boite=anat.querySelector('[data-r="d3"]');
+  // la 3D est lourde à construire : on ne la monte qu'à la première ouverture de l'onglet
+  let d3={set(){}}, monte=false;
+  function montre(){ if(monte) return; monte=true;
+    setTimeout(()=>{ if(!view.isConnected) return;
+      try{ d3=initDrill3D(boite,k=>choose(k),o.c3()); d3.set(sel); }
+      catch(_){ if(boite) boite.hidden=true; } },0); }
+  function paint(){
+    anat.querySelectorAll('[data-p]').forEach(n=>n.classList.toggle('on',n.dataset.p===sel));
+    anat.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c.dataset.k===sel));
+    const [fr,en,t]=o.parts[sel];
+    dDef.innerHTML=`<strong>${fr}</strong><em>EN : ${en}</em><p>${t}</p>`;
+    d3.set(sel);
+  }
+  function choose(k){ if(!o.parts[k]) return; sel=k; store(o.cle,k); paint(); }
+  anat.addEventListener('click',e=>{ const n=e.target.closest('[data-k],[data-p]'); if(n) choose(n.dataset.k||n.dataset.p); });
+  paint();
+  return {montre};
+}
+
 // Rubriques documentaires de l'outil (anatomie, matériaux, revêtements, angles, normes, matières ISO,
 // fabricants) : elles vivent dans Usinage › Information outils.
 function drillPanneaux(){
   const panel=(k,html)=>`<section class="card dpanel" data-panel="${k}">${html}</section>`;
   return `
-    ${panel('anat',`<div class="anat">
-      <h2>Anatomie d'un foret hélicoïdal</h2>
-      <div class="iso3d" id="d3"><span class="iso3d-tag">Vue isométrique · glisse pour tourner</span></div>
-      <div class="def" id="dDef" aria-live="polite"></div>
-      <div class="chips" id="dChips">${PART_ORDER.map(k=>`<button class="chip" data-k="${k}">${PARTS[k][0]}</button>`).join('')}</div>
-      <div class="views"><div>${drillSide()}<div class="vcap">Vue de côté</div></div><div>${drillEnd()}<div class="vcap">Vue de bout (pointe)</div></div></div>
-      <p class="hint" style="margin:0">Touche un nom, une zone du dessin ou du foret 3D pour la repérer.</p></div>`)}
+    ${panel('foret',anatPanneau(ANAT.foret))}
+    ${panel('fraise',anatPanneau(ANAT.fraise))}
     ${panel('iso',`<h2>Groupes de matières ISO</h2><p class="hint" style="margin:0">Code couleur commun aux catalogues Sandvik, Seco, Walter, Mitsubishi… pour choisir la nuance et le revêtement.</p>
       <div class="iso">${ISO_GROUPS.map(([l,c,dk,t])=>`<div class="isoc ${dk}" style="background:${c}"><b>${l}</b><span>${t}</span></div>`).join('')}</div>`)}
-    ${panel('mat',`<h2>Matériaux des forets</h2>`+DRILL_MATS.map(([n,sub,t,m])=>`<div class="item" style="grid-template-columns:minmax(0,1fr)"><h3>${n}</h3><div class="sub">${sub}</div><p style="grid-column:1">${t}</p><div class="meta" style="grid-column:1">${m.map(x=>`<span>${x}</span>`).join('')}</div></div>`).join('')+
+    ${panel('mat',`<h2>Matériaux des outils coupants</h2>`+DRILL_MATS.map(([n,sub,t,m])=>`<div class="item" style="grid-template-columns:minmax(0,1fr)"><h3>${n}</h3><div class="sub">${sub}</div><p style="grid-column:1">${t}</p><div class="meta" style="grid-column:1">${m.map(x=>`<span>${x}</span>`).join('')}</div></div>`).join('')+
       `<h3 style="margin:8px 0 0;font:600 1rem var(--body)">Nuances de carbure</h3><div class="tbl"><table><thead><tr><th>Nuance</th><th>Grain / liant</th><th>Usage</th></tr></thead><tbody>${CARBIDE.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</tbody></table></div>`)}
     ${panel('coat',`<h2>Revêtements et couleurs</h2><p class="hint" style="margin:0">La couleur aide à reconnaître un revêtement, mais chaque fabricant a ses recettes : vérifier sur la boîte ou le catalogue.</p>`+
       COATS.map(([n,bg,col,use,m])=>`<div class="item"><div class="sw" style="background:${bg}"></div><h3>${n}</h3><div class="sub" style="grid-column:2">${col}</div><p>${use}</p>${m.length?`<div class="meta">${m.map(x=>`<span>${x}</span>`).join('')}</div>`:''}</div>`).join('')+
@@ -1820,28 +1945,6 @@ function drillPanneaux(){
       <p class="note">Les gammes évoluent : vérifier la référence exacte sur le catalogue du fabricant.</p>`)}
   `;
 }
-function drillBind(view){
-  let sel=store('drillPart'); if(!PARTS[sel]) sel='listel';
-  const anat=view.querySelector('.anat'); if(!anat) return;
-  const dDef=view.querySelector('#dDef');
-  // la 3D est lourde à construire : on la monte juste après l'affichage de l'onglet
-  let d3={set(){}};
-  setTimeout(()=>{ if(!view.isConnected) return;
-    const boite=view.querySelector('#d3');
-    try{ d3=initDrill3D(boite,k=>choose(k)); d3.set(sel); }
-    catch(_){ if(boite) boite.hidden=true; } },0);
-  function paint(){
-    anat.querySelectorAll('[data-p]').forEach(n=>n.classList.toggle('on',n.dataset.p===sel));
-    anat.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c.dataset.k===sel));
-    const [fr,en,t]=PARTS[sel];
-    dDef.innerHTML=`<strong>${fr}</strong><em>EN : ${en}</em><p>${t}</p>`;
-    d3.set(sel);
-  }
-  function choose(k){ if(!PARTS[k]) return; sel=k; store('drillPart',k); paint(); }
-  anat.addEventListener('click',e=>{ const n=e.target.closest('[data-k],[data-p]'); if(n) choose(n.dataset.k||n.dataset.p); });
-  paint();
-}
-
 // ---------- CALCUL : calculatrice, fractions exactes, historique ----------
 // Les nombres restent des fractions exactes (BigInt) tant que possible : 3/4 + 1/6 = 11/12, 8×5,82 = 46,56 sans erreur d'arrondi.
 // Les fonctions (sin, √2, log…) passent en décimal (12 chiffres significatifs).
@@ -3036,6 +3139,7 @@ function ccCard(force){
   '<div class="ccres" id="ccRes" aria-live="polite"></div></div>'+
   '<details class="sec"><summary>Détail du calcul</summary><div class="secb"><div class="ccdet" id="ccDet"></div></div></details>'+
   '<details class="sec"><summary>Formules employées</summary><div class="secb" id="ccFx"></div></details>'+
+  '<details class="sec" id="ccAbq"><summary>Abaque des vitesses de coupe</summary><div class="secb">'+vcInner()+'</div></details>'+
 
   '<p class="note">Valeurs de dimensionnement : elles situent l\'effort, le couple et la puissance. Les données du fabricant d\'outil et la rigidité de la machine priment toujours. Sources : '+
   CC_SRC.map(function(s){ return '<a href="'+s[1]+'" target="_blank" rel="noopener">'+s[0]+'</a>'; }).join(' · ')+'.</p></section>';
@@ -3182,6 +3286,10 @@ function ccBind(root,force){
     const v=V[k]; return v==null||v===''?'':String(v);
   });
   majSub(); majMat(); majChamps();
+  vcBind(card);
+  // arrivée depuis la recherche « vitesses de coupe » : l'abaque s'ouvre tout seul
+  if(store('ccAbq')==='1'){ store('ccAbq','0'); const ab=card.querySelector('#ccAbq');
+    if(ab){ ab.open=true; setTimeout(function(){ try{ ab.scrollIntoView({block:'start'}); }catch(e){} },120); } }
 }
 
 // --- sélecteur de matière : groupes ISO ou base Matières de la Caisse à Outils ---
@@ -3672,23 +3780,22 @@ function renderUsi(view){
 }
 
 // --- Information outils : les rubriques documentaires et l'abaque des vitesses ---
-const INFO_TABS=[['anat','Anatomie'],['mat','Matériaux'],['coat','Revêtements'],['ang','Angles'],['norm','Normes'],['iso','Matières ISO'],['vc','Vitesses de coupe'],['fab','Fabricants']];
+const INFO_TABS=[['foret','Forets'],['fraise','Fraises'],['mat','Matériaux'],['coat','Revêtements'],['ang','Angles'],['norm','Normes'],['iso','Matières ISO'],['fab','Fabricants']];
 function usiInfo(view){
-  let tab=store('infoTab'); if(!INFO_TABS.some(function(t){ return t[0]===tab; })) tab='anat';
+  let tab=store('infoTab'); if(!INFO_TABS.some(function(t){ return t[0]===tab; })) tab='foret';   // anciens onglets Anatomie et Vitesses de coupe
   view.append(el('<div class="subnav" role="tablist" aria-label="Information outils">'+
     INFO_TABS.map(function(t){ return '<button role="tab" data-t="'+t[0]+'">'+t[1]+'</button>'; }).join('')+'</div>'));
-  view.append(el('<div class="dpanels">'+drillPanneaux()+
-    '<section class="card dpanel" data-panel="vc"><h2>Vitesses de coupe</h2>'+vcInner()+'</section></div>'));
+  view.append(el('<div class="dpanels">'+drillPanneaux()+'</div>'));
   const nav=view.querySelector('.subnav');
+  const fiches={foret:anatBind(view,ANAT.foret),fraise:anatBind(view,ANAT.fraise)};
   function sel(){
     nav.querySelectorAll('[data-t]').forEach(function(b){ b.setAttribute('aria-selected',b.dataset.t===tab); });
     view.querySelectorAll('.dpanel').forEach(function(p){ p.hidden=p.dataset.panel!==tab; });
+    if(fiches[tab]) fiches[tab].montre();
   }
   nav.addEventListener('click',function(e){ const b=e.target.closest('[data-t]'); if(!b) return;
     tab=b.dataset.t; store('infoTab',tab); sel(); });
   sel();
-  drillBind(view);
-  vcBind(view);
 }
 
 // --- Coût d'usinage à la pièce et au lot ---
@@ -4515,9 +4622,11 @@ function buildIdx(){
   add('Pourcentage','Départ, %, différence, valeur finale','pct','pourcent % remise reduction rabais solde augmentation hausse baisse diminution majoration marge variation evolution taux',go('pct',()=>store('pctTab','pct')));
   add('Taraudage','Filetage métrique ISO à pas gros','usi','taraud filetage filet pas metrique iso percage avant taraudage vis ecrou usinage',us('tar'));
   add('Trigonométrie','Triangle rectangle : côtés et angles','trigo','trigo triangle rectangle sinus cosinus tangente sin cos tan hypotenuse pythagore angle cote adjacent oppose perimetre aire',go('trigo'));
-  add('Forets','Anatomie, matériaux, revêtements','usi','foret meche percage helicoidal anatomie usinage outil',us('info',()=>store('infoTab','anat')));
+  add('Forets','Anatomie, matériaux, revêtements','usi','foret meche percage helicoidal anatomie usinage outil',us('info',()=>store('infoTab','foret')));
+  add('Fraises','Anatomie d\'une fraise deux tailles','usi','fraise fraisage deux tailles en bout cylindrique anatomie dent goujure usinage outil',us('info',()=>store('infoTab','fraise')));
+  MILL_ORDER.forEach(k=>{ const [fr,en]=MILL_PARTS[k]; add(fr,'Anatomie de la fraise · '+en,'usi','fraise',us('info',()=>{ store('infoTab','fraise'); store('millPart',k); })); });
   METRIC.forEach(([D,P])=>add('Taraud M'+fmt(D,2),`pas ${fmt(P,3)} · foret Ø ${fmt(tapDrill(D,P),3)} mm`,'usi','taraud filetage percage usinage',us('tar',()=>store('tapSel',D))));
-  PART_ORDER.forEach(k=>{ const [fr,en]=PARTS[k]; add(fr,'Anatomie du foret · '+en,'usi','foret',us('info',()=>{ store('infoTab','anat'); store('drillPart',k); })); });
+  PART_ORDER.forEach(k=>{ const [fr,en]=PARTS[k]; add(fr,'Anatomie du foret · '+en,'usi','foret',us('info',()=>{ store('infoTab','foret'); store('drillPart',k); })); });
   ISO_GROUPS.forEach(([l,,,t])=>add('Groupe ISO '+l,t,'usi','iso matiere groupe',dt('iso')));
   DRILL_MATS.forEach(([n,sub])=>add(n,sub,'usi','materiau foret',dt('mat')));
   COATS.forEach(([n,,col,use])=>add(n,col,'usi','revetement couleur '+use,dt('coat')));
@@ -4531,7 +4640,7 @@ function buildIdx(){
     fm.groups.forEach((gr,gi)=>gr.g.forEach((g,i)=>{ const {main,alt}=splitG(g); const L2=main.replace(/[\s\-]/g,'')+' '+alt.replace(/[\s\-]/g,'');
       add(main+(alt?' ('+alt+')':''),fm.f+' · '+gr.n+(gr.iso?' · ISO '+gr.iso:''),'mat','nuance '+L2+' '+({'AISI 304':'18/8 18/10 1.4301 x5crni18-10','AISI 304L':'1.4307','AISI 316L':'1.4404','AISI 316':'1.4401'}[main]||''),go('mat',()=>{ store('matFam',fm.id); store('matPick',fi+'.'+gi+'.'+i); })); })); });
   MAT_PROC.forEach(x=>add(x.t,'Matières · Traitements et chimie','mat','traitement chimie surface '+x.kv.map(k=>k[0]).join(' ')+(x.id==='anod'?' oas anodiser oxydation anodique colmatage':x.id==='depol'?' depolissage matage gravure marquage electrolyse acide javel':x.id==='nitru'?' nitruration nitrocarburation nitrure azote couche blanche combinaison diffusion profondeur 0,4 mm dureté hv nitral tenifer melonite tufftride nitreg nitrotec plasma ionique bain de sels gazeuse post-oxydation iso 18203 nht':' eau regale dissolution or acide nitrique chlorhydrique'),go('mat',()=>store('matProc',x.id))));
-  add('Vitesses de coupe','Forets · perçage, tournage, fraisage, taraudage · HSS et carbure','usi','vitesse coupe vc rotation tr/min tours minute avance hss carbure percage tournage fraisage matiere',dt('vc'));
+  add('Vitesses de coupe','Abaque · perçage, tournage, fraisage, taraudage · HSS et carbure','usi','vitesse coupe vc rotation tr/min tours minute avance hss carbure percage tournage fraisage matiere abaque',us('perc',()=>store('ccAbq','1')));
   add('Profilés','IPE, IPN, HEA, HEB, UPN, cornières, plats, tubes','prof','profile profil poutrelle poutre mecano soudure mecanosoudure acier masse kg/m',go('prof'));
   PROF.forEach(pf=>{ add(pf.n,'Profilés · '+pf.d,'prof','profile '+pf.norm,go('prof',()=>store('profFam',pf.id)));
     (pf.rows||[]).forEach((r,i)=>{ const nm=profName(pf,r); add(nm,pf.n+' · '+fmt(profKg(pf,r),2)+' kg/m','prof',nm.replace(/×/g,'x')+' '+nm.replace(/[×\s]/g,'')+(pf.t==='RHS'||pf.t==='CHS'?' tube':'')+(pf.id==='corn'?' corniere':''),go('prof',()=>{ store('profFam',pf.id); store('profPick',String(i)); })); }); });

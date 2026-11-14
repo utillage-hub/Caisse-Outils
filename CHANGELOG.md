@@ -1,5 +1,10 @@
 # Historique
 
+## v1.17
+- Information outils : l'onglet « Anatomie » devient deux onglets, **Forets** et **Fraises**. La fraise deux tailles (4 dents) reçoit la même fiche que le foret : modèle 3D à faire tourner, vue de côté, vue de bout, 18 termes définis en français et en anglais, repérables depuis le dessin, la 3D ou la recherche.
+- Le modèle 3D est partagé entre foret et fraise (nombre de goujures, hélice, âme, bout conique ou plat) et ne se construit qu'à la première ouverture de son onglet.
+- L'onglet « Vitesses de coupe » quitte Information outils : l'abaque se déplie dans Conditions de coupe, là où il sert à choisir Vc.
+
 ## v1.16
 - **Usinage** : les onglets Forets et Taraudage fusionnent en une rubrique qui s'ouvre sur six icônes : Perçage, Taraudage, Fraisage, Tournage, Information outils, Coûts. L'ordre d'onglets mémorisé, la recherche et les anciens identifiants (`tap`, `drill`) suivent.
 - **Comprendre l'opération** : un schéma animé par opération (pièce, outil, rotation, avance, cotes). Toucher une cote ou une pastille donne sa définition et sa valeur du moment ; un texte explique l'opération et ses limites. Bouton pour figer l'animation, respect de « réduire les animations ».
