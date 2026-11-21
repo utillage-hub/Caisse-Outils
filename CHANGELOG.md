@@ -1,5 +1,13 @@
 # Historique
 
+## v1.18
+- Nouvel onglet **Informatique** avec **Transfert de fichiers** : l'appli Android ouvre un vrai serveur FTP sur le Wi-Fi local. Adresse affichée en grand, identifiant, mot de passe, marche à suivre en quatre lignes pour l'Explorateur Windows ou le Finder, liste des fichiers reçus (ouvrir, partager, supprimer) et journal d'activité.
+- Mode **Envoyer** : la Caisse à Outils se connecte à un serveur FTP existant et y dépose les fichiers cochés.
+- Serveur FTP écrit en Java sans dépendance : mode passif, LIST et MLSD, reprise de transfert, renommage, suppression, noms accentués, et refus de toute sortie du dossier partagé. Essayé pour de bon hors Android (aller-retour de 3 Mo, client Python et client maison).
+- Le partage tient dans un service de premier plan avec notification, et garde le Wi-Fi éveillé.
+- **Bandeau haut Android** : la barre d'état ne suivait pas la couleur choisie, parce qu'une page web ne peut pas la peindre. L'appli la règle maintenant côté natif à chaque changement d'accent, en adaptant la couleur des icônes.
+- **Vues 3D** : le contrôle « le rendu est-il vide ? » lisait un tampon déjà effacé et pouvait déclarer la 3D en panne alors qu'elle fonctionne. Tampon conservé, deuxième essai avant de conclure, et le motif exact est affiché quand la 3D est vraiment indisponible.
+
 ## v1.17
 - Information outils : l'onglet « Anatomie » devient deux onglets, **Forets** et **Fraises**. La fraise deux tailles (4 dents) reçoit la même fiche que le foret : modèle 3D à faire tourner, vue de côté, vue de bout, 18 termes définis en français et en anglais, repérables depuis le dessin, la 3D ou la recherche.
 - Le modèle 3D est partagé entre foret et fraise (nombre de goujures, hélice, âme, bout conique ou plat) et ne se construit qu'à la première ouverture de son onglet.

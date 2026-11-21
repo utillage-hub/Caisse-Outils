@@ -1,6 +1,6 @@
 # Caisse à Outils
 
-Boîte à outils d'atelier en une seule page web (`index.html`), sans dépendance à installer : calcul exact avec fractions, pourcentages et TVA, usinage (perçage, taraudage, fraisage, tournage avec schémas animés, information outils, coûts), base matières, classification périodique, profilés, conteneurs ISO (3D et 2D), trigonométrie.
+Boîte à outils d'atelier en une seule page web (`index.html`), sans dépendance à installer : calcul exact avec fractions, pourcentages et TVA, usinage (perçage, taraudage, fraisage, tournage avec schémas animés, information outils, coûts), base matières, transfert de fichiers par FTP, classification périodique, profilés, conteneurs ISO (3D et 2D), trigonométrie.
 
 Fonctionne sur téléphone, tablette et ordinateur, en clair et en sombre, hors ligne une fois chargée (seuls three.js et les polices viennent d'un CDN).
 

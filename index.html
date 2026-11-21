@@ -789,6 +789,49 @@ html.embed body::before{display:none}
 .crow.compact .seg button[aria-pressed="true"]::after{content:" ⇄";opacity:.65;font-size:.85em}
 .crow.compact .seg{border-color:var(--red)}
 main[data-tool="calc"]{padding-bottom:12px}
+/* Transfert de fichiers */
+.ftmode{width:100%;display:flex}
+.ftmode button{flex:1 1 0;min-height:42px}
+.ftvue{display:grid;gap:10px;min-width:0}
+.ftgo{width:100%;box-sizing:border-box;min-height:54px;border:0;border-radius:var(--rc,8px);
+  background:var(--red);color:var(--on-red,#fff);font:600 1.05rem var(--body);cursor:pointer}
+.ftgo.stop{background:var(--kfn);color:var(--kfn-fg)}
+.ftgo:disabled{opacity:.5;cursor:default}
+.ftgo:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.ftlive{display:flex;align-items:center;font:600 .9rem var(--body);color:var(--ok)}
+.ftpuce{width:9px;height:9px;border-radius:50%;background:var(--ok);margin-right:7px;flex:0 0 auto}
+.ouvert .ftpuce{animation:ftbat 1.8s ease-in-out infinite}
+@keyframes ftbat{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.ouvert .ftpuce{animation:none}}
+.ftoff{margin:0;font:500 .9rem var(--body);color:var(--muted)}
+.ftadr{display:block;width:100%;box-sizing:border-box;margin-top:6px;padding:11px 12px;border:1px dashed var(--line);
+  border-radius:var(--rc,8px);background:var(--calc);color:var(--calc-fg);font:600 1.15rem var(--num);
+  text-align:center;cursor:pointer;word-break:break-all}
+.ftadr:hover{border-color:var(--red)}
+.ftkpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:6px;margin-top:8px}
+.ftkpi div{background:var(--chip);border-radius:var(--rc,8px);padding:6px 9px;min-width:0}
+.ftkpi span{display:block;font:600 .66rem var(--body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.ftkpi b{font:600 .95rem var(--num);word-break:break-all}
+.ftpas{margin:0;padding-left:20px;display:grid;gap:5px;font-size:.9rem;line-height:1.45}
+.ftpas b{font-family:var(--num);word-break:break-all}
+.fthead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.fthead h3{margin:0;font:600 1.1rem var(--display)}
+.ftliste{display:grid;gap:5px;min-width:0}
+.ftf{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;
+  background:var(--chip);border-radius:var(--rc,8px);padding:8px 10px;min-width:0}
+.ftfn{min-width:0;font:500 .92rem var(--body);word-break:break-word}
+.ftfn i{display:block;font:500 .74rem var(--num);font-style:normal;color:var(--muted)}
+.ftfa{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ftfa .btn{padding:5px 10px;font-size:.78rem;min-height:34px}
+.ftcase{display:inline-flex;align-items:center;gap:7px;font:500 .84rem var(--body);cursor:pointer;min-height:34px}
+.ftcase input{width:20px;height:20px;flex:0 0 auto;accent-color:var(--red)}
+.ftacts{display:flex;gap:8px;flex-wrap:wrap}
+.ftmsg{margin:0;font:500 .86rem var(--body);color:var(--muted);min-height:1.2em}
+.ftmsg.ok{color:var(--ok)} .ftmsg.err{color:var(--bad)}
+.ftdist{display:grid;gap:4px}
+.ftlog{display:grid;gap:3px;max-height:220px;overflow-y:auto}
+.ftlg{font:500 .78rem var(--num);color:var(--muted);border-bottom:1px solid var(--line);padding:4px 0}
+.ftsec>summary{font-size:1rem;padding:10px 14px}
 /* Conditions de coupe */
 #ccCard{position:relative}
 .ccsub{margin:0}
@@ -897,7 +940,9 @@ main[data-tool="calc"]{padding-bottom:12px}
 .usiback:focus-visible{outline:2px solid var(--red);outline-offset:2px}
 /* Usinage sur grand écran : l'en-tête prend la largeur, le schéma se place à côté des saisies */
 @media (min-width:960px){
-  main[data-tool="usi"]>.usihead,main[data-tool="usi"]>.usicard{grid-column:1/-1}
+  main[data-tool="usi"]>.usihead,main[data-tool="usi"]>.usicard,
+  main[data-tool="net"]>.usihead,main[data-tool="net"]>.usicard,main[data-tool="net"]>#ftCard{grid-column:1/-1}
+  main[data-tool="net"][data-sec="ft"]{max-width:860px}
   main[data-sec="cout"]{max-width:800px;grid-template-columns:minmax(0,1fr)}
   main[data-sec="perc"]>#ccCard,main[data-sec="frai"]>#ccCard,main[data-sec="tour"]>#ccCard{grid-column:1/-1;
     grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto auto auto auto auto auto 1fr auto;column-gap:24px;align-items:start}
@@ -1066,7 +1111,7 @@ main[data-tool="calc"]{padding-bottom:12px}
 </script>
 
 <header>
-  <div class="bar"><div class="brand"><h1>Caisse à Outils</h1><span class="ver">v1.17</span></div>
+  <div class="bar"><div class="brand"><h1>Caisse à Outils</h1><span class="ver">v1.18</span></div>
     <div class="search" role="search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11 L14.5 14.5"/></svg><input id="q" type="text" enterkeyhint="search" placeholder="Recherche" autocomplete="off" spellcheck="false" aria-label="Recherche" role="combobox" aria-controls="sugg" aria-expanded="false" aria-autocomplete="list"></div>
     <button type="button" class="menubtn" id="menuBtn" aria-label="Ouvrir le menu"><span></span><span></span><span></span></button>
     <div class="sugg" id="sugg" role="listbox" aria-label="Suggestions" hidden></div></div>
@@ -1093,6 +1138,7 @@ const TOOLS = [
   {id:'per', label:'Éléments', aria:'Classification périodique', icon:'<svg viewBox="0 0 30 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="6" y="1.5" width="18" height="21" rx="2"/><text x="15" y="17" text-anchor="middle" font-size="10" font-weight="700" font-family="sans-serif" fill="currentColor" stroke="none">Fe</text><path d="M9 5.5h4" stroke-width="1.5"/></svg>', render:renderPer},
   {id:'prof', label:'Profilés', icon:'<svg viewBox="0 0 30 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M7 3 H23 V7 H17 V17 H23 V21 H7 V17 H13 V7 H7 Z"/></svg>', render:renderProf},
   {id:'cont', label:'Conteneurs', icon:'<svg viewBox="0 0 30 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M2 9 L9 4.5 H28 L21 9 Z"/><path d="M2 9 H21 V21 H2 Z"/><path d="M21 9 L28 4.5 V16.5 L21 21"/><path d="M5 11.5V18.5M8 11.5V18.5M11 11.5V18.5M14 11.5V18.5M17 11.5V18.5" stroke-width="1.2"/><path d="M23.3 9.6V18.6M25.8 8V17" stroke-width="1.4"/></svg>', render:renderCont},
+  {id:'net', label:'Informatique', aria:'Informatique : transfert de fichiers', icon:'<svg viewBox="0 0 30 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="17" height="12" rx="2"/><path d="M7 19 H14"/><path d="M10.5 15 V19"/><path d="M22 9 V21"/><path d="M18.5 12.5 L22 9 L25.5 12.5"/><path d="M27 21 H17"/></svg>', render:renderNet},
   {id:'trigo', label:'Trigo', icon:'<svg viewBox="0 0 30 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21 H27 V3 Z" stroke-linejoin="round"/><path d="M22 21 V16 H27" stroke-width="1.5"/></svg>', render:renderTrigo},
 ];
 const tabs=document.getElementById('tabs'); let view=document.getElementById('view');
@@ -1680,7 +1726,8 @@ const moderne3D=()=>{ const i=GL3D(); return i.gl2&&i.highp; };
 function make3D(opts){
   const T=window.THREE, i=GL3D(); if(!T||!i.ok) return null;
   try{
-    const ren=new T.WebGLRenderer(Object.assign({antialias:moderne3D(),alpha:true,precision:i.highp?'highp':'mediump'},opts||{}));
+    const ren=new T.WebGLRenderer(Object.assign({antialias:moderne3D(),alpha:true,precision:i.highp?'highp':'mediump',
+      preserveDrawingBuffer:true},opts||{}));   // sans cela, la vérification « a-t-on dessiné ? » lit un tampon déjà vidé
     ren.setPixelRatio(Math.min(devicePixelRatio||1,moderne3D()?2:1.5));
     if(moderne3D()&&'outputEncoding' in ren) ren.outputEncoding=T.sRGBEncoding;
     return ren;
@@ -1694,15 +1741,30 @@ function mat3D(o){
   return new T.MeshPhongMaterial(Object.assign({shininess:Math.max(4,Math.round(90*(1-rug))),specular:0x2a2a2a},base));
 }
 // Après le premier rendu : si rien n'a été dessiné au centre, la 3D ne marche pas ici.
-function dessine3D(ren){
+// On redessine une fois avant de conclure : certains pilotes ne remplissent le tampon qu'au second passage.
+let MOTIF3D='';
+function dessine3D(ren,redessine){
   try{
-    const g=ren.getContext(), w=ren.domElement.width, h=ren.domElement.height;
-    if(!g||!w||!h) return true;
-    const n=24, px=new Uint8Array(n*n*4);
-    g.readPixels(Math.max(0,(w>>1)-(n>>1)),Math.max(0,(h>>1)-(n>>1)),n,n,g.RGBA,g.UNSIGNED_BYTE,px);
-    for(let k=0;k<px.length;k+=4) if(px[k+3]>8&&(px[k]>14||px[k+1]>14||px[k+2]>14)) return true;
+    const g=ren.getContext();
+    if(!g) { MOTIF3D='contexte perdu'; return false; }
+    for(let essai=0;essai<2;essai++){
+      if(essai&&typeof redessine==='function'){ try{ redessine(); }catch(e){} }
+      const w=ren.domElement.width, h=ren.domElement.height;
+      if(!w||!h) return true;                    // pas encore dimensionné : on ne juge pas
+      const n=24, px=new Uint8Array(n*n*4);
+      g.readPixels(Math.max(0,(w>>1)-(n>>1)),Math.max(0,(h>>1)-(n>>1)),n,n,g.RGBA,g.UNSIGNED_BYTE,px);
+      for(let k=0;k<px.length;k+=4) if(px[k+3]>8&&(px[k]>14||px[k+1]>14||px[k+2]>14)) return true;
+    }
+    MOTIF3D='rendu vide';
     return false;
-  }catch(_){ return true; }
+  }catch(_){ return true; }                      // lecture refusée : on laisse la 3D vivre
+}
+// Pourquoi la 3D n'est pas disponible, en clair, pour l'afficher à l'utilisateur
+function pourquoiPas3D(){
+  if(!window.THREE) return 'bibliothèque 3D absente';
+  const i=GL3D();
+  if(!i.ok) return 'cet appareil ne propose pas la 3D (WebGL)';
+  return MOTIF3D||'la 3D n\'a pas pu démarrer';
 }
 // Réglages de la forme : nombre de goujures, hélice, longueurs, âme, bout conique (foret) ou plat (fraise)
 const FORET3D={N:2,helice:30,Lb:6,Ls:3.6,ame:.17,rl:.965,zl:.07,zd:.45,plat:false,hw:5.6,cats:PART_CATS,catPart:CAT_PART};
@@ -1773,7 +1835,7 @@ function initDrill3D(box,onPick,C){
   (function loop(t){ if(!box.isConnected) return; requestAnimationFrame(loop);
     if(!reduce&&visible&&!drag&&t-idle>1500){ spin.rotation.x+=.006; draw(); } })(0);
   new ResizeObserver(resize).observe(box); resize();
-  if(!dessine3D(ren)){ try{ ren.dispose(); }catch(_){} box.hidden=true; return {set(){}}; }
+  if(!dessine3D(ren,draw)){ try{ ren.dispose(); }catch(_){} box.hidden=true; return {set(){}}; }
   return {set};
 }
 
@@ -1945,6 +2007,246 @@ function drillPanneaux(){
       <p class="note">Les gammes évoluent : vérifier la référence exacte sur le catalogue du fabricant.</p>`)}
   `;
 }
+
+// ---------- INFORMATIQUE : transfert de fichiers ----------
+// Le partage est tenu par l'application Android (serveur FTP natif) : une page web ne peut pas
+// ouvrir de port. Hors APK, l'écran explique la situation au lieu de proposer un bouton inerte.
+const NET_SECS=[['ft','Transfert de fichiers','Recevoir ou envoyer des fichiers entre ce téléphone et un ordinateur, par le Wi-Fi.']];
+const NET_IC={ft:'<svg viewBox="0 0 30 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="17" height="12" rx="2"/><path d="M7 19 H14"/><path d="M10.5 15 V19"/><path d="M22 9 V21"/><path d="M18.5 12.5 L22 9 L25.5 12.5"/><path d="M27 21 H17"/></svg>'};
+const NET={sec:store('netSec')||''};
+function ftpAppel(nom,arg){ try{ const P=window.NB; if(!P||typeof P[nom]!=='function') return null;
+  return arg===undefined?P[nom]():P[nom](arg); }catch(e){ return null; } }
+function ftpJson(nom,arg){ const r=ftpAppel(nom,arg); if(r==null) return null;
+  try{ return JSON.parse(r); }catch(e){ return null; } }
+const octets=o=>{ o=+o; if(!isFinite(o)||o<0) return '—';
+  if(o<1024) return o+' o'; if(o<1048576) return fmt(o/1024,1)+' ko';
+  if(o<1073741824) return fmt(o/1048576,1)+' Mo'; return fmt(o/1073741824,2)+' Go'; };
+const FT_DEF={port:2121,utilisateur:'caisse',motDePasse:'outils',ecriture:true};
+function ftReglages(){ let r={}; try{ r=JSON.parse(store('ftCfg')||'{}')||{}; }catch(e){ r={}; }
+  return Object.assign({},FT_DEF,r); }
+function ftClient(){ let r={}; try{ r=JSON.parse(store('ftCli')||'{}')||{}; }catch(e){ r={}; }
+  return Object.assign({hote:'',port:21,utilisateur:'',motDePasse:'',chemin:''},r); }
+
+function netGrille(){
+  return '<section class="card usicard"><h2>Informatique</h2>'+
+  '<p class="hint" style="margin:0">Les outils qui n\'ont pas besoin d\'un atelier.</p>'+
+  '<div class="usig">'+NET_SECS.map(function(x){
+    return '<button class="usit" data-nsec="'+x[0]+'"><span class="usii">'+NET_IC[x[0]]+'</span>'+
+      '<b>'+esc(x[1])+'</b><i>'+esc(x[2])+'</i></button>'; }).join('')+'</div></section>';
+}
+function netEntete(sec){
+  const x=NET_SECS.filter(function(y){ return y[0]===sec; })[0];
+  return '<div class="usihead"><button class="usiback" aria-label="Revenir aux outils informatiques">‹ Informatique</button>'+
+    '<span class="usii sm">'+NET_IC[sec]+'</span><b>'+esc(x[1])+'</b></div>';
+}
+function renderNet(view){
+  view.dataset.sec=NET.sec||'';
+  if(NET.sec!=='ft'){ view.append(el(netGrille()));
+    view.addEventListener('click',function(e){ const b=e.target.closest('[data-nsec]'); if(!b) return;
+      NET.sec=b.dataset.nsec; store('netSec',NET.sec); show('net'); window.scrollTo(0,0); });
+    return; }
+  view.append(el(netEntete('ft')));
+  view.querySelector('.usiback').addEventListener('click',function(){ NET.sec=''; store('netSec',''); show('net'); window.scrollTo(0,0); });
+  view.append(el(ftCard()));
+  ftBind(view);
+}
+
+function ftCard(){
+  const dispo=typeof NB!=='undefined'&&NB&&typeof NB.ftpDemarrer==='function';
+  const c=ftReglages(), k=ftClient();
+  const champ=(id,lib,val,type,ph)=>'<label class="ccf" for="'+id+'"><span class="ccl">'+esc(lib)+'</span>'+
+    '<input id="'+id+'" type="'+(type||'text')+'" autocomplete="off" autocapitalize="none" spellcheck="false" value="'+esc(val==null?'':String(val))+'"'+(ph?' placeholder="'+esc(ph)+'"':'')+'></label>';
+  return '<section class="card" id="ftCard"><h2>Transfert de fichiers</h2>'+
+  (dispo?'':'<p class="ccwarn">Cet écran a besoin de l\'application Android : seule elle peut ouvrir un partage sur le réseau. Dans le navigateur, les réglages se préparent mais le partage ne démarre pas.</p>')+
+  '<div class="seg ftmode" role="group" aria-label="Sens du transfert">'+
+    '<button data-md="rec" aria-pressed="true">Recevoir</button><button data-md="env" aria-pressed="false">Envoyer</button></div>'+
+
+  // ----- recevoir -----
+  '<div class="ftvue" data-md="rec">'+
+    '<div class="ftetat" id="ftEtat"></div>'+
+    '<button class="ftgo" id="ftGo" type="button"></button>'+
+    '<div class="ftmode-aide" id="ftAide"></div>'+
+    '<details class="sec ftsec"><summary>Réglages du partage</summary><div class="secb">'+
+      '<div class="ccin">'+champ('ftPort','Port',c.port)+champ('ftUser','Identifiant',c.utilisateur)+champ('ftPass','Mot de passe',c.motDePasse)+'</div>'+
+      '<label class="ftcase"><input type="checkbox" id="ftEcr"'+(c.ecriture?' checked':'')+'> <span>Autoriser le dépôt de fichiers (sinon le partage est en lecture seule)</span></label>'+
+      '<p class="note">Laisser l\'identifiant et le mot de passe vides ouvre le partage à tout le monde sur le réseau. Le port doit rester au-dessus de 1024.</p>'+
+    '</div></details>'+
+  '</div>'+
+
+  // ----- envoyer -----
+  '<div class="ftvue" data-md="env" hidden>'+
+    '<p class="hint" style="margin:0">Dépose des fichiers de ce téléphone sur un serveur FTP déjà en place (un ordinateur, un NAS, une machine).</p>'+
+    '<div class="ccin">'+champ('ftcHote','Adresse du serveur',k.hote,'text','192.168.1.20')+champ('ftcPort','Port',k.port)+'</div>'+
+    '<div class="ccin">'+champ('ftcUser','Identifiant',k.utilisateur)+champ('ftcPass','Mot de passe',k.motDePasse,'password')+champ('ftcDir','Dossier distant',k.chemin,'text','/')+'</div>'+
+    '<div class="ftacts"><button class="btn" type="button" data-a="tester">Tester la connexion</button>'+
+      '<button class="btn solid" type="button" data-a="envoyer">Envoyer les fichiers cochés</button></div>'+
+    '<p class="ftmsg" id="ftcMsg"></p>'+
+    '<div class="ftdist" id="ftcDist"></div>'+
+  '</div>'+
+
+  // ----- dossier commun -----
+  '<div class="fthead"><h3>Dossier partagé</h3><button class="btn" type="button" data-a="ajouter">Ajouter des fichiers</button></div>'+
+  '<p class="note" id="ftDossier"></p>'+
+  '<div class="ftliste" id="ftListe"></div>'+
+  '<details class="sec ftsec"><summary>Journal du partage</summary><div class="secb"><div class="ftlog" id="ftLog"></div></div></details>'+
+  '</section>';
+}
+
+function ftBind(view){
+  const card=view.querySelector('#ftCard'); if(!card) return;
+  const dispo=typeof NB!=='undefined'&&NB&&typeof NB.ftpDemarrer==='function';
+  const zEtat=card.querySelector('#ftEtat'), bGo=card.querySelector('#ftGo'), zAide=card.querySelector('#ftAide'),
+        zListe=card.querySelector('#ftListe'), zLog=card.querySelector('#ftLog'), zDoss=card.querySelector('#ftDossier'),
+        zMsg=card.querySelector('#ftcMsg'), zDist=card.querySelector('#ftcDist');
+  let mode=store('ftMode')==='env'?'env':'rec', etat=null, coches={};
+
+  function lireReglages(){
+    const c={port:Math.round(parse(card.querySelector('#ftPort').value))||FT_DEF.port,
+      utilisateur:card.querySelector('#ftUser').value.trim(),
+      motDePasse:card.querySelector('#ftPass').value,
+      ecriture:card.querySelector('#ftEcr').checked};
+    if(c.port<1024||c.port>65535) c.port=FT_DEF.port;
+    store('ftCfg',JSON.stringify(c)); return c;
+  }
+  function lireClient(){
+    const k={hote:card.querySelector('#ftcHote').value.trim(),
+      port:Math.round(parse(card.querySelector('#ftcPort').value))||21,
+      utilisateur:card.querySelector('#ftcUser').value.trim(),
+      motDePasse:card.querySelector('#ftcPass').value,
+      chemin:card.querySelector('#ftcDir').value.trim()};
+    store('ftCli',JSON.stringify(k)); return k;
+  }
+
+  function rafraichir(){
+    etat=dispo?ftpJson('ftpEtat'):null;
+    const actif=!!(etat&&etat.actif);
+    card.classList.toggle('ouvert',actif);
+    bGo.textContent=actif?'Fermer le partage':'Ouvrir le partage';
+    bGo.className='ftgo'+(actif?' stop':'');
+    bGo.disabled=!dispo;
+    if(!etat){
+      zEtat.innerHTML='<p class="ftoff">Partage indisponible hors de l\'application Android.</p>';
+      zAide.innerHTML=''; zDoss.textContent=''; zListe.innerHTML=''; zLog.innerHTML='';
+      return;
+    }
+    const ad=etat.adresses||[], c=ftReglages();
+    if(actif){
+      const url=ad.length?('ftp://'+ad[0]+':'+etat.port):'(en attente du Wi-Fi)';
+      zEtat.innerHTML='<div class="ftlive"><span class="ftpuce"></span>Partage ouvert</div>'+
+        '<button class="ftadr" type="button" data-a="copier" title="Copier l\'adresse">'+esc(url)+'</button>'+
+        (ad.length>1?'<p class="note">Autres adresses : '+ad.slice(1).map(a=>esc('ftp://'+a+':'+etat.port)).join(' · ')+'</p>':'')+
+        '<div class="ftkpi"><div><span>Identifiant</span><b>'+esc(c.utilisateur||'(aucun)')+'</b></div>'+
+        '<div><span>Mot de passe</span><b>'+esc(c.motDePasse||'(aucun)')+'</b></div>'+
+        '<div><span>Reçus</span><b>'+etat.recus+'</b></div>'+
+        '<div><span>Envoyés</span><b>'+etat.envoyes+'</b></div></div>';
+      zAide.innerHTML='<ol class="ftpas"><li>L\'ordinateur et ce téléphone doivent être sur <b>le même Wi-Fi</b>.</li>'+
+        '<li>Sur l\'ordinateur, ouvre l\'<b>Explorateur de fichiers</b> (ou le Finder : Aller → Se connecter au serveur).</li>'+
+        '<li>Colle <b>'+esc(url)+'</b> dans la barre d\'adresse et valide.</li>'+
+        '<li>Saisis l\'identifiant et le mot de passe ci-dessus, puis glisse tes fichiers.</li></ol>';
+    } else {
+      zEtat.innerHTML='<p class="ftoff">Partage fermé. Ouvre-le pour que l\'ordinateur puisse déposer ou prendre des fichiers.</p>';
+      zAide.innerHTML='';
+    }
+    zDoss.textContent=(etat.prive?'Dossier de l\'application : ':'Dossier : ')+etat.dossier+
+      (etat.prive?' — les fichiers reçus s\'ouvrent depuis la liste ci-dessous.':'');
+    const f=etat.fichiers||[];
+    zListe.innerHTML=f.length?f.map(function(x){
+      return '<div class="ftf"><span class="ftfn">'+(x.taille<0?'<b>[dossier]</b> ':'')+esc(x.nom)+
+        '<i>'+(x.taille<0?'':octets(x.taille))+'</i></span>'+
+        '<span class="ftfa">'+(x.taille<0?'':
+          '<label class="ftcase"><input type="checkbox" data-ck="'+esc(x.nom)+'"'+(coches[x.nom]?' checked':'')+'><span>Envoyer</span></label>'+
+          '<button class="btn" type="button" data-f="ouvrir" data-n="'+esc(x.nom)+'">Ouvrir</button>'+
+          '<button class="btn" type="button" data-f="partager" data-n="'+esc(x.nom)+'">Partager</button>'+
+          '<button class="btn danger" type="button" data-f="suppr" data-n="'+esc(x.nom)+'">Supprimer</button>')+'</span></div>';
+    }).join(''):'<p class="hint" style="margin:0">Aucun fichier pour l\'instant.</p>';
+    const j=etat.journal||[];
+    zLog.innerHTML=j.length?j.map(function(l){ return '<div class="ftlg">'+esc(l)+'</div>'; }).join(''):'<p class="hint" style="margin:0">Rien à signaler.</p>';
+  }
+
+  function majMode(){
+    card.querySelectorAll('.ftmode [data-md]').forEach(function(b){ b.setAttribute('aria-pressed',b.dataset.md===mode); });
+    card.querySelectorAll('.ftvue').forEach(function(v){ v.hidden=v.dataset.md!==mode; });
+    store('ftMode',mode);
+  }
+
+  card.addEventListener('click',function(e){
+    const m=e.target.closest('.ftmode [data-md]');
+    if(m){ mode=m.dataset.md; majMode(); return; }
+    if(e.target.closest('#ftGo')){
+      if(!dispo) return;
+      if(etat&&etat.actif){ ftpAppel('ftpArreter'); toast('Partage fermé.'); }
+      else {
+        const r=ftpJson('ftpDemarrer',JSON.stringify(lireReglages()));
+        if(r&&r.ok===false){ toast(r.erreur||'Le partage n\'a pas pu s\'ouvrir.'); }
+        else toast('Partage ouvert.');
+      }
+      rafraichir(); return;
+    }
+    const a=e.target.closest('[data-a]');
+    if(a){
+      const q=a.dataset.a;
+      if(q==='copier'&&etat&&etat.adresses&&etat.adresses.length) clipCopy('ftp://'+etat.adresses[0]+':'+etat.port);
+      if(q==='ajouter'){ if(dispo) ftpAppel('ftpAjouter'); else toast('Disponible seulement dans l\'application Android.'); }
+      if(q==='tester'){ lancerClient('ftpcLister'); }
+      if(q==='envoyer'){
+        const noms=Object.keys(coches).filter(function(k){ return coches[k]; });
+        if(!noms.length){ toast('Coche d\'abord les fichiers à envoyer.'); return; }
+        lancerClient('ftpcEnvoyer',noms);
+      }
+      return;
+    }
+    const f=e.target.closest('[data-f]');
+    if(f){
+      const nom=f.dataset.n;
+      if(f.dataset.f==='ouvrir'&&!ftpAppel('ftpOuvrir',nom)) toast('Aucune application ne sait ouvrir ce fichier.');
+      if(f.dataset.f==='partager') ftpAppel('ftpPartager',nom);
+      if(f.dataset.f==='suppr'){ if(ftpAppel('ftpSupprimer',nom)){ delete coches[nom]; toast('Supprimé.'); rafraichir(); } }
+    }
+  });
+  card.addEventListener('change',function(e){
+    const c=e.target.closest('[data-ck]'); if(c){ coches[c.dataset.ck]=c.checked; return; }
+    if(e.target.id==='ftEcr') lireReglages();
+  });
+  card.addEventListener('input',function(e){
+    if(e.target.closest('.ftvue[data-md="rec"] .ccin')) lireReglages();
+    if(e.target.closest('.ftvue[data-md="env"] .ccin')) lireClient();
+  });
+
+  function lancerClient(quoi,noms){
+    if(!dispo){ toast('Disponible seulement dans l\'application Android.'); return; }
+    const k=lireClient();
+    if(!k.hote){ toast('Indique l\'adresse du serveur.'); return; }
+    zMsg.textContent=quoi==='ftpcEnvoyer'?'Envoi en cours…':'Connexion…';
+    zMsg.className='ftmsg';
+    const q=Object.assign({},k); if(noms) q.fichiers=noms;
+    ftpAppel(quoi,JSON.stringify(q));
+  }
+  // réponses du mode « Envoyer » (le réseau prend du temps : la passerelle rappelle la page)
+  window.__ftpc=function(r){
+    if(!card.isConnected) return;
+    if(r.ok===false){ zMsg.textContent='Échec : '+r.erreur; zMsg.className='ftmsg err'; return; }
+    if(r.action==='liste'){
+      zMsg.textContent='Connecté. Dossier distant : '+r.dossier; zMsg.className='ftmsg ok';
+      const e=r.entrees||[];
+      zDist.innerHTML='<p class="mh">Contenu du serveur</p>'+(e.length?e.map(function(x){
+        return '<div class="ftf"><span class="ftfn">'+(x.dossier?'<b>[dossier]</b> ':'')+esc(x.nom)+
+          '<i>'+(x.dossier?'':octets(x.taille))+'</i></span></div>'; }).join(''):'<p class="hint" style="margin:0">Dossier vide.</p>');
+    }
+    if(r.action==='progres'){ zMsg.textContent='Envoi de '+r.nom+' ('+(r.fait+1)+' sur '+r.total+')…'; zMsg.className='ftmsg'; }
+    if(r.action==='fini'){ zMsg.textContent=r.fait+' fichier'+(r.fait>1?'s':'')+' envoyé'+(r.fait>1?'s':'')+'.'; zMsg.className='ftmsg ok'; }
+  };
+  window.__ftpAjout=function(k){
+    if(!card.isConnected) return;
+    toast(k>0?(k+' fichier'+(k>1?'s':'')+' ajouté'+(k>1?'s':'')+'.'):(k===0?'Aucun fichier ajouté.':'Sélection impossible.'));
+    rafraichir();
+  };
+
+  majMode(); rafraichir();
+  // pendant que l'écran est ouvert, on suit l'activité du partage
+  const minuteur=setInterval(function(){ if(!card.isConnected){ clearInterval(minuteur); return; }
+    if(dispo&&document.visibilityState!=='hidden') rafraichir(); },2500);
+}
+
 // ---------- CALCUL : calculatrice, fractions exactes, historique ----------
 // Les nombres restent des fractions exactes (BigInt) tant que possible : 3/4 + 1/6 = 11/12, 8×5,82 = 46,56 sans erreur d'arrondi.
 // Les fonctions (sin, √2, log…) passent en décimal (12 chiffres significatifs).
@@ -4459,7 +4761,7 @@ function cont3D(box,c,onPart){
   cv.addEventListener('touchend',e=>{ if(e.touches.length<2) setTimeout(()=>{ pinch=null; },50); });
   cv.style.cursor='grab';
   new ResizeObserver(resize).observe(box); resize();
-  if(!dessine3D(ren)){ try{ ren.dispose(); }catch(_){} cv.remove(); return null; }
+  if(!dessine3D(ren,draw)){ try{ ren.dispose(); }catch(_){} cv.remove(); return null; }
   return {
     view:f=>{ const a=CF_CAM[f]||CF_CAM.iso; go(a[0],a[1],f==='iso'?1:st.zoom); },
     turn:(dth,dph)=>go(st.th+dth,Math.max(-89,Math.min(89,st.ph+dph))),
@@ -4487,7 +4789,7 @@ function contViewer(host,c){
     if(mode==='3d'&&diff&&!v3&&!essai3D){ // on affiche d'abord l'onglet, la 3D se monte juste après
       st3.hidden=false; st2.hidden=true; hint.textContent='Préparation de la vue 3D…';
       setTimeout(()=>{ if(host.isConnected) paint(); },0); return; }
-    if(mode==='3d'&&!ok3()){ mode='2d'; hint.textContent='La 3D ne fonctionne pas sur cet appareil : les vues 2D la remplacent.'; }
+    if(mode==='3d'&&!ok3()){ mode='2d'; hint.textContent='La 3D ne s\'affiche pas ici ('+pourquoiPas3D()+') : les vues 2D la remplacent.'; }
     host.querySelectorAll('[data-m]').forEach(b=>b.setAttribute('aria-checked',b.dataset.m===mode));
     const list=mode==='3d'?CF:faces2; if(mode==='2d'&&face==='iso') face='door';
     fc.innerHTML=list.map(([f])=>`<button type="button" class="chip" role="tab" data-f="${f}" aria-selected="${f===face}">${esc(CF_NAME(c.k,f))}</button>`).join('');
@@ -4640,6 +4942,8 @@ function buildIdx(){
     fm.groups.forEach((gr,gi)=>gr.g.forEach((g,i)=>{ const {main,alt}=splitG(g); const L2=main.replace(/[\s\-]/g,'')+' '+alt.replace(/[\s\-]/g,'');
       add(main+(alt?' ('+alt+')':''),fm.f+' · '+gr.n+(gr.iso?' · ISO '+gr.iso:''),'mat','nuance '+L2+' '+({'AISI 304':'18/8 18/10 1.4301 x5crni18-10','AISI 304L':'1.4307','AISI 316L':'1.4404','AISI 316':'1.4401'}[main]||''),go('mat',()=>{ store('matFam',fm.id); store('matPick',fi+'.'+gi+'.'+i); })); })); });
   MAT_PROC.forEach(x=>add(x.t,'Matières · Traitements et chimie','mat','traitement chimie surface '+x.kv.map(k=>k[0]).join(' ')+(x.id==='anod'?' oas anodiser oxydation anodique colmatage':x.id==='depol'?' depolissage matage gravure marquage electrolyse acide javel':x.id==='nitru'?' nitruration nitrocarburation nitrure azote couche blanche combinaison diffusion profondeur 0,4 mm dureté hv nitral tenifer melonite tufftride nitreg nitrotec plasma ionique bain de sels gazeuse post-oxydation iso 18203 nht':' eau regale dissolution or acide nitrique chlorhydrique'),go('mat',()=>store('matProc',x.id))));
+  add('Transfert de fichiers','Recevoir ou envoyer des fichiers par le Wi-Fi','net','ftp serveur wifi reseau partage envoyer recevoir ordinateur pc fichier transfert informatique',()=>{ NET.sec='ft'; store('netSec','ft'); });
+  add('Informatique','Transfert de fichiers','net','informatique reseau ftp wifi',()=>{ NET.sec=''; store('netSec',''); });
   add('Vitesses de coupe','Abaque · perçage, tournage, fraisage, taraudage · HSS et carbure','usi','vitesse coupe vc rotation tr/min tours minute avance hss carbure percage tournage fraisage matiere abaque',us('perc',()=>store('ccAbq','1')));
   add('Profilés','IPE, IPN, HEA, HEB, UPN, cornières, plats, tubes','prof','profile profil poutrelle poutre mecano soudure mecanosoudure acier masse kg/m',go('prof'));
   PROF.forEach(pf=>{ add(pf.n,'Profilés · '+pf.d,'prof','profile '+pf.norm,go('prof',()=>store('profFam',pf.id)));
@@ -4934,7 +5238,10 @@ function themeApply(){
   R.classList.toggle('hdr-neutral',THEME.header==='neutral');
   const h1=document.querySelector('.brand h1'); if(h1&&THEME.title) h1.textContent=THEME.title;
   document.title=THEME.title||THEME_DEF.title;
-  const mt=document.querySelector('meta[name="theme-color"]'); if(mt) mt.content=THEME.header==='neutral'?card:v['--red'];
+  const teinte=THEME.header==='neutral'?card:v['--red'];
+  const mt=document.querySelector('meta[name="theme-color"]'); if(mt) mt.content=teinte;
+  // dans l'APK, la barre d'état d'Android ignore theme-color : il faut la peindre côté natif
+  try{ if(window.NB&&typeof NB.couleurBandeau==='function') NB.couleurBandeau(teinte); }catch(e){}
 }
 function themeSet(o,save){ Object.keys(o||{}).forEach(k=>{ if(k in THEME_DEF&&o[k]!=null&&o[k]!=='') THEME[k]=k==='radius'?+o[k]:String(o[k]); }); themeApply(); if(save) store('theme',JSON.stringify(THEME)); if(MENU.view==='look'&&!document.getElementById('menu').hidden) menuRender(true); }
 (function themeInit(){

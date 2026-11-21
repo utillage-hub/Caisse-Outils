@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dossiers que l'application accepte de partager avec les autres applis (ouvrir, envoyer). -->
+<paths>
+    <external-files-path name="transfert" path="Transfert/" />
+    <external-path name="telechargements" path="Download/Caisse a Outils/" />
+</paths>
