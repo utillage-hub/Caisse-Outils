@@ -34,6 +34,7 @@ public class ServiceFtp extends Service {
     private static final int NOTIF = 4201;
 
     private static ServeurFtp serveur;
+    private static ServeurWeb web;          // page de dépannage : c'est elle que vise le code QR
     private static File dossier;
     private static final LinkedList<String> journal = new LinkedList<String>();
 
@@ -43,6 +44,8 @@ public class ServiceFtp extends Service {
 
     public static boolean actif() { return serveur != null && serveur.tourne(); }
     public static ServeurFtp serveur() { return serveur; }
+    public static ServeurWeb web() { return web; }
+    public static int portWeb() { return web != null && web.tourne() ? web.port() : 0; }
     public static File dossier() { return dossier; }
 
     public static List<String> journal() {
@@ -66,11 +69,23 @@ public class ServiceFtp extends Service {
         s.demarrer();                       // échoue ici si le port est déjà pris : rien n'est démarré
         serveur = s;
         dossier = racine;
+        // le partage par navigateur vit sur le port suivant ; s'il échoue, le FTP marche quand même
+        try {
+            ServeurWeb w = new ServeurWeb(racine, port + 1, ecriture, new ServeurFtp.Journal() {
+                public void ligne(String t) { noter(t); }
+            });
+            w.demarrer();
+            web = w;
+        } catch (IOException e) {
+            web = null;
+            noter("Page navigateur indisponible (port " + (port + 1) + " occupé).");
+        }
         Intent i = new Intent(c, ServiceFtp.class);
         if (Build.VERSION.SDK_INT >= 26) c.startForegroundService(i); else c.startService(i);
     }
 
     public static void fermer(Context c) {
+        if (web != null) { web.arreter(); web = null; }
         if (serveur != null) { serveur.arreter(); serveur = null; }
         try { c.stopService(new Intent(c, ServiceFtp.class)); } catch (Exception ignore) { }
     }
@@ -124,7 +139,8 @@ public class ServiceFtp extends Service {
         }
         List<String> ip = adresses();
         String texte = ip.isEmpty() ? "En attente du Wi-Fi"
-                : "ftp://" + ip.get(0) + ":" + (serveur != null ? serveur.port() : 2121);
+                : (web != null && web.tourne() ? "http://" + ip.get(0) + ":" + web.port()
+                                               : "ftp://" + ip.get(0) + ":" + (serveur != null ? serveur.port() : 2121));
         PendingIntent ouvrir = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class),
                 Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
 
@@ -148,6 +164,7 @@ public class ServiceFtp extends Service {
     public void onDestroy() {
         try { if (verrouWifi != null && verrouWifi.isHeld()) verrouWifi.release(); } catch (Exception ignore) { }
         verrouWifi = null;
+        if (web != null) { web.arreter(); web = null; }
         if (serveur != null) { serveur.arreter(); serveur = null; }
         super.onDestroy();
     }

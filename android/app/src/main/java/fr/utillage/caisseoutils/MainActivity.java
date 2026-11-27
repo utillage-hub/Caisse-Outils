@@ -456,8 +456,11 @@ public class MainActivity extends Activity {
                 o.put("actif", actif);
                 o.put("port", actif ? s.port() : 0);
                 o.put("clients", actif ? s.clients() : 0);
-                o.put("recus", actif ? s.recus() : 0);
-                o.put("envoyes", actif ? s.envoyes() : 0);
+                ServeurWeb w = ServiceFtp.web();
+                boolean siteOk = w != null && w.tourne();
+                o.put("portWeb", siteOk ? w.port() : 0);
+                o.put("recus", (actif ? s.recus() : 0) + (siteOk ? w.recus() : 0));
+                o.put("envoyes", (actif ? s.envoyes() : 0) + (siteOk ? w.envoyes() : 0));
                 File d = dossierPartage();
                 o.put("dossier", d.getAbsolutePath());
                 o.put("prive", d.getAbsolutePath().contains("/Android/data/"));

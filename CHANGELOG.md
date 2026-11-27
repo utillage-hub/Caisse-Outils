@@ -1,5 +1,11 @@
 # Historique
 
+## v1.19
+- **Code QR** dans Transfert de fichiers : on scanne, la page de partage s'ouvre dans le navigateur d'en face. Encodeur écrit à la main (mode octet, correction M, versions 1 à 10), vérifié en décodant 68 codes avec OpenCV, dont celui affiché par l'application elle-même.
+- **Page de partage par navigateur** : à côté du serveur FTP, l'appli sert une page unique sur le port suivant. On y dépose des fichiers et on récupère ceux du téléphone, depuis n'importe quel appareil, sans rien installer. Essayée hors Android : envoi de 4 Mo, noms accentués, téléchargement, sortie du dossier refusée.
+- L'adresse mise en avant devient `http://…`, l'adresse FTP passe en seconde ligne pour les logiciels qui l'exigent.
+- **Animation d'explication** en trois temps (ouvrir le partage, se connecter, les fichiers passent), figée si le système demande de réduire les animations.
+
 ## v1.18
 - Nouvel onglet **Informatique** avec **Transfert de fichiers** : l'appli Android ouvre un vrai serveur FTP sur le Wi-Fi local. Adresse affichée en grand, identifiant, mot de passe, marche à suivre en quatre lignes pour l'Explorateur Windows ou le Finder, liste des fichiers reçus (ouvrir, partager, supprimer) et journal d'activité.
 - Mode **Envoyer** : la Caisse à Outils se connecte à un serveur FTP existant et y dépose les fichiers cochés.
